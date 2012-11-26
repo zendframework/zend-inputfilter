@@ -10,24 +10,39 @@
 
 namespace Zend\InputFilter;
 
+use Zend\InputFilter\InputFilterInterface;
+
 /**
- * @category   Zend
- * @package    Zend_InputFilter
+ * @category  Zend
+ * @package   Zend_InputFilter
  */
-interface InputFilterAwareInterface
+trait InputFilterAwareTrait
 {
+    /**
+     * @var InputFilterInterface
+     */
+    protected $inputFilter = null;
+
     /**
      * Set input filter
      *
-     * @param  InputFilterInterface $inputFilter
-     * @return InputFilterAwareInterface
+     * @param InputFilterInterface $inputFilter
+     * @return mixed
      */
-    public function setInputFilter(InputFilterInterface $inputFilter);
+    public function setInputFilter(InputFilterInterface $inputFilter)
+    {
+        $this->inputFilter = $inputFilter;
+
+        return $this;
+    }
 
     /**
      * Retrieve input filter
      *
      * @return InputFilterInterface
      */
-    public function getInputFilter();
+    public function getInputFilter()
+    {
+        return $this->inputFilter;
+    }
 }

@@ -11,21 +11,21 @@
 namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_TestCase as TestCase;
-use Zend\InputFilter\Input;
+use Zend\InputFilter\FileInput;
 use Zend\Filter;
 use Zend\Validator;
 
-class InputTest extends TestCase
+class FileInputTest extends TestCase
 {
     public function testConstructorRequiresAName()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $this->assertEquals('foo', $input->getName());
     }
 
     public function testInputHasEmptyFilterChainByDefault()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $filters = $input->getFilterChain();
         $this->assertInstanceOf('Zend\Filter\FilterChain', $filters);
         $this->assertEquals(0, count($filters));
@@ -33,7 +33,7 @@ class InputTest extends TestCase
 
     public function testInputHasEmptyValidatorChainByDefault()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $validators = $input->getValidatorChain();
         $this->assertInstanceOf('Zend\Validator\ValidatorChain', $validators);
         $this->assertEquals(0, count($validators));
@@ -41,7 +41,7 @@ class InputTest extends TestCase
 
     public function testCanInjectFilterChain()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $chain = new Filter\FilterChain();
         $input->setFilterChain($chain);
         $this->assertSame($chain, $input->getFilterChain());
@@ -49,7 +49,7 @@ class InputTest extends TestCase
 
     public function testCanInjectValidatorChain()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $chain = new Validator\ValidatorChain();
         $input->setValidatorChain($chain);
         $this->assertSame($chain, $input->getValidatorChain());
@@ -57,55 +57,57 @@ class InputTest extends TestCase
 
     public function testInputIsMarkedAsRequiredByDefault()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $this->assertTrue($input->isRequired());
     }
 
     public function testRequiredFlagIsMutable()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $input->setRequired(false);
         $this->assertFalse($input->isRequired());
     }
 
     public function testInputDoesNotAllowEmptyValuesByDefault()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $this->assertFalse($input->allowEmpty());
     }
 
     public function testAllowEmptyFlagIsMutable()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $input->setAllowEmpty(true);
         $this->assertTrue($input->allowEmpty());
     }
 
     public function testValueIsNullByDefault()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $this->assertNull($input->getValue());
     }
 
     public function testValueMayBeInjected()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $input->setValue('bar');
         $this->assertEquals('bar', $input->getValue());
     }
 
-    public function testRetrievingValueFiltersTheValue()
+    public function testRetrievingValueFiltersTheValueOnlyAfterValidating()
     {
-        $input  = new Input('foo');
+        $input  = new FileInput('foo');
         $input->setValue('bar');
         $filter = new Filter\StringToUpper();
         $input->getFilterChain()->attach($filter);
+        $this->assertEquals('bar', $input->getValue());
+        $this->assertTrue($input->isValid());
         $this->assertEquals('BAR', $input->getValue());
     }
 
     public function testCanRetrieveRawValue()
     {
-        $input  = new Input('foo');
+        $input  = new FileInput('foo');
         $input->setValue('bar');
         $filter = new Filter\StringToUpper();
         $input->getFilterChain()->attach($filter);
@@ -114,7 +116,7 @@ class InputTest extends TestCase
 
     public function testIsValidReturnsFalseIfValidationChainFails()
     {
-        $input  = new Input('foo');
+        $input  = new FileInput('foo');
         $input->setValue('bar');
         $validator = new Validator\Digits();
         $input->getValidatorChain()->addValidator($validator);
@@ -123,27 +125,29 @@ class InputTest extends TestCase
 
     public function testIsValidReturnsTrueIfValidationChainSucceeds()
     {
-        $input  = new Input('foo');
+        $input  = new FileInput('foo');
         $input->setValue('123');
         $validator = new Validator\Digits();
         $input->getValidatorChain()->addValidator($validator);
         $this->assertTrue($input->isValid());
     }
 
-    public function testValidationOperatesOnFilteredValue()
+    public function testValidationOperatesBeforeFiltering()
     {
-        $input  = new Input('foo');
+        $input  = new FileInput('foo');
         $input->setValue(' 123 ');
         $filter = new Filter\StringTrim();
         $input->getFilterChain()->attach($filter);
         $validator = new Validator\Digits();
         $input->getValidatorChain()->addValidator($validator);
+        $this->assertFalse($input->isValid());
+        $input->setValue('123');
         $this->assertTrue($input->isValid());
     }
 
     public function testGetMessagesReturnsValidationMessages()
     {
-        $input  = new Input('foo');
+        $input  = new FileInput('foo');
         $input->setValue('bar');
         $validator = new Validator\Digits();
         $input->getValidatorChain()->addValidator($validator);
@@ -154,7 +158,7 @@ class InputTest extends TestCase
 
     public function testSpecifyingMessagesToInputReturnsThoseOnFailedValidation()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $input->setValue('bar');
         $validator = new Validator\Digits();
         $input->getValidatorChain()->addValidator($validator);
@@ -167,38 +171,33 @@ class InputTest extends TestCase
 
     public function testBreakOnFailureFlagIsOffByDefault()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $this->assertFalse($input->breakOnFailure());
     }
 
     public function testBreakOnFailureFlagIsMutable()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $input->setBreakOnFailure(true);
         $this->assertTrue($input->breakOnFailure());
     }
 
-    public function testNotEmptyValidatorAddedWhenIsValidIsCalled()
+    public function testNotEmptyValidatorIsNotAddedWhenIsValidIsCalled()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $this->assertTrue($input->isRequired());
         $input->setValue('');
         $validatorChain = $input->getValidatorChain();
         $this->assertEquals(0, count($validatorChain->getValidators()));
 
-        $this->assertFalse($input->isValid());
+        $this->assertTrue($input->isValid());
         $messages = $input->getMessages();
-        $this->assertArrayHasKey('isEmpty', $messages);
-        $this->assertEquals(1, count($validatorChain->getValidators()));
-
-        // Assert that NotEmpty validator wasn't added again
-        $this->assertFalse($input->isValid());
-        $this->assertEquals(1, count($validatorChain->getValidators()));
+        $this->assertEquals(0, count($validatorChain->getValidators()));
     }
 
     public function testRequiredNotEmptyValidatorNotAddedWhenOneExists()
     {
-        $input = new Input('foo');
+        $input = new FileInput('foo');
         $this->assertTrue($input->isRequired());
         $input->setValue('');
 
@@ -218,14 +217,14 @@ class InputTest extends TestCase
 
     public function testMerge()
     {
-        $input  = new Input('foo');
+        $input  = new FileInput('foo');
         $input->setValue(' 123 ');
         $filter = new Filter\StringTrim();
         $input->getFilterChain()->attach($filter);
         $validator = new Validator\Digits();
         $input->getValidatorChain()->addValidator($validator);
 
-        $input2 = new Input('bar');
+        $input2 = new FileInput('bar');
         $input2->merge($input);
         $validatorChain = $input->getValidatorChain();
         $filterChain    = $input->getFilterChain();

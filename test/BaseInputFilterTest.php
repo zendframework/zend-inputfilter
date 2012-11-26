@@ -1,22 +1,11 @@
 <?php
 /**
- * Zend Framework
+ * Zend Framework (http://framework.zend.com/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://framework.zend.com/license/new-bsd
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@zend.com so we can send you a copy immediately.
- *
- * @category   Zend
- * @package    Zend_InputFilter
- * @subpackage UnitTest
- * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
- * @license    http://framework.zend.com/license/new-bsd     New BSD License
+ * @link      http://github.com/zendframework/zf2 for the canonical source repository
+ * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @package   Zend_InputFilter
  */
 
 namespace ZendTest\InputFilter;
@@ -24,6 +13,7 @@ namespace ZendTest\InputFilter;
 use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
 use Zend\InputFilter\Input;
+use Zend\InputFilter\FileInput;
 use Zend\InputFilter\BaseInputFilter as InputFilter;
 use Zend\Filter;
 use Zend\Validator;
@@ -66,6 +56,17 @@ class BaseInputFilterTest extends TestCase
         $this->assertSame($child, $parent->get('child'));
     }
 
+    public function testCanRemoveInputFilter()
+    {
+        $parent = new InputFilter();
+        $child  = new InputFilter();
+        $parent->add($child, 'child');
+        $this->assertEquals(1, count($parent));
+        $this->assertSame($child, $parent->get('child'));
+        $parent->remove('child');
+        $this->assertEquals(0, count($parent));
+    }
+
     public function getInputFilter()
     {
         $filter = new InputFilter();
@@ -78,11 +79,11 @@ class BaseInputFilterTest extends TestCase
         $bar = new Input();
         $bar->getFilterChain()->attachByName('stringtrim');
         $bar->getValidatorChain()->addValidator(new Validator\Digits());
-        
+
         $baz = new Input();
         $baz->setRequired(false);
         $baz->getFilterChain()->attachByName('stringtrim');
-        $baz->getValidatorChain()->addValidator(new Validator\StringLength(1, 6)); 
+        $baz->getValidatorChain()->addValidator(new Validator\StringLength(1, 6));
 
         $filter->add($foo, 'foo')
                ->add($bar, 'bar')
@@ -109,7 +110,7 @@ class BaseInputFilterTest extends TestCase
         $baz->setRequired(false);
         $baz->getFilterChain()->attachByName('stringtrim');
         $baz->getValidatorChain()->addValidator(new Validator\StringLength(1, 6));
-        
+
         $filter->add($foo, 'foo')
                ->add($bar, 'bar')
                ->add($baz, 'baz');
@@ -333,7 +334,7 @@ class BaseInputFilterTest extends TestCase
      */
 
     /**
-     * Idea for this one is that validation may need to rely on context -- e.g., a "password confirmation" 
+     * Idea for this one is that validation may need to rely on context -- e.g., a "password confirmation"
      * field may need to know what the original password entered was in order to compare.
      */
     public function testValidationCanUseContext()
@@ -412,6 +413,65 @@ class BaseInputFilterTest extends TestCase
         $filter->setData($data);
 
         $this->assertTrue($filter->isValid());
+    }
+
+    public function testValidationSkipsFileInputsMarkedNotRequiredWhenNoFileDataIsPresent()
+    {
+        $filter = new InputFilter();
+
+        $foo   = new FileInput();
+        $foo->getValidatorChain()->addValidator(new Validator\File\Upload());
+        $foo->setRequired(false);
+
+        $filter->add($foo, 'foo');
+
+        $data = array(
+            'foo' => array(
+                'tmp_name' => '/tmp/barfile',
+                'name'     => 'barfile',
+                'type'     => 'text',
+                'size'     => 0,
+                'error'    => 4,  // UPLOAD_ERR_NO_FILE
+            )
+        );
+        $filter->setData($data);
+        $this->assertTrue($filter->isValid());
+
+        // Negative test
+        $foo->setRequired(true);
+        $filter->setData($data);
+        $this->assertFalse($filter->isValid());
+    }
+
+    public function testValidationSkipsFileInputsMarkedNotRequiredWhenNoMultiFileDataIsPresent()
+    {
+        $filter = new InputFilter();
+
+        $explode = new Validator\File\Explode();
+        $explode->setValidator(new Validator\File\Upload());
+
+        $foo   = new FileInput();
+        $foo->getValidatorChain()->addValidator($explode);
+        $foo->setRequired(false);
+
+        $filter->add($foo, 'foo');
+
+        $data = array(
+            'foo' => array(array(
+                'tmp_name' => '/tmp/barfile',
+                'name'     => 'barfile',
+                'type'     => 'text',
+                'size'     => 0,
+                'error'    => 4,  // UPLOAD_ERR_NO_FILE
+            )),
+        );
+        $filter->setData($data);
+        $this->assertTrue($filter->isValid());
+
+        // Negative test
+        $foo->setRequired(true);
+        $filter->setData($data);
+        $this->assertFalse($filter->isValid());
     }
 
     public function testValidationAllowsEmptyValuesToRequiredInputWhenAllowEmptyFlagIsTrue()
@@ -508,5 +568,52 @@ class BaseInputFilterTest extends TestCase
         $messages = $filter->getMessages();
         $this->assertArrayHasKey('foo', $messages);
         $this->assertNotEmpty($messages['foo']);
+    }
+    public function testHasUnknown()
+    {
+        $filter = $this->getInputFilter();
+        $validData = array(
+            'foo' => ' bazbat ',
+            'bar' => '12345',
+            'baz' => ''
+        );
+        $filter->setData($validData);
+        $this->assertFalse($filter->hasUnknown());
+
+        $filter = $this->getInputFilter();
+        $invalidData = array(
+            'bar' => '12345',
+            'baz' => '',
+            'gru' => '',
+        );
+        $filter->setData($invalidData);
+        $this->assertTrue($filter->hasUnknown());
+    }
+    public function testGetUknown()
+    {
+        $filter = $this->getInputFilter();
+        $unknown = array(
+            'bar' => '12345',
+            'baz' => '',
+            'gru' => 10,
+            'test' => 'ok',
+        );
+        $filter->setData($unknown);
+        $unknown = $filter->getUnknown();
+        $this->assertEquals(2, count($unknown));
+        $this->assertTrue(array_key_exists('gru', $unknown));
+        $this->assertEquals(10, $unknown['gru']);
+        $this->assertTrue(array_key_exists('test', $unknown));
+        $this->assertEquals('ok', $unknown['test']);
+
+        $filter = $this->getInputFilter();
+        $validData = array(
+            'foo' => ' bazbat ',
+            'bar' => '12345',
+            'baz' => ''
+        );
+        $filter->setData($validData);
+        $unknown = $filter->getUnknown();
+        $this->assertEquals(0, count($unknown));
     }
 }

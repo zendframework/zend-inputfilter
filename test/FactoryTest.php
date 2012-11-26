@@ -1,22 +1,11 @@
 <?php
 /**
- * Zend Framework
+ * Zend Framework (http://framework.zend.com/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://framework.zend.com/license/new-bsd
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@zend.com so we can send you a copy immediately.
- *
- * @category   Zend
- * @package    Zend_InputFilter
- * @subpackage UnitTest
- * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
- * @license    http://framework.zend.com/license/new-bsd     New BSD License
+ * @link      http://github.com/zendframework/zf2 for the canonical source repository
+ * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @package   Zend_InputFilter
  */
 
 namespace ZendTest\InputFilter;
@@ -226,7 +215,7 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
         $this->assertFalse($input->isRequired());
         $this->assertFalse($input->allowEmpty());
-       
+
     }
 
     public function testFactoryWillCreateInputWithSuggestedAllowEmptyFlagAndImpliesRequiredFlag()
@@ -249,6 +238,34 @@ class FactoryTest extends TestCase
         ));
         $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
         $this->assertEquals('foo', $input->getName());
+    }
+
+    public function testFactoryAcceptsInputInterface()
+    {
+        $factory = new Factory();
+        $input = new Input();
+
+        $inputFilter = $factory->createInputFilter(array(
+            'foo' => $input
+        ));
+
+        $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $inputFilter);
+        $this->assertTrue($inputFilter->has('foo'));
+        $this->assertTrue($inputFilter->get('foo') === $input);
+    }
+
+    public function testFactoryAcceptsInputFilterInterface()
+    {
+        $factory = new Factory();
+        $input = new InputFilter();
+
+        $inputFilter = $factory->createInputFilter(array(
+            'foo' => $input
+        ));
+
+        $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $inputFilter);
+        $this->assertTrue($inputFilter->has('foo'));
+        $this->assertTrue($inputFilter->get('foo') === $input);
     }
 
     public function testFactoryWillCreateInputFilterAndAllInputObjectsFromGivenConfiguration()
@@ -325,7 +342,7 @@ class FactoryTest extends TestCase
         ));
         $this->assertInstanceOf('Zend\InputFilter\InputFilter', $inputFilter);
         $this->assertEquals(4, count($inputFilter));
-        
+
         foreach (array('foo', 'bar', 'baz', 'bat') as $name) {
             $input = $inputFilter->get($name);
 
@@ -358,5 +375,42 @@ class FactoryTest extends TestCase
                     break;
             }
         }
+    }
+
+    public function testFactoryWillCreateInputFilterMatchingInputNameWhenNotSpecified()
+    {
+        $factory     = new Factory();
+        $inputFilter = $factory->createInputFilter(array(
+            array('name' => 'foo')
+        ));
+
+        $this->assertTrue($inputFilter->has('foo'));
+        $this->assertInstanceOf('Zend\InputFilter\Input', $inputFilter->get('foo'));
+    }
+
+    public function testFactoryAllowsPassingValidatorChainsInInputSpec()
+    {
+        $factory = new Factory();
+        $chain   = new Validator\ValidatorChain();
+        $input   = $factory->createInput(array(
+            'name'       => 'foo',
+            'validators' => $chain,
+        ));
+        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
+        $test = $input->getValidatorChain();
+        $this->assertSame($chain, $test);
+    }
+
+    public function testFactoryAllowsPassingFilterChainsInInputSpec()
+    {
+        $factory = new Factory();
+        $chain   = new Filter\FilterChain();
+        $input   = $factory->createInput(array(
+            'name'    => 'foo',
+            'filters' => $chain,
+        ));
+        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
+        $test = $input->getFilterChain();
+        $this->assertSame($chain, $test);
     }
 }

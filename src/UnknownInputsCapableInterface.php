@@ -11,16 +11,14 @@
 namespace Zend\InputFilter;
 
 /**
+ * Implementors of this interface may report on the existence of unknown input,
+ * as well as retrieve all unknown values.
+ *
  * @category   Zend
  * @package    Zend_InputFilter
  */
-interface InputFilterProviderInterface
+interface UnknownInputsCapableInterface
 {
-    /**
-     * Should return an array specification compatible with
-     * {@link Zend\InputFilter\Factory::createInputFilter()}.
-     *
-     * @return array
-     */
-    public function getInputFilterSpecification();
+    public function hasUnknown();
+    public function getUnknown();
 }
