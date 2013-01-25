@@ -1,22 +1,11 @@
 <?php
 /**
- * Zend Framework
+ * Zend Framework (http://framework.zend.com/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://framework.zend.com/license/new-bsd
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@zend.com so we can send you a copy immediately.
- *
- * @category   Zend
- * @package    Zend_InputFilter
- * @subpackage UnitTest
- * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
- * @license    http://framework.zend.com/license/new-bsd     New BSD License
+ * @link      http://github.com/zendframework/zf2 for the canonical source repository
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @package   Zend_InputFilter
  */
 
 namespace ZendTest\InputFilter;
@@ -66,6 +55,17 @@ class BaseInputFilterTest extends TestCase
         $this->assertSame($child, $parent->get('child'));
     }
 
+    public function testCanRemoveInputFilter()
+    {
+        $parent = new InputFilter();
+        $child  = new InputFilter();
+        $parent->add($child, 'child');
+        $this->assertEquals(1, count($parent));
+        $this->assertSame($child, $parent->get('child'));
+        $parent->remove('child');
+        $this->assertEquals(0, count($parent));
+    }
+
     public function getInputFilter()
     {
         $filter = new InputFilter();
@@ -78,11 +78,11 @@ class BaseInputFilterTest extends TestCase
         $bar = new Input();
         $bar->getFilterChain()->attachByName('stringtrim');
         $bar->getValidatorChain()->addValidator(new Validator\Digits());
-        
+
         $baz = new Input();
         $baz->setRequired(false);
         $baz->getFilterChain()->attachByName('stringtrim');
-        $baz->getValidatorChain()->addValidator(new Validator\StringLength(1, 6)); 
+        $baz->getValidatorChain()->addValidator(new Validator\StringLength(1, 6));
 
         $filter->add($foo, 'foo')
                ->add($bar, 'bar')
@@ -109,7 +109,7 @@ class BaseInputFilterTest extends TestCase
         $baz->setRequired(false);
         $baz->getFilterChain()->attachByName('stringtrim');
         $baz->getValidatorChain()->addValidator(new Validator\StringLength(1, 6));
-        
+
         $filter->add($foo, 'foo')
                ->add($bar, 'bar')
                ->add($baz, 'baz');
@@ -186,7 +186,7 @@ class BaseInputFilterTest extends TestCase
         $this->assertArrayNotHasKey('foo', $invalidInputs);
         $this->assertArrayHasKey('bar', $invalidInputs);
         $this->assertInstanceOf('Zend\InputFilter\Input', $invalidInputs['bar']);
-        $this->assertArrayHasKey('nest', $invalidInputs, var_export($invalidInputs, 1));
+        $this->assertArrayHasKey('nest', $invalidInputs/*, var_export($invalidInputs, 1)*/);
         $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $invalidInputs['nest']);
         $nestInvalids = $invalidInputs['nest']->getInvalidInput();
         $this->assertArrayHasKey('foo', $nestInvalids);
@@ -333,7 +333,7 @@ class BaseInputFilterTest extends TestCase
      */
 
     /**
-     * Idea for this one is that validation may need to rely on context -- e.g., a "password confirmation" 
+     * Idea for this one is that validation may need to rely on context -- e.g., a "password confirmation"
      * field may need to know what the original password entered was in order to compare.
      */
     public function testValidationCanUseContext()
@@ -342,7 +342,7 @@ class BaseInputFilterTest extends TestCase
 
         $store = new stdClass;
         $foo   = new Input();
-        $foo->getValidatorChain()->addValidator(new Validator\Callback(function($value, $context) use ($store) {
+        $foo->getValidatorChain()->addValidator(new Validator\Callback(function ($value, $context) use ($store) {
             $store->value   = $value;
             $store->context = $context;
             return true;
@@ -372,7 +372,7 @@ class BaseInputFilterTest extends TestCase
 
         $store = new stdClass;
         $foo   = new Input();
-        $foo->getValidatorChain()->addValidator(new Validator\Callback(function($value, $context) use ($store) {
+        $foo->getValidatorChain()->addValidator(new Validator\Callback(function ($value, $context) use ($store) {
             $store->value   = $value;
             $store->context = $context;
             return true;

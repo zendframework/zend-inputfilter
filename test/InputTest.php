@@ -1,22 +1,11 @@
 <?php
 /**
- * Zend Framework
+ * Zend Framework (http://framework.zend.com/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://framework.zend.com/license/new-bsd
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@zend.com so we can send you a copy immediately.
- *
- * @category   Zend
- * @package    Zend_InputFilter
- * @subpackage UnitTest
- * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
- * @license    http://framework.zend.com/license/new-bsd     New BSD License
+ * @link      http://github.com/zendframework/zf2 for the canonical source repository
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @package   Zend_InputFilter
  */
 
 namespace ZendTest\InputFilter;
@@ -135,8 +124,8 @@ class InputTest extends TestCase
     public function testIsValidReturnsTrueIfValidationChainSucceeds()
     {
         $input  = new Input('foo');
-        $input->setValue('bar');
-        $validator = new Validator\Alpha();
+        $input->setValue('123');
+        $validator = new Validator\Digits();
         $input->getValidatorChain()->addValidator($validator);
         $this->assertTrue($input->isValid());
     }
@@ -144,10 +133,10 @@ class InputTest extends TestCase
     public function testValidationOperatesOnFilteredValue()
     {
         $input  = new Input('foo');
-        $input->setValue(' bar ');
+        $input->setValue(' 123 ');
         $filter = new Filter\StringTrim();
         $input->getFilterChain()->attach($filter);
-        $validator = new Validator\Alpha();
+        $validator = new Validator\Digits();
         $input->getValidatorChain()->addValidator($validator);
         $this->assertTrue($input->isValid());
     }
@@ -194,8 +183,61 @@ class InputTest extends TestCase
         $input = new Input('foo');
         $this->assertTrue($input->isRequired());
         $input->setValue('');
+        $validatorChain = $input->getValidatorChain();
+        $this->assertEquals(0, count($validatorChain->getValidators()));
+
         $this->assertFalse($input->isValid());
         $messages = $input->getMessages();
         $this->assertArrayHasKey('isEmpty', $messages);
+        $this->assertEquals(1, count($validatorChain->getValidators()));
+
+        // Assert that NotEmpty validator wasn't added again
+        $this->assertFalse($input->isValid());
+        $this->assertEquals(1, count($validatorChain->getValidators()));
+    }
+
+    public function testRequiredNotEmptyValidatorNotAddedWhenOneExists()
+    {
+        $input = new Input('foo');
+        $this->assertTrue($input->isRequired());
+        $input->setValue('');
+
+        $notEmptyMock = $this->getMock('Zend\Validator\NotEmpty', array('isValid'));
+        $notEmptyMock->expects($this->exactly(1))
+                     ->method('isValid')
+                     ->will($this->returnValue(false));
+
+        $validatorChain = $input->getValidatorChain();
+        $validatorChain->prependValidator($notEmptyMock);
+        $this->assertFalse($input->isValid());
+
+        $validators = $validatorChain->getValidators();
+        $this->assertEquals(1, count($validators));
+        $this->assertEquals($notEmptyMock, $validators[0]['instance']);
+    }
+
+    public function testMerge()
+    {
+        $input  = new Input('foo');
+        $input->setValue(' 123 ');
+        $filter = new Filter\StringTrim();
+        $input->getFilterChain()->attach($filter);
+        $validator = new Validator\Digits();
+        $input->getValidatorChain()->addValidator($validator);
+
+        $input2 = new Input('bar');
+        $input2->merge($input);
+        $validatorChain = $input->getValidatorChain();
+        $filterChain    = $input->getFilterChain();
+
+        $this->assertEquals(' 123 ', $input2->getRawValue());
+        $this->assertEquals(1, $validatorChain->count());
+        $this->assertEquals(1, $filterChain->count());
+
+        $validators = $validatorChain->getValidators();
+        $this->assertInstanceOf('Zend\Validator\Digits', $validators[0]['instance']);
+
+        $filters = $filterChain->getFilters()->toArray();
+        $this->assertInstanceOf('Zend\Filter\StringTrim', $filters[0]);
     }
 }
