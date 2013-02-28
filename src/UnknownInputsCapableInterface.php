@@ -7,7 +7,14 @@
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
-namespace Zend\InputFilter\Exception;
+namespace Zend\InputFilter;
 
-class RuntimeException extends \RuntimeException implements ExceptionInterface
-{}
+/**
+ * Implementors of this interface may report on the existence of unknown input,
+ * as well as retrieve all unknown values.
+ */
+interface UnknownInputsCapableInterface
+{
+    public function hasUnknown();
+    public function getUnknown();
+}
