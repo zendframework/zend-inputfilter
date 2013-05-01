@@ -12,13 +12,26 @@ namespace Zend\InputFilter;
 use Traversable;
 use Zend\Filter\FilterChain;
 use Zend\Stdlib\ArrayUtils;
-use Zend\Validator\ValidatorChain;
 use Zend\Validator\ValidatorInterface;
+use Zend\Validator\ValidatorChain;
 
 class Factory
 {
+    /**
+     * @var FilterChain
+     */
     protected $defaultFilterChain;
+
+    /**
+     * @var ValidatorChain
+     */
     protected $defaultValidatorChain;
+
+    public function __construct()
+    {
+        $this->defaultFilterChain    = new FilterChain();
+        $this->defaultValidatorChain = new ValidatorChain();
+    }
 
     /**
      * Set default filter chain to use
@@ -153,9 +166,11 @@ class Factory
                         $input->setRequired(!$value);
                     }
                     break;
+                case 'continue_if_empty':
+                    $input->setContinueIfEmpty($inputSpecification['continue_if_empty']);
+                    break;
                 case 'error_message':
                     $input->setErrorMessage($value);
-                    break;
                 case 'fallback_value':
                     $input->setFallbackValue($value);
                     break;
@@ -236,6 +251,16 @@ class Factory
                 'Zend\InputFilter\InputFilterInterface', $class));
         }
 
+        if ($inputFilter instanceof CollectionInputFilter) {
+            if (isset($inputFilterSpecification['input_filter'])) {
+                $inputFilter->setInputFilter($inputFilterSpecification['input_filter']);
+            }
+            if (isset($inputFilterSpecification['count'])) {
+                $inputFilter->setCount($inputFilterSpecification['count']);
+            }
+            return $inputFilter;
+        }
+
         foreach ($inputFilterSpecification as $key => $value) {
 
             if (($value instanceof InputInterface)
@@ -252,6 +277,11 @@ class Factory
         return $inputFilter;
     }
 
+    /**
+     * @param  FilterChain       $chain
+     * @param  array|Traversable $filters
+     * @return void
+     */
     protected function populateFilters(FilterChain $chain, $filters)
     {
         foreach ($filters as $filter) {
@@ -282,6 +312,11 @@ class Factory
         }
     }
 
+    /**
+     * @param  ValidatorChain    $chain
+     * @param  array|Traversable $validators
+     * @return void
+     */
     protected function populateValidators(ValidatorChain $chain, $validators)
     {
         foreach ($validators as $validator) {
