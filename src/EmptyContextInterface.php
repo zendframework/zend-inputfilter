@@ -7,7 +7,11 @@
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
-namespace Zend\InputFilter\Exception;
+namespace Zend\InputFilter;
 
-class RuntimeException extends \RuntimeException implements ExceptionInterface
-{}
+interface EmptyContextInterface
+{
+    public function setContinueIfEmpty($continueIfEmpty);
+
+    public function continueIfEmpty();
+}
