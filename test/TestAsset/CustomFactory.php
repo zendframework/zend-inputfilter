@@ -9,8 +9,8 @@
 
 namespace ZendTest\InputFilter\TestAsset;
 
-use Zend\InputFilter\Input;
+use Zend\InputFilter\Factory;
 
-class CustomInput extends Input
+class CustomFactory extends Factory
 {
 }
