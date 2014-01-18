@@ -16,8 +16,6 @@ use Zend\Stdlib\InitializableInterface;
 
 /**
  * Plugin manager implementation for input filters.
- *
- * @method InputFilterInterface|InputInterface get($name)
  */
 class InputFilterPluginManager extends AbstractPluginManager
 {
@@ -72,7 +70,7 @@ class InputFilterPluginManager extends AbstractPluginManager
      */
     public function validatePlugin($plugin)
     {
-        if ($plugin instanceof InputFilterInterface || $plugin instanceof InputInterface) {
+        if ($plugin instanceof InputFilterInterface) {
             // Hook to perform various initialization, when the inputfilter is not created through the factory
             if ($plugin instanceof InitializableInterface) {
                 $plugin->init();
