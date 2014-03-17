@@ -13,20 +13,6 @@ use Traversable;
 
 class CollectionInputFilter extends InputFilter
 {
-    /*
-     * @var array
-     */
-    protected $collectionData;
-
-    /*
-     * @var array
-     */
-    protected $collectionValidInputs;
-
-    /*
-     * @var array
-     */
-    protected $collectionInvalidInputs;
 
     /*
      * @var bool
@@ -80,7 +66,6 @@ class CollectionInputFilter extends InputFilter
         }
 
         $this->inputFilter = $inputFilter;
-        $this->inputs = $inputFilter->getInputs();
         return $this;
     }
 
@@ -140,7 +125,7 @@ class CollectionInputFilter extends InputFilter
     public function getCount()
     {
         if (null === $this->count) {
-            $this->count = count($this->collectionData);
+            $this->count = count($this->data);
         }
         return $this->count;
     }
@@ -150,7 +135,7 @@ class CollectionInputFilter extends InputFilter
      */
     public function setData($data)
     {
-        $this->collectionData = $data;
+        $this->data = $data;
     }
 
     /**
@@ -166,55 +151,33 @@ class CollectionInputFilter extends InputFilter
             }
         }
 
-        if (count($this->collectionData) < $this->getCount()) {
+        if (count($this->data) < $this->getCount()) {
             $valid = false;
         }
 
-        if (empty($this->collectionData)) {
+        if (empty($this->data)) {
             $this->clearValues();
             $this->clearRawValues();
             return $valid;
         }
 
-        $inputs = $this->validationGroup ?: array_keys($this->inputs);
-        foreach ($this->collectionData as $key => $data) {
+        foreach ($this->data as $key => $data) {
             if (!is_array($data)) {
                 $data = array();
             }
-            $this->data = $data;
-            $this->populate();
+            $this->inputFilter->setData($data);
 
-            if ($this->validateInputs($inputs, $data)) {
-                $this->collectionValidInputs[$key] = $this->validInputs;
+            if ($this->inputFilter->isValid()) {
+                $this->validInputs[$key] = $this->inputFilter->getValidInput();
             } else {
-                $this->collectionInvalidInputs[$key] = $this->invalidInputs;
                 $valid = false;
+                $this->collectionMessages[$key] = $this->inputFilter->getMessages();
+                $this->invalidInputs[$key] = $this->inputFilter->getInvalidInput();
             }
 
-            $values    = array();
-            $rawValues = array();
-            $messages = array();
-            foreach ($inputs as $name) {
-                $input = $this->inputs[$name];
+            $this->collectionValues[$key] = $this->inputFilter->getValues();
+            $this->collectionRawValues[$key] = $this->inputFilter->getRawValues();
 
-                if ($input instanceof InputFilterInterface) {
-                    $values[$name]    = $input->getValues();
-                    $rawValues[$name] = $input->getRawValues();
-                    continue;
-                }
-                $values[$name]    = $input->getValue($this->data);
-                $rawValues[$name] = $input->getRawValue();
-                $tmpMessages = $input->getMessages();
-                if (!empty($tmpMessages)) {
-                    $messages[$name] =  $tmpMessages;
-                }
-            }
-            $this->collectionValues[$key]    = $values;
-            $this->collectionRawValues[$key] = $rawValues;
-
-            if (!empty($messages)) {
-                $this->collectionMessages[$key] = $messages;
-            }
         }
 
         return $valid;
@@ -231,14 +194,10 @@ class CollectionInputFilter extends InputFilter
         }
 
         if (is_array($name)) {
-            // Best effort check if the validation group was set by a form for BC
-            if (count($name) == count($this->collectionData) && is_array(reset($name))) {
-                return parent::setValidationGroup(reset($name));
+            foreach($name as $group) {
+                $this->inputFilter->setValidationGroup($group);
             }
-            return parent::setValidationGroup($name);
         }
-
-        return parent::setValidationGroup(func_get_args());
     }
 
     /**
@@ -246,7 +205,7 @@ class CollectionInputFilter extends InputFilter
      */
     public function getInvalidInput()
     {
-        return (is_array($this->collectionInvalidInputs) ? $this->collectionInvalidInputs : array());
+        return (is_array($this->invalidInputs) ? $this->invalidInputs : array());
     }
 
     /**
@@ -254,7 +213,7 @@ class CollectionInputFilter extends InputFilter
      */
     public function getValidInput()
     {
-        return (is_array($this->collectionValidInputs) ? $this->collectionValidInputs : array());
+        return (is_array($this->validInputs) ? $this->validInputs : array());
     }
 
     /**
