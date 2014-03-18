@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework (http://framework.zend.com/)
  *
@@ -13,21 +14,6 @@ use Traversable;
 
 class CollectionInputFilter extends InputFilter
 {
-    /*
-     * @var array
-     */
-    protected $collectionData;
-
-    /*
-     * @var array
-     */
-    protected $collectionValidInputs;
-
-    /*
-     * @var array
-     */
-    protected $collectionInvalidInputs;
-
     /*
      * @var bool
      */
@@ -80,7 +66,7 @@ class CollectionInputFilter extends InputFilter
         }
 
         $this->inputFilter = $inputFilter;
-        $this->inputs = $inputFilter->getInputs();
+
         return $this;
     }
 
@@ -94,6 +80,7 @@ class CollectionInputFilter extends InputFilter
         if (null === $this->inputFilter) {
             $this->setInputFilter(new InputFilter());
         }
+
         return $this->inputFilter;
     }
 
@@ -106,6 +93,7 @@ class CollectionInputFilter extends InputFilter
     public function setIsRequired($isRequired)
     {
         $this->isRequired = $isRequired;
+
         return $this;
     }
 
@@ -119,7 +107,6 @@ class CollectionInputFilter extends InputFilter
         return $this->isRequired;
     }
 
-
     /**
      * Set the count of data to validate
      *
@@ -129,6 +116,7 @@ class CollectionInputFilter extends InputFilter
     public function setCount($count)
     {
         $this->count = $count > 0 ? $count : 0;
+
         return $this;
     }
 
@@ -140,8 +128,9 @@ class CollectionInputFilter extends InputFilter
     public function getCount()
     {
         if (null === $this->count) {
-            $this->count = count($this->collectionData);
+            $this->count = count($this->data);
         }
+
         return $this->count;
     }
 
@@ -150,7 +139,7 @@ class CollectionInputFilter extends InputFilter
      */
     public function setData($data)
     {
-        $this->collectionData = $data;
+        $this->data = $data;
     }
 
     /**
@@ -166,55 +155,37 @@ class CollectionInputFilter extends InputFilter
             }
         }
 
-        if (count($this->collectionData) < $this->getCount()) {
+        if (count($this->data) < $this->getCount()) {
             $valid = false;
         }
 
-        if (empty($this->collectionData)) {
+        if (empty($this->data)) {
             $this->clearValues();
             $this->clearRawValues();
+
             return $valid;
         }
 
-        $inputs = $this->validationGroup ?: array_keys($this->inputs);
-        foreach ($this->collectionData as $key => $data) {
+        foreach ($this->data as $key => $data) {
             if (!is_array($data)) {
                 $data = array();
             }
-            $this->data = $data;
-            $this->populate();
+            $this->getInputFilter()->setData($data);
 
-            if ($this->validateInputs($inputs, $data)) {
-                $this->collectionValidInputs[$key] = $this->validInputs;
+            if (null !== $this->validationGroup) {
+                $this->getInputFilter()->setValidationGroup($this->validationGroup[$key]);
+            }
+
+            if ($this->getInputFilter()->isValid()) {
+                $this->validInputs[$key] = $this->getInputFilter()->getValidInput();
             } else {
-                $this->collectionInvalidInputs[$key] = $this->invalidInputs;
                 $valid = false;
+                $this->collectionMessages[$key] = $this->getInputFilter()->getMessages();
+                $this->invalidInputs[$key] = $this->getInputFilter()->getInvalidInput();
             }
 
-            $values    = array();
-            $rawValues = array();
-            $messages = array();
-            foreach ($inputs as $name) {
-                $input = $this->inputs[$name];
-
-                if ($input instanceof InputFilterInterface) {
-                    $values[$name]    = $input->getValues();
-                    $rawValues[$name] = $input->getRawValues();
-                    continue;
-                }
-                $values[$name]    = $input->getValue($this->data);
-                $rawValues[$name] = $input->getRawValue();
-                $tmpMessages = $input->getMessages();
-                if (!empty($tmpMessages)) {
-                    $messages[$name] =  $tmpMessages;
-                }
-            }
-            $this->collectionValues[$key]    = $values;
-            $this->collectionRawValues[$key] = $rawValues;
-
-            if (!empty($messages)) {
-                $this->collectionMessages[$key] = $messages;
-            }
+            $this->collectionValues[$key] = $this->getInputFilter()->getValues();
+            $this->collectionRawValues[$key] = $this->getInputFilter()->getRawValues();
         }
 
         return $valid;
@@ -227,34 +198,13 @@ class CollectionInputFilter extends InputFilter
     {
         if ($name === self::VALIDATE_ALL) {
             $this->validationGroup = null;
+
             return $this;
         }
 
-        if (is_array($name)) {
-            // Best effort check if the validation group was set by a form for BC
-            if (count($name) == count($this->collectionData) && is_array(reset($name))) {
-                return parent::setValidationGroup(reset($name));
-            }
-            return parent::setValidationGroup($name);
-        }
+        $this->validationGroup = $name;
 
-        return parent::setValidationGroup(func_get_args());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getInvalidInput()
-    {
-        return (is_array($this->collectionInvalidInputs) ? $this->collectionInvalidInputs : array());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getValidInput()
-    {
-        return (is_array($this->collectionValidInputs) ? $this->collectionValidInputs : array());
+        return $this;
     }
 
     /**
@@ -300,4 +250,5 @@ class CollectionInputFilter extends InputFilter
     {
         return $this->collectionMessages;
     }
+
 }
