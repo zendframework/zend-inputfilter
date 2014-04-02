@@ -462,11 +462,6 @@ class BaseInputFilter implements
             ));
         }
         $input = $this->inputs[$name];
-
-        if ($input instanceof InputFilterInterface) {
-            return $input->getValues();
-        }
-
         return $input->getValue();
     }
 
