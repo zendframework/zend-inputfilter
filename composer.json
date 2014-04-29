@@ -6,6 +6,7 @@
         "zf2",
         "inputfilter"
     ],
+    "homepage": "https://github.com/zendframework/zend-input-filter",
     "autoload": {
         "psr-4": {
             "Zend\\InputFilter\\": "src/"
@@ -32,7 +33,6 @@
             "dev-develop": "2.4-dev"
         }
     },
-    "homepage": "https://github.com/zendframework/zend-input-filter",
     "autoload-dev": {
         "psr-4": {
             "ZendTest\\InputFilter\\": "test/"
