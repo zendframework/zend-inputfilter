@@ -7,11 +7,10 @@
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
-namespace Zend\InputFilter;
+namespace ZendTest\InputFilter\TestAsset;
 
-interface EmptyContextInterface
+use Zend\InputFilter\Factory;
+
+class CustomFactory extends Factory
 {
-    public function setContinueIfEmpty($continueIfEmpty);
-
-    public function continueIfEmpty();
 }
