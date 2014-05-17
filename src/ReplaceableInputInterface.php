@@ -7,10 +7,13 @@
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
-namespace ZendTest\InputFilter\TestAsset;
+namespace Zend\InputFilter;
 
-use Zend\InputFilter\Factory;
-
-class CustomFactory extends Factory
+/**
+ * Mark an input as able to be replaced by another when merging input filters.
+ *
+ */
+interface ReplaceableInputInterface
 {
+    public function replace($input, $name);
 }
