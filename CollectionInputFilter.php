@@ -204,18 +204,22 @@ class CollectionInputFilter extends InputFilter
     /**
      * {@inheritdoc}
      */
-    public function setValidationGroup($groups)
+    public function setValidationGroup($name)
     {
-        if ($groups === self::VALIDATE_ALL) {
+        if ($name === self::VALIDATE_ALL) {
             $this->validationGroup = null;
             return $this;
         }
 
-        if (is_array($groups)) {
-            foreach($groups as $group) {
-                $this->inputFilter->setValidationGroup($group);
-            } 
+        if (is_array($name)) {
+            // Best effort check if the validation group was set by a form for BC
+            if (count($name) == count($this->collectionData) && is_array(reset($name))) {
+                return parent::setValidationGroup(reset($name));
+            }
+            return parent::setValidationGroup($name);
         }
+
+        return parent::setValidationGroup(func_get_args());
     }
 
     /**
