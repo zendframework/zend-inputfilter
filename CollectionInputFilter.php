@@ -175,7 +175,7 @@ class CollectionInputFilter extends InputFilter
             return $valid;
         }
 
-        $inputs = $this->validationGroup ?: array_keys($this->inputFilter->getInputs());
+        $inputs = $this->validationGroup ?: array_keys($this->inputs);
         foreach ($this->collectionData as $key => $data) {
             if (!is_array($data)) {
                 $data = array();
@@ -183,11 +183,11 @@ class CollectionInputFilter extends InputFilter
             $this->inputFilter->setData($data);
 
             if ($this->inputFilter->isValid()) {
-                $this->collectionValidInputs[$key] = $this->inputFilter->getValidInput();
+                $this->collectionValidInputs[$key] = $this->inputFilter->validInputs;
             } else {
                 $valid = false;
                 $this->collectionMessages[$key] = $this->inputFilter->getMessages();
-                $this->collectionInvalidInputs[$key] = $this->inputFilter->getInvalidInput();
+                $this->collectionInvalidInputs[$key] = $this->inputFilter->invalidInputs;
             }
 
             $this->collectionValues[$key] = $this->inputFilter->getValues();
