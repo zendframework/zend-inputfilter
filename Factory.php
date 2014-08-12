@@ -225,9 +225,6 @@ class Factory
                 case 'fallback_value':
                     $input->setFallbackValue($value);
                     break;
-                case 'break_on_failure':
-                    $input->setBreakOnFailure($value);
-                    break;
                 case 'filters':
                     if ($value instanceof FilterChain) {
                         $input->setFilterChain($value);
@@ -302,9 +299,6 @@ class Factory
             }
             if (isset($inputFilterSpecification['count'])) {
                 $inputFilter->setCount($inputFilterSpecification['count']);
-            }
-            if (isset($inputFilterSpecification['required'])) {
-                $inputFilter->setIsRequired($inputFilterSpecification['required']);
             }
             return $inputFilter;
         }
