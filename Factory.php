@@ -310,9 +310,6 @@ class Factory
         }
 
         foreach ($inputFilterSpecification as $key => $value) {
-            if (null === $value) {
-                continue;
-            }
 
             if (($value instanceof InputInterface)
                 || ($value instanceof InputFilterInterface)
