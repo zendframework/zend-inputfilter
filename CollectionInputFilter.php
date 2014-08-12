@@ -193,6 +193,9 @@ class CollectionInputFilter extends InputFilter
             $this->collectionValues[$key] = $this->inputFilter->getValues();
             $this->collectionRawValues[$key] = $this->inputFilter->getRawValues();
 
+            if (!empty($messages)) {
+                $this->collectionMessages[$key] = $messages;
+            }
         }
 
         return $valid;
