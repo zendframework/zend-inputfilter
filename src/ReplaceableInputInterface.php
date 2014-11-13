@@ -9,9 +9,11 @@
 
 namespace Zend\InputFilter;
 
-interface EmptyContextInterface
+/**
+ * Mark an input as able to be replaced by another when merging input filters.
+ *
+ */
+interface ReplaceableInputInterface
 {
-    public function setContinueIfEmpty($continueIfEmpty);
-
-    public function continueIfEmpty();
+    public function replace($input, $name);
 }
