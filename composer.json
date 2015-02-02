@@ -6,6 +6,7 @@
         "zf2",
         "inputfilter"
     ],
+    "homepage": "https://github.com/zendframework/zend-input-filter",
     "autoload": {
         "psr-4": {
             "Zend\\InputFilter\\": "src/"
@@ -17,6 +18,12 @@
         "zendframework/zend-validator": "self.version",
         "zendframework/zend-stdlib": "self.version"
     },
+    "require-dev": {
+        "zendframework/zend-servicemanager": "self.version",
+        "fabpot/php-cs-fixer": "1.7.*",
+        "satooshi/php-coveralls": "dev-master",
+        "phpunit/PHPUnit": "~4.0"
+    },
     "suggest": {
         "zendframework/zend-servicemanager": "To support plugin manager support"
     },
@@ -26,15 +33,9 @@
             "dev-develop": "2.3-dev"
         }
     },
-    "homepage": "https://github.com/zendframework/zend-input-filter",
     "autoload-dev": {
         "psr-4": {
             "ZendTest\\InputFilter\\": "test/"
         }
-    },
-    "require-dev": {
-        "fabpot/php-cs-fixer": "1.7.*",
-        "satooshi/php-coveralls": "dev-master",
-        "phpunit/PHPUnit": "~4.0"
     }
 }
