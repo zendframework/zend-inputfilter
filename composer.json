@@ -6,7 +6,7 @@
         "zf2",
         "inputfilter"
     ],
-    "homepage": "https://github.com/zendframework/zend-input-filter",
+    "homepage": "https://github.com/zendframework/zend-inputfilter",
     "autoload": {
         "psr-4": {
             "Zend\\InputFilter\\": "src/"
