@@ -655,15 +655,15 @@ class FactoryTest extends TestCase
         $pluginManager->setService('bar', new Input('bar'));
         $factory->setInputFilterManager($pluginManager);
 
-        $input = $factory->createInput(array(
+        $input = $factory->createInput([
             'type' => 'bar'
-        ));
+        ]);
         $this->assertSame('bar', $input->getName());
 
         $this->setExpectedException('Zend\Filter\Exception\RuntimeException');
-        $factory->createInput(array(
+        $factory->createInput([
             'type' => 'foo'
-        ));
+        ]);
     }
 
     public function testInputFromPluginManagerMayBeFurtherConfiguredWithSpec()
@@ -674,10 +674,10 @@ class FactoryTest extends TestCase
         $this->assertTrue($barInput->isRequired());
         $factory->setInputFilterManager($pluginManager);
 
-        $input = $factory->createInput(array(
+        $input = $factory->createInput([
             'type' => 'bar',
             'required' => false
-        ));
+        ]);
 
         $this->assertFalse($input->isRequired());
         $this->assertSame('bar', $input->getName());
