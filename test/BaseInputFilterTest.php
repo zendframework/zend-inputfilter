@@ -9,6 +9,7 @@
 
 namespace ZendTest\InputFilter;
 
+use ArrayObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
 use Zend\InputFilter\Input;
@@ -1095,5 +1096,22 @@ class BaseInputFilterTest extends TestCase
         $data = $filter->getValues();
         $this->assertArrayHasKey('bar', $data);
         $this->assertEquals($bar->getFallbackValue(), $data['bar']);
+    }
+
+    /**
+     * @group 15
+     */
+    public function testAllowsValidatingArrayAccessData()
+    {
+        $filter = new InputFilter();
+        $foo = new Input();
+        $foo->getFilterChain()->attachByName('stringtrim')
+                              ->attachByName('alpha');
+        $foo->getValidatorChain()->attach(new Validator\StringLength(3, 6));
+        $filter->add($foo, 'foo');
+
+        $data = new ArrayObject(['foo' => ' valid ']);
+        $filter->setData($data);
+        $this->assertTrue($filter->isValid());
     }
 }
