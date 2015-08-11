@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.6.0 - TBD
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
+## 2.5.5 - TBD
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 2.5.4 - 2015-08-11
 
 ### Added
