@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.4.7 - 2015-08-11
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#15](https://github.com/zendframework/zend-inputfilter/pull/15) ensures that
+  `ArrayAccess` data provided to an input filter using `setData()` can be
+  validated, a scenario that broke with [#7](https://github.com/zendframework/zend-inputfilter/pull/7).
+
 ## 2.4.6 - 2015-08-03
 
 ### Added
