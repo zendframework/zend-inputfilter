@@ -9,6 +9,7 @@
 
 namespace ZendTest\InputFilter;
 
+use ArrayObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
 use Zend\InputFilter\Input;
@@ -984,16 +985,16 @@ class BaseInputFilterTest extends TestCase
         $filter->add($foo);
         $filter->add($bar);
 
-        $filter->setData(['foo' => 'xyz']);
+        $filter->setData(array('foo' => 'xyz'));
         $this->assertFalse($filter->isValid(), 'Missing required value should mark input filter as invalid');
     }
 
     public function emptyValuesForValidation()
     {
-        return [
-            'null'         => [null],
-            'empty-string' => [''],
-        ];
+        return array(
+            'null'         => array(null),
+            'empty-string' => array(''),
+        );
     }
 
     /**
@@ -1014,10 +1015,10 @@ class BaseInputFilterTest extends TestCase
         $filter->add($foo);
         $filter->add($bar);
 
-        $filter->setData([
+        $filter->setData(array(
             'foo' => 'xyz',
             'bar' => $value,
-        ]);
+        ));
         $this->assertTrue($filter->isValid(), 'Empty value should mark input filter as valid');
     }
 
@@ -1038,7 +1039,7 @@ class BaseInputFilterTest extends TestCase
         $filter->add($foo);
         $filter->add($bar);
 
-        $filter->setData(['foo' => 'xyz']);
+        $filter->setData(array('foo' => 'xyz'));
         $this->assertTrue($filter->isValid(), 'Missing input with fallback value should mark input filter as valid');
         $data = $filter->getValues();
         $this->assertArrayHasKey('bar', $data);
@@ -1063,7 +1064,7 @@ class BaseInputFilterTest extends TestCase
         $filter->add($foo);
         $filter->add($bar);
 
-        $filter->setData(['foo' => 'xyz']);
+        $filter->setData(array('foo' => 'xyz'));
         $this->assertTrue($filter->isValid(), 'Missing input with fallback value should mark input filter as valid');
         $data = $filter->getValues();
         $this->assertArrayHasKey('bar', $data);
@@ -1087,13 +1088,30 @@ class BaseInputFilterTest extends TestCase
         $filter->add($foo);
         $filter->add($bar);
 
-        $filter->setData([
+        $filter->setData(array(
             'foo' => 'xyz',
             'bar' => null,
-        ]);
+        ));
         $this->assertTrue($filter->isValid(), 'Empty input with fallback value should mark input filter as valid');
         $data = $filter->getValues();
         $this->assertArrayHasKey('bar', $data);
         $this->assertEquals($bar->getFallbackValue(), $data['bar']);
+    }
+
+    /**
+     * @group 15
+     */
+    public function testAllowsValidatingArrayAccessData()
+    {
+        $filter = new InputFilter();
+        $foo = new Input();
+        $foo->getFilterChain()->attachByName('stringtrim')
+                              ->attachByName('alpha');
+        $foo->getValidatorChain()->attach(new Validator\StringLength(3, 6));
+        $filter->add($foo, 'foo');
+
+        $data = new ArrayObject(array('foo' => ' valid '));
+        $filter->setData($data);
+        $this->assertTrue($filter->isValid());
     }
 }
