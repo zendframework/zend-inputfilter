@@ -212,9 +212,6 @@ class Factory
                     break;
                 case 'required':
                     $input->setRequired($value);
-                    if (isset($inputSpecification['allow_empty'])) {
-                        $input->setAllowEmpty($inputSpecification['allow_empty']);
-                    }
                     break;
                 case 'allow_empty':
                     $input->setAllowEmpty($value);
