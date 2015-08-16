@@ -9,7 +9,9 @@
 
 namespace ZendTest\InputFilter;
 
+use ArrayIterator;
 use ArrayObject;
+use FilterIterator;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
@@ -270,6 +272,104 @@ class BaseInputFilterTest extends TestCase
 
         $returnInput = $inputFilter->get($nameToReplace);
         $this->assertEquals($expectedInput, $returnInput, 'get() does not match the expected input');
+    }
+
+    /**
+     * @dataProvider setDataArgumentsProvider
+     */
+    public function testSetDataAndGetRawValueGetValue(
+        $inputs,
+        $data,
+        $expectedRawValues,
+        $expectedValues,
+        $expectedIsValid,
+        $expectedInvalidInputs,
+        $expectedValidInputs,
+        $expectedMessages
+    ) {
+        $inputFilter = $this->inputFilter;
+        foreach ($inputs as $inputName => $input) {
+            $inputFilter->add($input, $inputName);
+        }
+        $return = $inputFilter->setData($data);
+        $this->assertSame($inputFilter, $return, 'setData() must return it self');
+
+        // ** Check filter state **
+        $this->assertSame($expectedRawValues, $inputFilter->getRawValues(), 'getRawValues() value not match');
+        foreach ($expectedRawValues as $inputName => $expectedRawValue) {
+            $this->assertSame(
+                $expectedRawValue,
+                $inputFilter->getRawValue($inputName),
+                'getRawValue() value not match for input ' . $inputName
+            );
+        }
+
+        $this->assertSame($expectedValues, $inputFilter->getValues(), 'getValues() value not match');
+        foreach ($expectedValues as $inputName => $expectedValue) {
+            $this->assertSame(
+                $expectedValue,
+                $inputFilter->getValue($inputName),
+                'getValue() value not match for input ' . $inputName
+            );
+        }
+
+        // ** Check validation state **
+        $this->assertEquals($expectedIsValid, $inputFilter->isValid(), 'isValid() value not match');
+        $this->assertEquals($expectedInvalidInputs, $inputFilter->getInvalidInput(), 'getInvalidInput() value not match');
+        $this->assertEquals($expectedValidInputs, $inputFilter->getValidInput(), 'getValidInput() value not match');
+        $this->assertEquals($expectedMessages, $inputFilter->getMessages(), 'getMessages() value not match');
+    }
+
+    /**
+     * @dataProvider setDataArgumentsProvider
+     */
+    public function testSetArrayAccessDataAndGetRawValueGetValue(
+        $inputs,
+        $data,
+        $expectedRawValues,
+        $expectedValues,
+        $expectedIsValid,
+        $expectedInvalidInputs,
+        $expectedValidInputs,
+        $expectedMessages
+    ) {
+        $dataTypes = $this->dataTypes();
+        $this->testSetDataAndGetRawValueGetValue(
+            $inputs,
+            $dataTypes['ArrayAccess']($data),
+            $expectedRawValues,
+            $expectedValues,
+            $expectedIsValid,
+            $expectedInvalidInputs,
+            $expectedValidInputs,
+            $expectedMessages
+        );
+    }
+
+    /**
+     * @dataProvider setDataArgumentsProvider
+     */
+    public function testSetTraversableDataAndGetRawValueGetValue(
+        $inputs,
+        $data,
+        $expectedRawValues,
+        $expectedValues,
+        $expectedIsValid,
+        $expectedInvalidInputs,
+        $expectedValidInputs,
+        $expectedMessages
+    ) {
+        $dataTypes = $this->dataTypes();
+        $this->testSetDataAndGetRawValueGetValue(
+            $inputs,
+            $dataTypes['Traversable']($data),
+            $expectedRawValues,
+            $expectedValues,
+            $expectedIsValid,
+            $expectedInvalidInputs,
+            $expectedValidInputs,
+            $expectedMessages
+        );
     }
 
     public function getInputFilter()
@@ -1278,6 +1378,86 @@ class BaseInputFilterTest extends TestCase
         return $dataSets;
     }
 
+    public function setDataArgumentsProvider()
+    {
+        $iAName = 'InputA';
+        $iBName = 'InputB';
+        $vRaw = 'rawValue';
+        $vFiltered = 'filteredValue';
+
+        $dARaw = [$iAName => $vRaw];
+        $dBRaw = [$iBName => $vRaw];
+        $d2Raw = array_merge($dARaw, $dBRaw);
+        $dAFiltered = [$iAName => $vFiltered];
+        $dBFiltered = [$iBName => $vFiltered];
+        $d2Filtered = array_merge($dAFiltered, $dBFiltered);
+
+        $required = true;
+        $valid = true;
+        $bOnFail = true;
+
+        $input = function ($iName, $required, $bOnFail, $isValid, $msg = []) use ($vRaw, $vFiltered) {
+            // @codingStandardsIgnoreStart
+            return function ($context) use ($iName, $required, $bOnFail, $isValid, $vRaw, $vFiltered, $msg) {
+                return $this->createInputInterfaceMock($iName, $required, $isValid, $context, $vRaw, $vFiltered, $msg, $bOnFail);
+            };
+            // @codingStandardsIgnoreEnd
+        };
+
+        // @codingStandardsIgnoreStart
+        $iAri  = [$iAName => $input($iAName, $required, !$bOnFail, !$valid, ['Invalid ' . $iAName])];
+        $iAriX = [$iAName => $input($iAName, $required,  $bOnFail, !$valid, ['Invalid ' . $iAName])];
+        $iArvX = [$iAName => $input($iAName, $required,  $bOnFail,  $valid, [])];
+        $iBri  = [$iBName => $input($iBName, $required, !$bOnFail, !$valid, ['Invalid ' . $iBName])];
+        $iBriX = [$iBName => $input($iBName, $required,  $bOnFail, !$valid, ['Invalid ' . $iBName])];
+        $iBrvX = [$iBName => $input($iBName, $required,  $bOnFail,  $valid, [])];
+        $iAriBri   = array_merge($iAri , $iBri);
+        $iArvXBrvX = array_merge($iArvX, $iBrvX);
+        $iAriBrvX  = array_merge($iAri , $iBrvX);
+        $iArvXBir  = array_merge($iArvX, $iBri);
+        $iAriXBrvX = array_merge($iAriX, $iBrvX);
+        $iArvXBriX = array_merge($iArvX, $iBriX);
+        $iAriXBriX = array_merge($iAriX, $iBriX);
+
+        $msgAInv = [$iAName => ['Invalid InputA']];
+        $msgBInv = [$iBName => ['Invalid InputB']];
+        $msg2Inv = array_merge($msgAInv, $msgBInv);
+
+        $dataSets = [
+            // Description => [$inputs, $data argument, $expectedRawValues, $expectedValues, $expectedIsValid,
+            //                 $expectedInvalidInputs, $expectedValidInputs, $expectedMessages]
+            'invalid Break invalid' => [$iAriXBriX, $d2Raw, $d2Raw, $d2Filtered, false, $iAri    , []        , $msgAInv],
+            'invalid Break valid'   => [$iAriXBrvX, $d2Raw, $d2Raw, $d2Filtered, false, $iAri    , []        , $msgAInv],
+            'valid   Break invalid' => [$iArvXBriX, $d2Raw, $d2Raw, $d2Filtered, false, $iBri    , $iAri     , $msgBInv],
+            'valid   Break valid'   => [$iArvXBrvX, $d2Raw, $d2Raw, $d2Filtered, true , []       , $iArvXBrvX, []],
+            'valid   invalid'       => [$iArvXBir , $d2Raw, $d2Raw, $d2Filtered, false, $iBri    , $iArvX    , $msgBInv],
+            'invalid valid'         => [$iAriBrvX , $d2Raw, $d2Raw, $d2Filtered, false, $iAri    , $iBrvX    , $msgAInv],
+            'invalid invalid'       => [$iAriBri  , $d2Raw, $d2Raw, $d2Filtered, false, $iAriBri , []        , $msg2Inv],
+            'invalid valid/NotSet'  => [$iAriBri  , $dARaw, $d2Raw, $d2Filtered, false, $iAriBrvX, []        , $msg2Inv],
+        ];
+        // @codingStandardsIgnoreEnd
+
+        array_walk(
+            $dataSets,
+            function (&$set) {
+                // Create unique mock input instances for each set
+                foreach ($set[0] as $name => $createMock) {
+                    $input = $createMock($set[2]);
+
+                    $set[0][$name] = $input;
+                    if (in_array($name, array_keys($set[5]))) {
+                        $set[5][$name] = $input;
+                    }
+                    if (in_array($name, array_keys($set[6]))) {
+                        $set[6][$name] = $input;
+                    }
+                }
+            }
+        );
+
+        return $dataSets;
+    }
+
     public function inputProvider()
     {
         $input = $this->createInputInterfaceMock('fooInput', null);
@@ -1307,8 +1487,11 @@ class BaseInputFilterTest extends TestCase
      * @param string $name
      * @param bool $isRequired
      * @param null|bool $isValid
-     * @param mixed $expectedContext
+     * @param mixed $context
      * @param mixed $getRawValue
+     * @param mixed $getValue
+     * @param string[] $getMessages
+     * @param bool $breakOnFailure
      *
      * @return MockObject|InputInterface
      */
@@ -1316,9 +1499,12 @@ class BaseInputFilterTest extends TestCase
         $name,
         $isRequired,
         $isValid = null,
-        $expectedContext = 'not-set',
-        $getRawValue = 'not-set')
-    {
+        $context = null,
+        $getRawValue = null,
+        $getValue = null,
+        $getMessages = [],
+        $breakOnFailure = false
+    ) {
         /** @var InputInterface|MockObject $input */
         $input = $this->getMock(InputInterface::class);
         $input->method('getName')
@@ -1327,21 +1513,53 @@ class BaseInputFilterTest extends TestCase
         $input->method('isRequired')
             ->willReturn($isRequired)
         ;
-        if ($getRawValue !== 'not-set') {
-            $input->method('getRawValue')
-                ->willReturn($getRawValue)
-            ;
-        }
-        if ($isValid !== null) {
-            $mockMethod = $input->expects($this->once())
+        $input->method('getRawValue')
+            ->willReturn($getRawValue)
+        ;
+        $input->method('getValue')
+            ->willReturn($getValue)
+        ;
+        $input->method('breakOnFailure')
+            ->willReturn($breakOnFailure)
+        ;
+        if (($isValid === false) || ($isValid === true)) {
+            $input->expects($this->once())
                 ->method('isValid')
+                ->with($context)
                 ->willReturn($isValid)
             ;
-            if ($expectedContext !== 'not-set') {
-                $mockMethod->with($expectedContext);
-            }
+        } else {
+            $input->expects($this->never())
+                ->method('isValid')
+                ->with($context)
+            ;
         }
+        $input->method('getMessages')
+            ->willReturn($getMessages)
+        ;
 
         return $input;
+    }
+
+    /**
+     * @return callable[]
+     */
+    protected function dataTypes()
+    {
+        return [
+            // Description => callable
+            'array' => function ($data) {
+                return $data;
+            },
+            'ArrayAccess' => function ($data) {
+                return new ArrayIterator($data);
+            },
+            'Traversable' => function ($data) {
+                return $this->getMockBuilder(FilterIterator::class)
+                    ->setConstructorArgs([new ArrayIterator($data)])
+                    ->getMock()
+                ;
+            },
+        ];
     }
 }
