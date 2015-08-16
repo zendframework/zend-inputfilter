@@ -9,6 +9,9 @@
 
 namespace ZendTest\InputFilter;
 
+/**
+ * @covers Zend\InputFilter\InputFilter
+ */
 class InputFilterTest extends BaseInputFilterTest
 {
     // Empty stub as reminder of rename BaseInputFilterTest and don't remove the tests :)

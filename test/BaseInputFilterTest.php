@@ -23,6 +23,9 @@ use Zend\InputFilter\BaseInputFilter as InputFilter;
 use Zend\Filter;
 use Zend\Validator;
 
+/**
+ * @covers Zend\InputFilter\BaseInputFilter
+ */
 class BaseInputFilterTest extends TestCase
 {
     public function testInputFilterIsEmptyByDefault()
