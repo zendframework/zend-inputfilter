@@ -16,6 +16,9 @@ use Zend\InputFilter\Factory;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
 
+/**
+ * @covers Zend\InputFilter\InputFilter
+ */
 class InputFilterTest extends TestCase
 {
     /**

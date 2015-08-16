@@ -13,6 +13,7 @@ use Zend\InputFilter\InputFilterPluginManager;
 
 /**
  * @group Zend_Stdlib
+ * @covers Zend\InputFilter\InputFilterPluginManager
  */
 class InputFilterManagerTest extends \PHPUnit_Framework_TestCase
 {

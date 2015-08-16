@@ -13,6 +13,9 @@ use Zend\InputFilter\ArrayInput;
 use Zend\Filter;
 use Zend\Validator;
 
+/**
+ * @covers Zend\InputFilter\ArrayInput
+ */
 class ArrayInputTest extends InputTest
 {
     public function setUp()

@@ -13,6 +13,9 @@ use Zend\InputFilter\FileInput;
 use Zend\Filter;
 use Zend\Validator;
 
+/**
+ * @covers Zend\InputFilter\FileInput
+ */
 class FileInputTest extends InputTest
 {
     public function setUp()

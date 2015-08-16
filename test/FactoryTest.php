@@ -18,6 +18,9 @@ use Zend\Validator;
 use Zend\InputFilter\InputFilterPluginManager;
 use Zend\ServiceManager;
 
+/**
+ * @covers Zend\InputFilter\Factory
+ */
 class FactoryTest extends TestCase
 {
     public function testFactoryComposesFilterChainByDefault()

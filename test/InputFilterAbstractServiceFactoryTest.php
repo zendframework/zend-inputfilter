@@ -16,6 +16,9 @@ use Zend\ServiceManager\ServiceManager;
 use Zend\Validator\ValidatorPluginManager;
 use Zend\InputFilter\InputFilterAbstractServiceFactory;
 
+/**
+ * @covers Zend\InputFilter\InputFilterAbstractServiceFactory
+ */
 class InputFilterAbstractServiceFactoryTest extends TestCase
 {
     public function setUp()
