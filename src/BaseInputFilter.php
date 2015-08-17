@@ -21,7 +21,7 @@ class BaseInputFilter implements
     ReplaceableInputInterface
 {
     /**
-     * @var array
+     * @var null|array|ArrayAccess
      */
     protected $data;
 
