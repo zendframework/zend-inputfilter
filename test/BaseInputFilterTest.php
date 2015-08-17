@@ -242,6 +242,26 @@ class BaseInputFilterTest extends TestCase
         $this->assertEquals('foo', $foo->getName(), 'Input name should not change');
     }
 
+    /**
+     * @dataProvider inputProvider
+     */
+    public function testReplace($input, $inputName, $expectedInput)
+    {
+        $inputFilter = new InputFilter();
+        $nameToReplace = 'replace_me';
+        $inputToReplace = new Input($nameToReplace);
+
+        $inputFilter->add($inputToReplace);
+        $currentNumberOfFilters = count($inputFilter);
+
+        $return = $inputFilter->replace($input, $nameToReplace);
+        $this->assertSame($inputFilter, $return, 'replace() must return it self');
+        $this->assertCount($currentNumberOfFilters, $inputFilter, "Number of filters shouldn't change");
+
+        $returnInput = $inputFilter->get($nameToReplace);
+        $this->assertEquals($expectedInput, $returnInput, 'get() does not match the expected input');
+    }
+
     public function getInputFilter()
     {
         $filter = new InputFilter();
