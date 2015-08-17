@@ -170,6 +170,30 @@ class BaseInputFilterTest extends TestCase
         $filter->setValidationGroup('notExistInputFilter');
     }
 
+    /**
+     * @dataProvider inputProvider
+     *
+     * @param mixed $input
+     * @param string $inputName Name used to retrieve this input.
+     * @param mixed $expectedInput
+     */
+    public function testReplace($input, $inputName, $expectedInput)
+    {
+        $inputFilter = new InputFilter();
+        $nameToReplace = 'replace_me';
+        $inputToReplace = new Input($nameToReplace);
+
+        $inputFilter->add($inputToReplace);
+        $currentNumberOfFilters = count($inputFilter);
+
+        $return = $inputFilter->replace($input, $nameToReplace);
+        $this->assertSame($inputFilter, $return, 'BaseInputFilter::replace() must return it self');
+        $this->assertCount($currentNumberOfFilters, $inputFilter, "Number of filters shouldn't change");
+
+        $returnInput = $inputFilter->get($nameToReplace);
+        $this->assertEquals($expectedInput, $returnInput, 'InputFilter::get() does not match the expected input');
+    }
+
     public function getInputFilter()
     {
         $filter = $this->createDefaultInputFilter();
