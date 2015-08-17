@@ -11,10 +11,10 @@ namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\Filter\FilterPluginManager;
+use Zend\InputFilter\InputFilterAbstractServiceFactory;
 use Zend\InputFilter\InputFilterPluginManager;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Validator\ValidatorPluginManager;
-use Zend\InputFilter\InputFilterAbstractServiceFactory;
 
 /**
  * @covers Zend\InputFilter\InputFilterAbstractServiceFactory
