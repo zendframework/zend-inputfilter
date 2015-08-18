@@ -19,7 +19,7 @@ interface InputFilterInterface extends Countable
     /**
      * Add an input to the input filter
      *
-     * @param  InputInterface|InputFilterInterface|array $input
+     * @param  InputInterface|InputFilterInterface|array|Traversable|InputProviderInterface $input
      * @param  null|string $name Name used to retrieve this input
      * @return InputFilterInterface
      */
