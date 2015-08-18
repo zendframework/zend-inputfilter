@@ -28,6 +28,8 @@ use Zend\Validator;
  */
 class BaseInputFilterTest extends TestCase
 {
+    use InputFilterInterfaceTestTrait;
+
     public function testInputFilterIsEmptyByDefault()
     {
         $filter = new InputFilter();
@@ -44,47 +46,6 @@ class BaseInputFilterTest extends TestCase
             'Traversable or Zend\InputFilter\InputProviderInterface as its first argument; received "stdClass"'
         );
         $filter->add(new stdClass());
-    }
-
-    public function testAddingInputsIncreasesCountOfFilter()
-    {
-        $filter = new InputFilter();
-        $foo    = new Input('foo');
-        $filter->add($foo);
-        $this->assertEquals(1, count($filter));
-        $bar    = new Input('bar');
-        $filter->add($bar);
-        $this->assertEquals(2, count($filter));
-    }
-
-    public function testAddingInputWithNameDoesNotInjectNameInInput()
-    {
-        $filter = new InputFilter();
-        $foo    = new Input('foo');
-        $filter->add($foo, 'bar');
-        $test   = $filter->get('bar');
-        $this->assertSame($foo, $test);
-        $this->assertEquals('foo', $foo->getName());
-    }
-
-    public function testCanAddInputFilterAsInput()
-    {
-        $parent = new InputFilter();
-        $child  = new InputFilter();
-        $parent->add($child, 'child');
-        $this->assertEquals(1, count($parent));
-        $this->assertSame($child, $parent->get('child'));
-    }
-
-    public function testCanRemoveInputFilter()
-    {
-        $parent = new InputFilter();
-        $child  = new InputFilter();
-        $parent->add($child, 'child');
-        $this->assertEquals(1, count($parent));
-        $this->assertSame($child, $parent->get('child'));
-        $parent->remove('child');
-        $this->assertEquals(0, count($parent));
     }
 
     public function getInputFilter()
@@ -1153,18 +1114,6 @@ class BaseInputFilterTest extends TestCase
         $this->assertSame($factory, $filter->getFactory());
     }
 
-    public function testCanAddUsingSpecification()
-    {
-        $filter = new InputFilter();
-
-        $filter->add([
-            'name' => 'foo',
-        ]);
-        $this->assertTrue($filter->has('foo'));
-        $foo = $filter->get('foo');
-        $this->assertInstanceOf(InputInterface::class, $foo);
-    }
-
     /**
      * @covers \Zend\InputFilter\InputFilter::getValue
      *
@@ -1235,5 +1184,12 @@ class BaseInputFilterTest extends TestCase
         $filter->setData(['username' => 'Mwop']);
 
         $filter->isValid($context);
+    }
+
+    protected function createDefaultInputFilter()
+    {
+        $inputFilter = new InputFilter();
+
+        return $inputFilter;
     }
 }
