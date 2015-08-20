@@ -231,11 +231,6 @@ class BaseInputFilter implements
      */
     protected function validateInputs(array $inputs, $data = [], $context = null)
     {
-        // backwards compatibility
-        if (empty($data)) {
-            $data = $this->getRawValues();
-        }
-
         $this->validInputs   = [];
         $this->invalidInputs = [];
         $valid               = true;
