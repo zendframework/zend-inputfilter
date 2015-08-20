@@ -242,12 +242,28 @@ class BaseInputFilter implements
 
         foreach ($inputs as $name) {
             $input       = $this->inputs[$name];
+
+            // Validate an input filter
+            if ($input instanceof InputFilterInterface) {
+                if (!$input->isValid($context)) {
+                    $this->invalidInputs[$name] = $input;
+                    $valid = false;
+                    continue;
+                }
+                $this->validInputs[$name] = $input;
+                continue;
+            }
+
+            // If input is not InputInterface then silently continue (BC safe)
+            if (!$input instanceof InputInterface) {
+                continue;
+            }
+
             $hasFallback = ($input instanceof Input && $input->hasFallback());
 
             // If the value is required, not present in the data set, and
             // has no fallback, validation fails.
             if (!array_key_exists($name, $data)
-                && $input instanceof InputInterface
                 && $input->isRequired()
                 && !$hasFallback
             ) {
@@ -266,7 +282,6 @@ class BaseInputFilter implements
             // has a fallback, validation passes, and we set the input
             // value to the fallback.
             if (!array_key_exists($name, $data)
-                && $input instanceof InputInterface
                 && $input->isRequired()
                 && $hasFallback
             ) {
@@ -279,34 +294,20 @@ class BaseInputFilter implements
                 $data[$name] = null;
             }
 
-            // Validate an input filter
-            if ($input instanceof InputFilterInterface) {
-                if (!$input->isValid($context)) {
-                    $this->invalidInputs[$name] = $input;
-                    $valid = false;
-                    continue;
-                }
-                $this->validInputs[$name] = $input;
-                continue;
-            }
-
             // Validate an input
-            if ($input instanceof InputInterface) {
-                $inputContext = $context ?: $data;
+            $inputContext = $context ?: $data;
 
-                if (!$input->isValid($inputContext)) {
-                    // Validation failure
-                    $this->invalidInputs[$name] = $input;
-                    $valid = false;
+            if (!$input->isValid($inputContext)) {
+                // Validation failure
+                $this->invalidInputs[$name] = $input;
+                $valid = false;
 
-                    if ($input->breakOnFailure()) {
-                        return false;
-                    }
-                    continue;
+                if ($input->breakOnFailure()) {
+                    return false;
                 }
-                $this->validInputs[$name] = $input;
                 continue;
             }
+            $this->validInputs[$name] = $input;
         }
 
         return $valid;
