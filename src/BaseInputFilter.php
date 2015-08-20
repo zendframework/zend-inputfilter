@@ -21,7 +21,7 @@ class BaseInputFilter implements
     ReplaceableInputInterface
 {
     /**
-     * @var array
+     * @var null|array|ArrayAccess
      */
     protected $data;
 
@@ -224,7 +224,7 @@ class BaseInputFilter implements
     /**
      * Validate a set of inputs against the current data
      *
-     * @param  array $inputs
+     * @param  string[] $inputs Array of input names.
      * @param  array|ArrayAccess $data
      * @param  mixed|null $context
      * @return bool
