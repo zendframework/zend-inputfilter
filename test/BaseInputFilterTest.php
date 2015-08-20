@@ -784,37 +784,6 @@ class BaseInputFilterTest extends TestCase
         $this->assertEquals(0, count($unknown));
     }
 
-    public function testValidateUseExplodeAndInstanceOf()
-    {
-        $filter = new InputFilter();
-
-        $input = new Input();
-        $input->setRequired(true);
-
-        $input->getValidatorChain()->attach(
-            new \Zend\Validator\Explode(
-                [
-                    'validator' => new \Zend\Validator\IsInstanceOf(
-                        [
-                            'className' => 'Zend\InputFilter\Input'
-                        ]
-                    )
-                ]
-            )
-        );
-
-        $filter->add($input, 'example');
-
-        $data = [
-            'example' => [
-                $input
-            ]
-        ];
-
-        $filter->setData($data);
-        $this->assertTrue($filter->isValid());
-    }
-
     public function testGetInputs()
     {
         $filter = new InputFilter();
