@@ -261,6 +261,12 @@ class BaseInputFilter implements
 
             $hasFallback = ($input instanceof Input && $input->hasFallback());
 
+            if (!array_key_exists($name, $data)
+                && !$input->isRequired()
+            ) {
+                continue;
+            }
+
             // If the value is required, not present in the data set, and
             // has no fallback, validation fails.
             if (!array_key_exists($name, $data)
