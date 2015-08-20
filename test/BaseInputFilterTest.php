@@ -10,61 +10,42 @@
 namespace ZendTest\InputFilter;
 
 use ArrayObject;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
+use Zend\InputFilter\CollectionInputFilter;
+use Zend\InputFilter\Exception\InvalidArgumentException;
+use Zend\InputFilter\Factory;
 use Zend\InputFilter\Input;
+use Zend\InputFilter\InputInterface;
 use Zend\InputFilter\FileInput;
 use Zend\InputFilter\BaseInputFilter as InputFilter;
 use Zend\Filter;
 use Zend\Validator;
 
+/**
+ * @covers Zend\InputFilter\BaseInputFilter
+ */
 class BaseInputFilterTest extends TestCase
 {
+    use InputFilterInterfaceTestTrait;
+
     public function testInputFilterIsEmptyByDefault()
     {
         $filter = new InputFilter();
         $this->assertEquals(0, count($filter));
     }
 
-    public function testAddingInputsIncreasesCountOfFilter()
+    public function testAddWithInvalidInputTypeThrowsInvalidArgumentException()
     {
         $filter = new InputFilter();
-        $foo    = new Input('foo');
-        $filter->add($foo);
-        $this->assertEquals(1, count($filter));
-        $bar    = new Input('bar');
-        $filter->add($bar);
-        $this->assertEquals(2, count($filter));
-    }
 
-    public function testAddingInputWithNameDoesNotInjectNameInInput()
-    {
-        $filter = new InputFilter();
-        $foo    = new Input('foo');
-        $filter->add($foo, 'bar');
-        $test   = $filter->get('bar');
-        $this->assertSame($foo, $test);
-        $this->assertEquals('foo', $foo->getName());
-    }
-
-    public function testCanAddInputFilterAsInput()
-    {
-        $parent = new InputFilter();
-        $child  = new InputFilter();
-        $parent->add($child, 'child');
-        $this->assertEquals(1, count($parent));
-        $this->assertSame($child, $parent->get('child'));
-    }
-
-    public function testCanRemoveInputFilter()
-    {
-        $parent = new InputFilter();
-        $child  = new InputFilter();
-        $parent->add($child, 'child');
-        $this->assertEquals(1, count($parent));
-        $this->assertSame($child, $parent->get('child'));
-        $parent->remove('child');
-        $this->assertEquals(0, count($parent));
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'expects an instance of Zend\InputFilter\InputInterface, Zend\InputFilter\InputFilterInterface, array, '.
+            'Traversable or Zend\InputFilter\InputProviderInterface as its first argument; received "stdClass"'
+        );
+        $filter->add(new stdClass());
     }
 
     public function getInputFilter()
@@ -1113,5 +1094,102 @@ class BaseInputFilterTest extends TestCase
         $data = new ArrayObject(['foo' => ' valid ']);
         $filter->setData($data);
         $this->assertTrue($filter->isValid());
+    }
+
+    public function testLazilyComposesAFactoryByDefault()
+    {
+        $filter = new InputFilter();
+
+        $factory = $filter->getFactory();
+        $this->assertInstanceOf(Factory::class, $factory);
+    }
+
+    public function testCanComposeAFactory()
+    {
+        $filter = new InputFilter();
+
+        /** @var Factory|MockObject $factory */
+        $factory = $this->getMock(Factory::class);
+        $filter->setFactory($factory);
+        $this->assertSame($factory, $filter->getFactory());
+    }
+
+    /**
+     * @covers \Zend\InputFilter\InputFilter::getValue
+     *
+     * @group 6028
+     */
+    public function testGetValueReturnsArrayIfNestedInputFilters()
+    {
+        $filter = new InputFilter();
+
+        $inputFilter = new InputFilter();
+        $inputFilter->add(new Input(), 'name');
+
+        $filter->add($inputFilter, 'people');
+
+        $data = [
+            'people' => [
+                 'name' => 'Wanderson'
+            ]
+        ];
+
+        $filter->setData($data);
+        $this->assertTrue($filter->isValid());
+
+        $this->assertInternalType('array', $filter->getValue('people'));
+    }
+
+    /**
+     * @group ZF2-5648
+     */
+    public function testCountZeroValidateInternalInputWithCollectionInputFilter()
+    {
+        $filter = new InputFilter();
+
+        $inputFilter = new InputFilter();
+        $inputFilter->add(new Input(), 'name');
+
+        $collection = new CollectionInputFilter();
+        $collection->setInputFilter($inputFilter);
+        $collection->setCount(0);
+
+        $filter->add($collection, 'people');
+
+        $data = [
+            'people' => [
+                [
+                    'name' => 'Wanderson',
+                ],
+            ],
+        ];
+        $filter->setData($data);
+
+        $this->assertTrue($filter->isValid());
+        $this->assertSame($data, $filter->getValues());
+    }
+
+    public function testCanUseContextPassedToInputFilter()
+    {
+        $filter = new InputFilter();
+
+        $context = new \stdClass();
+
+        /** @var InputInterface|MockObject $input */
+        $input = $this->getMock(InputInterface::class);
+        $input->expects($this->once())->method('isValid')->with($context)->will($this->returnValue(true));
+        $input->method('getRawValue')->will($this->returnValue('Mwop'));
+
+        $filter->add($input, 'username');
+        $filter->setData(['username' => 'Mwop']);
+
+        $filter->isValid($context);
+    }
+
+    protected function createDefaultInputFilter()
+    {
+        $inputFilter = new InputFilter();
+
+        return $inputFilter;
     }
 }

@@ -14,6 +14,9 @@ use Traversable;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Stdlib\InitializableInterface;
 
+/**
+ * @deprecated 2.5.5 Use `Zend\InputFilter\InputFilter` instead.
+ */
 class BaseInputFilter implements
     InputFilterInterface,
     UnknownInputsCapableInterface,
@@ -24,6 +27,11 @@ class BaseInputFilter implements
      * @var null|array|ArrayAccess
      */
     protected $data;
+
+    /**
+     * @var Factory
+     */
+    protected $factory;
 
     /**
      * @var InputInterface[]|InputFilterInterface[]
@@ -44,6 +52,33 @@ class BaseInputFilter implements
      * @var InputInterface[]|InputFilterInterface[]
      */
     protected $validInputs;
+
+    /**
+     * Set factory to use when adding inputs and filters by spec
+     *
+     * @param  Factory $factory
+     * @return InputFilter
+     */
+    public function setFactory(Factory $factory)
+    {
+        $this->factory = $factory;
+        return $this;
+    }
+
+    /**
+     * Get factory to use when adding inputs and filters by spec
+     *
+     * Lazy-loads a Factory instance if none attached.
+     *
+     * @return Factory
+     */
+    public function getFactory()
+    {
+        if (null === $this->factory) {
+            $this->setFactory(new Factory());
+        }
+        return $this->factory;
+    }
 
     /**
      * This function is automatically called when creating element with factory. It
@@ -70,19 +105,27 @@ class BaseInputFilter implements
     /**
      * Add an input to the input filter
      *
-     * @param  InputInterface|InputFilterInterface $input
+     * @param  InputInterface|InputFilterInterface|array|Traversable|InputProviderInterface $input
      * @param  null|string                         $name Name used to retrieve this input
      * @throws Exception\InvalidArgumentException
      * @return InputFilterInterface
      */
     public function add($input, $name = null)
     {
+        if (is_array($input) || $input instanceof Traversable || $input instanceof InputProviderInterface) {
+            $factory = $this->getFactory();
+            $input = $factory->createInput($input);
+        }
+
         if (!$input instanceof InputInterface && !$input instanceof InputFilterInterface) {
             throw new Exception\InvalidArgumentException(sprintf(
-                '%s expects an instance of %s or %s as its first argument; received "%s"',
+                '%s expects an instance of %s, %s, %s, %s or %s as its first argument; received "%s"',
                 __METHOD__,
-                'Zend\InputFilter\InputInterface',
-                'Zend\InputFilter\InputFilterInterface',
+                InputInterface::class,
+                InputFilterInterface::class,
+                'array',
+                Traversable::class,
+                InputProviderInterface::class,
                 (is_object($input) ? get_class($input) : gettype($input))
             ));
         }
