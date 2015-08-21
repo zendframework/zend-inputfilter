@@ -24,12 +24,12 @@ class CollectionInputFilter extends InputFilter
     protected $count = null;
 
     /**
-     * @var array
+     * @var array[]
      */
     protected $collectionValues = [];
 
     /**
-     * @var array
+     * @var array[]
      */
     protected $collectionRawValues = [];
 
@@ -226,7 +226,7 @@ class CollectionInputFilter extends InputFilter
     /**
      * Clear collectionValues
      *
-     * @access public
+     * @return array[]
      */
     public function clearValues()
     {
@@ -236,7 +236,7 @@ class CollectionInputFilter extends InputFilter
     /**
      * Clear collectionRawValues
      *
-     * @access public
+     * @return array[]
      */
     public function clearRawValues()
     {

@@ -24,7 +24,7 @@ class InputFilterPluginManager extends AbstractPluginManager
     /**
      * Default set of plugins
      *
-     * @var array
+     * @var string[]
      */
     protected $invokableClasses = [
         'inputfilter' => InputFilter::class,

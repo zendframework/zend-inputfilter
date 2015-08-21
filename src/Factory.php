@@ -373,7 +373,7 @@ class Factory
 
     /**
      * @param  ValidatorChain    $chain
-     * @param  array|Traversable $validators
+     * @param  string[]|ValidatorInterface[] $validators
      * @throws Exception\RuntimeException
      * @return void
      */

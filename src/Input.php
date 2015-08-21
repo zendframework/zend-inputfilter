@@ -354,7 +354,7 @@ class Input implements
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getMessages()
     {
