@@ -10,7 +10,6 @@
 namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
-use PHPUnit_Framework_TestCase as TestCase;
 use Zend\InputFilter\CollectionInputFilter;
 use Zend\InputFilter\Factory;
 use Zend\InputFilter\Input;
@@ -20,12 +19,8 @@ use Zend\InputFilter\InputInterface;
 /**
  * @covers Zend\InputFilter\InputFilter
  */
-class InputFilterTest extends TestCase
+class InputFilterTest extends BaseInputFilterTest
 {
-    use InputFilterInterfaceTestTrait;
-    use ReplaceableInputInterfaceTestTrait;
-    use UnknownInputsCapableInterfaceTestTrait;
-
     public function testLazilyComposesAFactoryByDefault()
     {
         $inputFilter = $this->createDefaultInputFilter();
@@ -132,15 +127,5 @@ class InputFilterTest extends TestCase
         $inputFilter = new InputFilter();
 
         return $inputFilter;
-    }
-
-    protected function createDefaultReplaceableInput()
-    {
-        return $this->createDefaultInputFilter();
-    }
-
-    protected function createDefaultUnknownInputsCapable()
-    {
-        return $this->createDefaultInputFilter();
     }
 }
