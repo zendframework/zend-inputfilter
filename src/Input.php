@@ -68,6 +68,15 @@ class Input implements
     protected $value;
 
     /**
+     * Flag for distinguish when $value contains a real `null` or the PHP default property value.
+     *
+     * PHP gives to all properties a default value of `null` unless other default value is set.
+     *
+     * @var bool
+     */
+    protected $hasValue = false;
+
+    /**
      * @var mixed
      */
     protected $fallbackValue;
@@ -163,12 +172,36 @@ class Input implements
     }
 
     /**
+     * Set the input value.
+     *
+     * If you want to remove/unset the current value use {@link Input::resetValue()}.
+     *
+     * @see Input::getValue() For retrieve the input value.
+     * @see Input::hasValue() For to know if input value was set.
+     * @see Input::resetValue() For reset the input value to the default state.
+     *
      * @param  mixed $value
      * @return Input
      */
     public function setValue($value)
     {
         $this->value = $value;
+        $this->hasValue = true;
+        return $this;
+    }
+
+    /**
+     * Reset input value to the default state.
+     *
+     * @see Input::hasValue() For to know if input value was set.
+     * @see Input::setValue() For set a new value.
+     *
+     * @return Input
+     */
+    public function resetValue()
+    {
+        $this->value = null;
+        $this->hasValue = false;
         return $this;
     }
 
@@ -268,6 +301,23 @@ class Input implements
     {
         $filter = $this->getFilterChain();
         return $filter->filter($this->value);
+    }
+
+    /**
+     * Flag for inform if input value was set.
+     *
+     * This flag used for distinguish when {@link Input::getValue()} will return a real `null` value or the PHP default
+     * value.
+     *
+     * @see Input::getValue() For retrieve the input value.
+     * @see Input::setValue() For set a new value.
+     * @see Input::resetValue() For reset the input value to the default state.
+     *
+     * @return bool
+     */
+    public function hasValue()
+    {
+        return $this->hasValue;
     }
 
     /**
