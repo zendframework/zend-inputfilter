@@ -45,7 +45,10 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
     public function testLoadingInvalidElementRaisesException()
     {
         $this->manager->setInvokableClass('test', get_class($this));
-        $this->setExpectedException(RuntimeException::class);
+        $this->setExpectedException(
+            RuntimeException::class,
+            'must implement Zend\InputFilter\InputFilterInterface or Zend\InputFilter\InputInterface'
+        );
         $this->manager->get('test');
     }
 
