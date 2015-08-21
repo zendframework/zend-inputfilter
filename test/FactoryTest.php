@@ -31,19 +31,19 @@ class FactoryTest extends TestCase
 {
     public function testFactoryComposesFilterChainByDefault()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $this->assertInstanceOf(Filter\FilterChain::class, $factory->getDefaultFilterChain());
     }
 
     public function testFactoryComposesValidatorChainByDefault()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $this->assertInstanceOf(Validator\ValidatorChain::class, $factory->getDefaultValidatorChain());
     }
 
     public function testFactoryAllowsInjectingFilterChain()
     {
-        $factory     = new Factory();
+        $factory     = $this->createDefaultFactory();
         $filterChain = new Filter\FilterChain();
         $factory->setDefaultFilterChain($filterChain);
         $this->assertSame($filterChain, $factory->getDefaultFilterChain());
@@ -51,7 +51,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryAllowsInjectingValidatorChain()
     {
-        $factory        = new Factory();
+        $factory        = $this->createDefaultFactory();
         $validatorChain = new Validator\ValidatorChain();
         $factory->setDefaultValidatorChain($validatorChain);
         $this->assertSame($validatorChain, $factory->getDefaultValidatorChain());
@@ -59,7 +59,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryUsesComposedFilterChainWhenCreatingNewInputObjects()
     {
-        $factory       = new Factory();
+        $factory       = $this->createDefaultFactory();
         $filterChain   = new Filter\FilterChain();
         $pluginManager = new Filter\FilterPluginManager();
         $filterChain->setPluginManager($pluginManager);
@@ -75,7 +75,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryUsesComposedValidatorChainWhenCreatingNewInputObjects()
     {
-        $factory          = new Factory();
+        $factory          = $this->createDefaultFactory();
         $validatorChain   = new Validator\ValidatorChain();
         $validatorPlugins = new Validator\ValidatorPluginManager();
         $validatorChain->setPluginManager($validatorPlugins);
@@ -91,7 +91,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryInjectsComposedFilterAndValidatorChainsIntoInputObjectsWhenCreatingNewInputFilterObjects()
     {
-        $factory          = new Factory();
+        $factory          = $this->createDefaultFactory();
         $filterPlugins    = new Filter\FilterPluginManager();
         $validatorPlugins = new Validator\ValidatorPluginManager();
         $filterChain      = new Filter\FilterChain();
@@ -118,7 +118,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryWillCreateInputWithSuggestedFilters()
     {
-        $factory      = new Factory();
+        $factory      = $this->createDefaultFactory();
         $htmlEntities = new Filter\HtmlEntities();
         $input = $factory->createInput([
             'name'    => 'foo',
@@ -160,7 +160,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryWillCreateInputWithSuggestedValidators()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $digits  = new Validator\Digits();
         $input = $factory->createInput([
             'name'       => 'foo',
@@ -204,7 +204,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryWillCreateInputWithSuggestedRequiredFlagAndAlternativeAllowEmptyFlag()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $input   = $factory->createInput([
             'name'     => 'foo',
             'required' => false,
@@ -217,7 +217,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryWillCreateInputWithSuggestedAllowEmptyFlagAndImpliesRequiredFlag()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $input   = $factory->createInput([
             'name'        => 'foo',
             'allow_empty' => true,
@@ -229,7 +229,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryWillCreateInputWithSuggestedName()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $input   = $factory->createInput([
             'name'        => 'foo',
         ]);
@@ -239,7 +239,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryWillCreateInputWithContinueIfEmptyFlag()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $input = $factory->createInput([
             'name'              => 'foo',
             'continue_if_empty' => true,
@@ -250,7 +250,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryAcceptsInputInterface()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $input = new Input();
 
         $inputFilter = $factory->createInputFilter([
@@ -264,7 +264,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryAcceptsInputFilterInterface()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $input = new InputFilter();
 
         $inputFilter = $factory->createInputFilter([
@@ -278,7 +278,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryWillCreateInputFilterAndAllInputObjectsFromGivenConfiguration()
     {
-        $factory     = new Factory();
+        $factory     = $this->createDefaultFactory();
         $inputFilter = $factory->createInputFilter([
             'foo' => [
                 'name'       => 'foo',
@@ -394,7 +394,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryWillCreateInputFilterMatchingInputNameWhenNotSpecified()
     {
-        $factory     = new Factory();
+        $factory     = $this->createDefaultFactory();
         $inputFilter = $factory->createInputFilter([
             ['name' => 'foo']
         ]);
@@ -405,7 +405,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryAllowsPassingValidatorChainsInInputSpec()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $chain   = new Validator\ValidatorChain();
         $input   = $factory->createInput([
             'name'       => 'foo',
@@ -418,7 +418,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryAllowsPassingFilterChainsInInputSpec()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $chain   = new Filter\FilterChain();
         $input   = $factory->createInput([
             'name'    => 'foo',
@@ -431,7 +431,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryAcceptsCollectionInputFilter()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
 
         /** @var CollectionInputFilter $inputFilter */
         $inputFilter = $factory->createInputFilter([
@@ -449,7 +449,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryWillCreateInputWithErrorMessage()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $input   = $factory->createInput([
             'name'          => 'foo',
             'error_message' => 'My custom error message',
@@ -460,7 +460,7 @@ class FactoryTest extends TestCase
     public function testFactoryWillNotGetPrioritySetting()
     {
         //Reminder: Priority at which to enqueue filter; defaults to 1000 (higher executes earlier)
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $input   = $factory->createInput([
             'name'    => 'foo',
             'filters' => [
@@ -502,7 +502,7 @@ class FactoryTest extends TestCase
 
     public function testConflictNameWithInputFilterType()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
 
         $inputFilter = $factory->createInputFilter(
             [
@@ -532,7 +532,7 @@ class FactoryTest extends TestCase
      */
     public function testCanSetInputErrorMessage()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $input   = $factory->createInput([
             'name'          => 'test',
             'type'          => Input::class,
@@ -548,7 +548,7 @@ class FactoryTest extends TestCase
         $serviceManager->setService('ValidatorManager', new Validator\ValidatorPluginManager);
         $serviceManager->setService('FilterManager', new Filter\FilterPluginManager);
         $inputFilterManager->setServiceLocator($serviceManager);
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $factory->setInputFilterManager($inputFilterManager);
         $this->assertInstanceOf(
             Validator\ValidatorPluginManager::class,
@@ -563,7 +563,7 @@ class FactoryTest extends TestCase
     public function testSetInputFilterManagerWithoutServiceManager()
     {
         $inputFilterManager = new InputFilterPluginManager();
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $factory->setInputFilterManager($inputFilterManager);
         $this->assertSame($inputFilterManager, $factory->getInputFilterManager());
     }
@@ -582,7 +582,7 @@ class FactoryTest extends TestCase
      */
     public function testSetsBreakChainOnFailure()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
 
         $this->assertTrue($factory->createInput(['break_on_failure' => true])->breakOnFailure());
 
@@ -591,7 +591,7 @@ class FactoryTest extends TestCase
 
     public function testCanCreateInputFilterWithNullInputs()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
 
         $inputFilter = $factory->createInputFilter([
             'foo' => [
@@ -623,7 +623,7 @@ class FactoryTest extends TestCase
             ->method('getInputSpecification')
             ->will($this->returnValue(['name' => 'foo']));
 
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $input   = $factory->createInput($provider);
 
         $this->assertInstanceOf(InputInterface::class, $input);
@@ -653,7 +653,7 @@ class FactoryTest extends TestCase
                 ],
             ]));
 
-        $factory     = new Factory();
+        $factory     = $this->createDefaultFactory();
         $inputFilter = $factory->createInputFilter($provider);
 
         $this->assertInstanceOf(InputFilterInterface::class, $inputFilter);
@@ -661,7 +661,7 @@ class FactoryTest extends TestCase
 
     public function testSuggestedTypeMayBePluginNameInInputFilterPluginManager()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $pluginManager = new InputFilterPluginManager();
         $pluginManager->setService('bar', new Input('bar'));
         $factory->setInputFilterManager($pluginManager);
@@ -679,7 +679,7 @@ class FactoryTest extends TestCase
 
     public function testInputFromPluginManagerMayBeFurtherConfiguredWithSpec()
     {
-        $factory = new Factory();
+        $factory = $this->createDefaultFactory();
         $pluginManager = new InputFilterPluginManager();
         $pluginManager->setService('bar', $barInput = new Input('bar'));
         $this->assertTrue($barInput->isRequired());
@@ -692,5 +692,15 @@ class FactoryTest extends TestCase
 
         $this->assertFalse($input->isRequired());
         $this->assertSame('bar', $input->getName());
+    }
+
+    /**
+     * @return Factory
+     */
+    protected function createDefaultFactory()
+    {
+        $factory = new Factory();
+
+        return $factory;
     }
 }

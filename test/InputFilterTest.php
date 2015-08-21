@@ -64,7 +64,7 @@ class InputFilterTest extends TestCase
     {
         $inputFilter = $this->createDefaultInputFilter();
 
-        $nestedInputFilter = new InputFilter();
+        $nestedInputFilter = $this->createDefaultInputFilter();
         $nestedInputFilter->add(new Input(), 'name');
 
         $inputFilter->add($nestedInputFilter, 'people');
@@ -88,7 +88,7 @@ class InputFilterTest extends TestCase
     {
         $inputFilter = $this->createDefaultInputFilter();
 
-        $nestedInputFilter = new InputFilter();
+        $nestedInputFilter = $this->createDefaultInputFilter();
         $nestedInputFilter->add(new Input(), 'name');
 
         $collection = new CollectionInputFilter();

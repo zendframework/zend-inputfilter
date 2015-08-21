@@ -13,6 +13,7 @@ use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Zend\Filter;
 use Zend\InputFilter\ArrayInput;
 use Zend\InputFilter\Exception\InvalidArgumentException;
+use Zend\InputFilter\Input;
 use Zend\Validator;
 
 /**
@@ -20,6 +21,11 @@ use Zend\Validator;
  */
 class ArrayInputTest extends InputTest
 {
+    public function testNotEmptyValidatorNotInjectedIfContinueIfEmptyIsTrue()
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
     public function testValueIsNullByDefault()
     {
         $this->markTestSkipped('Test is not enabled in ArrayInputTest');
@@ -169,7 +175,7 @@ class ArrayInputTest extends InputTest
 
     public function testMerge()
     {
-        $input = new ArrayInput('foo');
+        $input = $this->createDefaultInput();
         $input->setValue([' 123 ']);
         $filter = new Filter\StringTrim();
         $input->getFilterChain()->attach($filter);
@@ -248,6 +254,49 @@ class ArrayInputTest extends InputTest
         $this->assertTrue($input->isValid());
         $this->assertEmpty($input->getMessages());
         $this->assertSame($fallbackValue, $input->getValue());
+    }
+
+    public function testWhenRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input = null, $value = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input = null, $value = null, $assertion = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input = null, $value = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input = null, $value = null, $assertion = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenNotRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input = null, $value = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenNotRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input = null, $value = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenNotRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input = null, $value = null, $assertion = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenNotRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun(
+        Input $input = null,
+        $value = null,
+        $assertion = null
+    ) {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
     }
 
     public function emptyValuesProvider()

@@ -12,6 +12,7 @@ namespace ZendTest\InputFilter;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Zend\Filter;
 use Zend\InputFilter\FileInput;
+use Zend\InputFilter\Input;
 use Zend\Validator;
 
 /**
@@ -241,6 +242,44 @@ class FileInputTest extends InputTest
         $this->assertContains('Please enter only digits', $messages);
     }
 
+    public function testWhenRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input = null, $value = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input = null, $value = null, $assertion = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input = null, $value = null, $assertion = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenNotRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input = null, $value = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenNotRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input = null, $value = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenNotRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input = null, $value = null, $assertion = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenNotRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun(
+        Input $input = null,
+        $value = null,
+        $assertion = null
+    ) {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
     public function testAutoPrependUploadValidatorIsOnByDefault()
     {
         $input = new FileInput('foo');
@@ -345,7 +384,7 @@ class FileInputTest extends InputTest
     {
         $value  = ['tmp_name' => 'bar'];
 
-        $input  = new FileInput('foo');
+        $input  = $this->createDefaultInput();
         $input->setAutoPrependUploadValidator(false);
         $input->setValue($value);
         $filter = new Filter\StringTrim();

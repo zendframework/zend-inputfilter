@@ -524,13 +524,13 @@ class CollectionInputFilterTest extends TestCase
         $items_inputfilter = new BaseInputFilter();
         $items_inputfilter->add(new Input(), 'id')
                           ->add(new Input(), 'type');
-        $items = new CollectionInputFilter();
+        $items = $this->createDefaultInputFilter();
         $items->setInputFilter($items_inputfilter);
 
         $groups_inputfilter = new BaseInputFilter();
         $groups_inputfilter->add(new Input(), 'group_class')
                            ->add($items, 'items');
-        $groups = new CollectionInputFilter();
+        $groups = $this->createDefaultInputFilter();
         $groups->setInputFilter($groups_inputfilter);
 
         $inputFilter = new BaseInputFilter();
@@ -616,13 +616,13 @@ class CollectionInputFilterTest extends TestCase
         $items_inputfilter = new BaseInputFilter();
         $items_inputfilter->add(new Input(), 'id')
                           ->add(new Input(), 'type');
-        $items = new CollectionInputFilter();
+        $items = $this->createDefaultInputFilter();
         $items->setInputFilter($items_inputfilter);
 
         $groups_inputfilter = new BaseInputFilter();
         $groups_inputfilter->add(new Input(), 'group_class')
                            ->add($items, 'items');
-        $groups = new CollectionInputFilter();
+        $groups = $this->createDefaultInputFilter();
         $groups->setInputFilter($groups_inputfilter);
 
         $inputFilter = new BaseInputFilter();
@@ -677,13 +677,13 @@ class CollectionInputFilterTest extends TestCase
         $items_inputfilter = new BaseInputFilter();
         $items_inputfilter->add(new Input(), 'id')
                           ->add(new Input(), 'type');
-        $items = new CollectionInputFilter();
+        $items = $this->createDefaultInputFilter();
         $items->setInputFilter($items_inputfilter);
 
         $groups_inputfilter = new BaseInputFilter();
         $groups_inputfilter->add(new Input(), 'group_class')
                            ->add($items, 'items');
-        $groups = new CollectionInputFilter();
+        $groups = $this->createDefaultInputFilter();
         $groups->setInputFilter($groups_inputfilter);
 
         $inputFilter = new BaseInputFilter();
@@ -763,14 +763,14 @@ class CollectionInputFilterTest extends TestCase
     {
         $firstInputFilter = new InputFilter();
 
-        $firstCollection = new CollectionInputFilter();
+        $firstCollection = $this->createDefaultInputFilter();
         $firstCollection->setInputFilter($firstInputFilter);
 
         $someInput = new Input('input');
         $secondInputFilter = new InputFilter();
         $secondInputFilter->add($someInput, 'input');
 
-        $secondCollection = new CollectionInputFilter();
+        $secondCollection = $this->createDefaultInputFilter();
         $secondCollection->setInputFilter($secondInputFilter);
         if (!is_null($count)) {
             $secondCollection->setCount($count);

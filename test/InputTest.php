@@ -99,20 +99,20 @@ class InputTest extends TestCase
 
     public function testContinueIfEmptyFlagIsFalseByDefault()
     {
-        $input = new Input('foo');
+        $input = $this->createDefaultInput();
         $this->assertFalse($input->continueIfEmpty());
     }
 
     public function testContinueIfEmptyFlagIsMutable()
     {
-        $input = new Input('foo');
+        $input = $this->createDefaultInput();
         $input->setContinueIfEmpty(true);
         $this->assertTrue($input->continueIfEmpty());
     }
 
     public function testNotEmptyValidatorNotInjectedIfContinueIfEmptyIsTrue()
     {
-        $input = new Input('foo');
+        $input = $this->createDefaultInput();
         $input->setContinueIfEmpty(true);
         $input->setValue('');
         $input->isValid();
@@ -371,7 +371,7 @@ class InputTest extends TestCase
 
     public function testMerge()
     {
-        $input = new Input('foo');
+        $input = $this->createDefaultInput();
         $input->setValue(' 123 ');
         $filter = new Filter\StringTrim();
         $input->getFilterChain()->attach($filter);
@@ -451,7 +451,7 @@ class InputTest extends TestCase
 
     public function testMergeRetainsContinueIfEmptyFlag()
     {
-        $input = new Input('foo');
+        $input = $this->createDefaultInput();
         $input->setContinueIfEmpty(true);
 
         $input2 = new Input('bar');
@@ -461,7 +461,7 @@ class InputTest extends TestCase
 
     public function testMergeRetainsAllowEmptyFlag()
     {
-        $input = new Input('foo');
+        $input = $this->createDefaultInput();
         $input->setRequired(true);
         $input->setAllowEmpty(true);
 
@@ -479,7 +479,7 @@ class InputTest extends TestCase
      */
     public function testInputIsValidWhenUsingSetRequiredAtStart()
     {
-        $input = new Input();
+        $input = $this->createDefaultInput();
         $input->setName('foo')
               ->setRequired(false)
               ->setAllowEmpty(false)
@@ -493,7 +493,7 @@ class InputTest extends TestCase
      */
     public function testInputIsValidWhenUsingSetRequiredAtEnd()
     {
-        $input = new Input();
+        $input = $this->createDefaultInput();
         $input->setName('foo')
               ->setAllowEmpty(false)
               ->setContinueIfEmpty(false)
@@ -508,13 +508,13 @@ class InputTest extends TestCase
             throw new RuntimeException('Validator executed when it should not be');
         });
 
-        $requiredFirst = new Input('foo');
+        $requiredFirst = $this->createDefaultInput();
         $requiredFirst->setRequired(true)
             ->setAllowEmpty(true)
             ->setContinueIfEmpty(false)
             ->getValidatorChain()->attach($validator);
 
-        $requiredLast = new Input('foo');
+        $requiredLast = $this->createDefaultInput();
         $requiredLast->setAllowEmpty(true)
             ->setContinueIfEmpty(false)
             ->setRequired(true)
@@ -556,16 +556,16 @@ class InputTest extends TestCase
             return true;
         });
 
-        $requiredFirstInvalid = new Input('foo');
-        $requiredFirstValid   = new Input('foo');
+        $requiredFirstInvalid = $this->createDefaultInput();
+        $requiredFirstValid   = $this->createDefaultInput();
         foreach ([$requiredFirstValid, $requiredFirstInvalid] as $input) {
             $input->setRequired(true)
                 ->setAllowEmpty(true)
                 ->setContinueIfEmpty(true);
         }
 
-        $requiredLastInvalid = new Input('foo');
-        $requiredLastValid   = new Input('foo');
+        $requiredLastInvalid = $this->createDefaultInput();
+        $requiredLastValid   = $this->createDefaultInput();
         foreach ([$requiredLastValid, $requiredLastInvalid] as $input) {
             $input->setAllowEmpty(true)
                 ->setContinueIfEmpty(true)
@@ -612,13 +612,13 @@ class InputTest extends TestCase
             throw new RuntimeException('Validator executed when it should not be');
         });
 
-        $requiredFirst = new Input('foo');
+        $requiredFirst = $this->createDefaultInput();
         $requiredFirst->setRequired(true)
             ->setAllowEmpty(false)
             ->setContinueIfEmpty(false)
             ->getValidatorChain()->attach($validator);
 
-        $requiredLast = new Input('foo');
+        $requiredLast = $this->createDefaultInput();
         $requiredLast->setAllowEmpty(false)
             ->setContinueIfEmpty(false)
             ->setRequired(true)
@@ -660,16 +660,16 @@ class InputTest extends TestCase
             return true;
         });
 
-        $requiredFirstInvalid = new Input('foo');
-        $requiredFirstValid   = new Input('foo');
+        $requiredFirstInvalid = $this->createDefaultInput();
+        $requiredFirstValid   = $this->createDefaultInput();
         foreach ([$requiredFirstValid, $requiredFirstInvalid] as $input) {
             $input->setRequired(true)
                 ->setAllowEmpty(false)
                 ->setContinueIfEmpty(true);
         }
 
-        $requiredLastInvalid = new Input('foo');
-        $requiredLastValid   = new Input('foo');
+        $requiredLastInvalid = $this->createDefaultInput();
+        $requiredLastValid   = $this->createDefaultInput();
         foreach ([$requiredLastValid, $requiredLastInvalid] as $input) {
             $input->setAllowEmpty(false)
                 ->setContinueIfEmpty(true)
@@ -716,13 +716,13 @@ class InputTest extends TestCase
             throw new RuntimeException('Validator executed when it should not be');
         });
 
-        $requiredFirst = new Input('foo');
+        $requiredFirst = $this->createDefaultInput();
         $requiredFirst->setRequired(false)
             ->setAllowEmpty(true)
             ->setContinueIfEmpty(false)
             ->getValidatorChain()->attach($validator);
 
-        $requiredLast = new Input('foo');
+        $requiredLast = $this->createDefaultInput();
         $requiredLast->setAllowEmpty(true)
             ->setContinueIfEmpty(false)
             ->setRequired(false)
@@ -754,13 +754,13 @@ class InputTest extends TestCase
             throw new RuntimeException('Validator executed when it should not be');
         });
 
-        $requiredFirst = new Input('foo');
+        $requiredFirst = $this->createDefaultInput();
         $requiredFirst->setRequired(false)
             ->setAllowEmpty(false)
             ->setContinueIfEmpty(false)
             ->getValidatorChain()->attach($validator);
 
-        $requiredLast = new Input('foo');
+        $requiredLast = $this->createDefaultInput();
         $requiredLast->setAllowEmpty(false)
             ->setContinueIfEmpty(false)
             ->setRequired(false)
@@ -802,16 +802,16 @@ class InputTest extends TestCase
             return true;
         });
 
-        $requiredFirstInvalid = new Input('foo');
-        $requiredFirstValid   = new Input('foo');
+        $requiredFirstInvalid = $this->createDefaultInput();
+        $requiredFirstValid   = $this->createDefaultInput();
         foreach ([$requiredFirstValid, $requiredFirstInvalid] as $input) {
             $input->setRequired(false)
                 ->setAllowEmpty(true)
                 ->setContinueIfEmpty(true);
         }
 
-        $requiredLastInvalid = new Input('foo');
-        $requiredLastValid   = new Input('foo');
+        $requiredLastInvalid = $this->createDefaultInput();
+        $requiredLastValid   = $this->createDefaultInput();
         foreach ([$requiredLastValid, $requiredLastInvalid] as $input) {
             $input->setAllowEmpty(true)
                 ->setContinueIfEmpty(true)
@@ -868,16 +868,16 @@ class InputTest extends TestCase
             return true;
         });
 
-        $requiredFirstInvalid = new Input('foo');
-        $requiredFirstValid   = new Input('foo');
+        $requiredFirstInvalid = $this->createDefaultInput();
+        $requiredFirstValid   = $this->createDefaultInput();
         foreach ([$requiredFirstValid, $requiredFirstInvalid] as $input) {
             $input->setRequired(false)
                 ->setAllowEmpty(false)
                 ->setContinueIfEmpty(true);
         }
 
-        $requiredLastInvalid = new Input('foo');
-        $requiredLastValid   = new Input('foo');
+        $requiredLastInvalid = $this->createDefaultInput();
+        $requiredLastValid   = $this->createDefaultInput();
         foreach ([$requiredLastValid, $requiredLastInvalid] as $input) {
             $input->setAllowEmpty(false)
                 ->setContinueIfEmpty(true)
