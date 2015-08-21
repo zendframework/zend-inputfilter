@@ -23,6 +23,15 @@ use Zend\Validator\ValidatorPluginManager;
  */
 class InputFilterAbstractServiceFactoryTest extends TestCase
 {
+    /** @var ServiceManager */
+    protected $services;
+
+    /** @var InputFilterPluginManager */
+    protected $filters;
+
+    /** @var InputFilterAbstractServiceFactory */
+    protected $factory;
+
     public function setUp()
     {
         $this->services = new ServiceManager();
