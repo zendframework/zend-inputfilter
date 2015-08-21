@@ -811,9 +811,9 @@ class BaseInputFilterTest extends TestCase
         $input->setRequired(true);
 
         $input->getValidatorChain()->attach(
-            new \Zend\Validator\Explode(
+            new Validator\Explode(
                 [
-                    'validator' => new \Zend\Validator\IsInstanceOf(
+                    'validator' => new Validator\IsInstanceOf(
                         [
                             'className' => Input::class
                         ]
@@ -958,7 +958,7 @@ class BaseInputFilterTest extends TestCase
             return false;
         }));
 
-        $filter = new \Zend\InputFilter\InputFilter;
+        $filter = new InputFilter();
         $filter->add($input)
                ->setData(['foo' => 'nonempty']);
 
@@ -980,7 +980,7 @@ class BaseInputFilterTest extends TestCase
             return false;
         }));
 
-        $filter = new \Zend\InputFilter\InputFilter;
+        $filter = new InputFilter();
         $filter->add($input)
                ->setData(['foo' => 'nonempty']);
 

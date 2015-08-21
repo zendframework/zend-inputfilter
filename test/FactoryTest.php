@@ -464,11 +464,11 @@ class FactoryTest extends TestCase
             'filters' => [
                 [
                     'name'      => 'string_trim',
-                    'priority'  => \Zend\Filter\FilterChain::DEFAULT_PRIORITY - 1 // 999
+                    'priority'  => Filter\FilterChain::DEFAULT_PRIORITY - 1 // 999
                 ],
                 [
                     'name'      => 'string_to_upper',
-                    'priority'  => \Zend\Filter\FilterChain::DEFAULT_PRIORITY + 1 //1001
+                    'priority'  => Filter\FilterChain::DEFAULT_PRIORITY + 1 //1001
                 ],
                 [
                     'name'      => 'string_to_lower', // default priority 1000

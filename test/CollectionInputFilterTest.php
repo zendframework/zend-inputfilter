@@ -22,7 +22,7 @@ use Zend\Validator;
 class CollectionInputFilterTest extends TestCase
 {
     /**
-     * @var \Zend\InputFilter\CollectionInputFilter
+     * @var CollectionInputFilter
      */
     protected $filter;
 
