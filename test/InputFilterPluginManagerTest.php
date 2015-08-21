@@ -12,7 +12,6 @@ namespace ZendTest\InputFilter;
 use Zend\InputFilter\InputFilterPluginManager;
 
 /**
- * @group Zend_Stdlib
  * @covers Zend\InputFilter\InputFilterPluginManager
  */
 class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
