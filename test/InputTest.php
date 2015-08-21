@@ -477,7 +477,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun
      */
-    public function testWhenRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun($input, $value)
+    public function testWhenRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input, $value)
     {
         $input->setValue($value);
         $this->assertTrue($input->isValid());
@@ -543,7 +543,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun
      */
-    public function testWhenRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun($input, $value, $assertion)
+    public function testWhenRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input, $value, $assertion)
     {
         $input->setValue($value);
         $this->{$assertion}($input->isValid());
@@ -581,7 +581,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun
      */
-    public function testWhenRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun($input, $value)
+    public function testWhenRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input, $value)
     {
         $input->setValue($value);
         $this->assertFalse($input->isValid());
@@ -647,7 +647,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun
      */
-    public function testWhenRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun($input, $value, $assertion)
+    public function testWhenRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input, $value, $assertion)
     {
         $input->setValue($value);
         $this->{$assertion}($input->isValid());
@@ -685,7 +685,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenNotRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun
      */
-    public function testWhenNotRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun($input, $value)
+    public function testWhenNotRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input, $value)
     {
         $input->setValue($value);
         $this->assertTrue($input->isValid());
@@ -723,7 +723,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenNotRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun
      */
-    public function testWhenNotRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun($input, $value)
+    public function testWhenNotRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input, $value)
     {
         $input->setValue($value);
         $this->assertTrue($input->isValid());
@@ -789,7 +789,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenNotRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun
      */
-    public function testWhenNotRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun($input, $value, $assertion)
+    public function testWhenNotRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input, $value, $assertion)
     {
         $input->setValue($value);
         $this->{$assertion}($input->isValid());
@@ -855,7 +855,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenNotRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun
      */
-    public function testWhenNotRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun($input, $value, $assertion)
+    public function testWhenNotRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input, $value, $assertion)
     {
         $input->setValue($value);
         $this->{$assertion}($input->isValid());

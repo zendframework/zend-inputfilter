@@ -433,6 +433,7 @@ class FactoryTest extends TestCase
     {
         $factory = new Factory();
 
+        /** @var CollectionInputFilter $inputFilter */
         $inputFilter = $factory->createInputFilter([
             'type'        => CollectionInputFilter::class,
             'required'    => true,
@@ -518,6 +519,7 @@ class FactoryTest extends TestCase
     public function testCustomFactoryInCollection()
     {
         $factory = new TestAsset\CustomFactory();
+        /** @var CollectionInputFilter $inputFilter */
         $inputFilter = $factory->createInputFilter([
             'type'        => 'collection',
             'input_filter' => new InputFilter(),

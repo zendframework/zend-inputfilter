@@ -19,6 +19,9 @@ use Zend\Validator;
  */
 class FileInputTest extends InputTest
 {
+    /** @var FileInput */
+    protected $input;
+
     public function setUp()
     {
         $this->input = new FileInput('foo');
