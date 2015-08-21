@@ -9,6 +9,7 @@
 
 namespace ZendTest\InputFilter;
 
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Zend\Filter;
 use Zend\InputFilter\ArrayInput;
 use Zend\InputFilter\Exception\InvalidArgumentException;
@@ -132,6 +133,7 @@ class ArrayInputTest extends InputTest
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue(['bar', '']);
 
+        /** @var Validator\NotEmpty|MockObject $notEmptyMock */
         $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
         $notEmptyMock->expects($this->exactly(1))
             ->method('isValid')
@@ -176,6 +178,7 @@ class ArrayInputTest extends InputTest
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue(['bar', '']);
 
+        /** @var Validator\NotEmpty|MockObject $notEmptyMock */
         $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
         $notEmptyMock->expects($this->exactly(1))
             ->method('isValid')

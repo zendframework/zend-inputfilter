@@ -908,6 +908,7 @@ class BaseInputFilterTest extends TestCase
      */
     public function testPopulateSupportsArrayInputEvenIfDataMissing()
     {
+        /** @var ArrayInput|MockObject $arrayInput */
         $arrayInput = $this->getMock(ArrayInput::class);
         $arrayInput
             ->expects($this->once())

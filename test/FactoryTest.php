@@ -9,6 +9,7 @@
 
 namespace ZendTest\InputFilter;
 
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\Filter;
 use Zend\InputFilter\CollectionInputFilter;
@@ -612,7 +613,7 @@ class FactoryTest extends TestCase
      */
     public function testCanCreateInputFromProvider()
     {
-        /** @var InputProviderInterface|\PHPUnit_Framework_MockObject_MockObject $provider */
+        /** @var InputProviderInterface|MockObject $provider */
         $provider = $this->getMock(InputProviderInterface::class, ['getInputSpecification']);
 
         $provider
@@ -631,7 +632,7 @@ class FactoryTest extends TestCase
      */
     public function testCanCreateInputFilterFromProvider()
     {
-        /** @var InputFilterProviderInterface|\PHPUnit_Framework_MockObject_MockObject $provider */
+        /** @var InputFilterProviderInterface|MockObject $provider */
         $provider = $this->getMock(
             InputFilterProviderInterface::class,
             ['getInputFilterSpecification']

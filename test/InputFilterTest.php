@@ -9,6 +9,7 @@
 
 namespace ZendTest\InputFilter;
 
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\Filter;
 use Zend\InputFilter\CollectionInputFilter;
@@ -110,6 +111,7 @@ class InputFilterTest extends TestCase
     {
         $context = new \stdClass();
 
+        /** @var InputInterface|MockObject $input */
         $input = $this->getMock(InputInterface::class);
         $input->expects($this->once())->method('isValid')->with($context)->will($this->returnValue(true));
         $input->expects($this->any())->method('getRawValue')->will($this->returnValue('Mwop'));

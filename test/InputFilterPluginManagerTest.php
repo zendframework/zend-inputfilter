@@ -9,6 +9,7 @@
 
 namespace ZendTest\InputFilter;
 
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputFilterPluginManager;
@@ -47,6 +48,7 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testAllowLoadingInstancesOfInputFilterInterface()
     {
+        /** @var InputFilterInterface|MockObject $inputFilter */
         $inputFilter = $this->getMock(InputFilterInterface::class);
 
         $this->assertNull($this->manager->validatePlugin($inputFilter));
@@ -57,6 +59,7 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testAllowLoadingInstancesOfInputInterface()
     {
+        /** @var InputInterface|MockObject $input */
         $input = $this->getMock(InputInterface::class);
 
         $this->assertNull($this->manager->validatePlugin($input));

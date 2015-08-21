@@ -9,6 +9,7 @@
 
 namespace ZendTest\InputFilter;
 
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use RuntimeException;
 use Zend\Filter;
@@ -217,6 +218,7 @@ class InputTest extends TestCase
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue('');
 
+        /** @var Validator\NotEmpty|MockObject $notEmptyMock */
         $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
         $notEmptyMock->expects($this->exactly(1))
                      ->method('isValid')
@@ -344,6 +346,7 @@ class InputTest extends TestCase
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue('');
 
+        /** @var Validator\NotEmpty|MockObject $notEmptyMock */
         $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
         $notEmptyMock->expects($this->exactly(1))
                      ->method('isValid')

@@ -9,6 +9,7 @@
 
 namespace ZendTest\InputFilter;
 
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Zend\Filter;
 use Zend\InputFilter\FileInput;
 use Zend\Validator;
@@ -43,6 +44,7 @@ class FileInputTest extends InputTest
         $this->input->setValue($value);
 
         $newValue = ['tmp_name' => 'foo'];
+        /** @var Filter\File\Rename|MockObject $filterMock */
         $filterMock = $this->getMockBuilder(Filter\File\Rename::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -74,6 +76,7 @@ class FileInputTest extends InputTest
         $this->input->setValue($values);
 
         $newValue = ['tmp_name' => 'new'];
+        /** @var Filter\File\Rename|MockObject $filterMock */
         $filterMock = $this->getMockBuilder(Filter\File\Rename::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -139,6 +142,7 @@ class FileInputTest extends InputTest
         $this->input->setValue($badValue);
 
         $filteredValue = ['tmp_name' => 'new'];
+        /** @var Filter\File\Rename|MockObject $filterMock */
         $filterMock = $this->getMockBuilder(Filter\File\Rename::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -269,6 +273,7 @@ class FileInputTest extends InputTest
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue(['tmp_name' => 'bar']);
 
+        /** @var Validator\File\UploadFile|MockObject $uploadMock */
         $uploadMock = $this->getMock(Validator\File\UploadFile::class, ['isValid']);
         $uploadMock->expects($this->exactly(1))
                      ->method('isValid')
@@ -290,6 +295,7 @@ class FileInputTest extends InputTest
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue('');
 
+        /** @var Validator\File\UploadFile|MockObject $uploadMock */
         $uploadMock = $this->getMock(Validator\File\UploadFile::class, ['isValid']);
         $uploadMock->expects($this->exactly(1))
             ->method('isValid')
