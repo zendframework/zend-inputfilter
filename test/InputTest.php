@@ -24,69 +24,77 @@ class InputTest extends TestCase
     use EmptyContextInterfaceTestTrait;
     use InputInterfaceTestTrait;
 
-    /**
-     * @var Input
-     */
-    protected $input;
-
-    public function setUp()
-    {
-        $this->input = new Input('foo');
-    }
-
     public function testConstructorRequiresAName()
     {
-        $this->assertEquals('foo', $this->input->getName());
+        $input = $this->createDefaultInput();
+
+        $this->assertEquals('foo', $input->getName());
     }
 
     public function testInputHasEmptyFilterChainByDefault()
     {
-        $filters = $this->input->getFilterChain();
+        $input = $this->createDefaultInput();
+
+        $filters = $input->getFilterChain();
         $this->assertInstanceOf(Filter\FilterChain::class, $filters);
         $this->assertEquals(0, count($filters));
     }
 
     public function testInputHasEmptyValidatorChainByDefault()
     {
-        $validators = $this->input->getValidatorChain();
+        $input = $this->createDefaultInput();
+
+        $validators = $input->getValidatorChain();
         $this->assertInstanceOf(Validator\ValidatorChain::class, $validators);
         $this->assertEquals(0, count($validators));
     }
 
     public function testCanInjectFilterChain()
     {
+        $input = $this->createDefaultInput();
+
         $chain = new Filter\FilterChain();
-        $this->input->setFilterChain($chain);
-        $this->assertSame($chain, $this->input->getFilterChain());
+        $input->setFilterChain($chain);
+        $this->assertSame($chain, $input->getFilterChain());
     }
 
     public function testCanInjectValidatorChain()
     {
+        $input = $this->createDefaultInput();
+
         $chain = new Validator\ValidatorChain();
-        $this->input->setValidatorChain($chain);
-        $this->assertSame($chain, $this->input->getValidatorChain());
+        $input->setValidatorChain($chain);
+        $this->assertSame($chain, $input->getValidatorChain());
     }
 
     public function testInputIsMarkedAsRequiredByDefault()
     {
-        $this->assertTrue($this->input->isRequired());
+        $input = $this->createDefaultInput();
+
+        $this->assertTrue($input->isRequired());
     }
 
     public function testRequiredFlagIsMutable()
     {
-        $this->input->setRequired(false);
-        $this->assertFalse($this->input->isRequired());
+        $input = $this->createDefaultInput();
+
+        $input->setRequired(false);
+        $this->assertFalse($input->isRequired());
     }
 
     public function testInputDoesNotAllowEmptyValuesByDefault()
     {
-        $this->assertFalse($this->input->allowEmpty());
+        $input = $this->createDefaultInput();
+
+        $this->assertFalse($input->allowEmpty());
     }
 
     public function testAllowEmptyFlagIsMutable()
     {
-        $this->input->setAllowEmpty(true);
-        $this->assertTrue($this->input->allowEmpty());
+        $input = $this->createDefaultInput();
+
+        $input->setAllowEmpty(true);
+        $this->assertTrue($input->allowEmpty());
     }
 
     public function testContinueIfEmptyFlagIsFalseByDefault()
@@ -115,111 +123,137 @@ class InputTest extends TestCase
 
     public function testValueIsNullByDefault()
     {
-        $this->assertNull($this->input->getValue());
+        $input = $this->createDefaultInput();
+
+        $this->assertNull($input->getValue());
     }
 
     public function testValueMayBeInjected()
     {
-        $this->input->setValue('bar');
-        $this->assertEquals('bar', $this->input->getValue());
+        $input = $this->createDefaultInput();
+
+        $input->setValue('bar');
+        $this->assertEquals('bar', $input->getValue());
     }
 
     public function testRetrievingValueFiltersTheValue()
     {
-        $this->input->setValue('bar');
+        $input = $this->createDefaultInput();
+
+        $input->setValue('bar');
         $filter = new Filter\StringToUpper();
-        $this->input->getFilterChain()->attach($filter);
-        $this->assertEquals('BAR', $this->input->getValue());
+        $input->getFilterChain()->attach($filter);
+        $this->assertEquals('BAR', $input->getValue());
     }
 
     public function testCanRetrieveRawValue()
     {
-        $this->input->setValue('bar');
+        $input = $this->createDefaultInput();
+
+        $input->setValue('bar');
         $filter = new Filter\StringToUpper();
-        $this->input->getFilterChain()->attach($filter);
-        $this->assertEquals('bar', $this->input->getRawValue());
+        $input->getFilterChain()->attach($filter);
+        $this->assertEquals('bar', $input->getRawValue());
     }
 
     public function testIsValidReturnsFalseIfValidationChainFails()
     {
-        $this->input->setValue('bar');
+        $input = $this->createDefaultInput();
+
+        $input->setValue('bar');
         $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertFalse($this->input->isValid());
+        $input->getValidatorChain()->attach($validator);
+        $this->assertFalse($input->isValid());
     }
 
     public function testIsValidReturnsTrueIfValidationChainSucceeds()
     {
-        $this->input->setValue('123');
+        $input = $this->createDefaultInput();
+
+        $input->setValue('123');
         $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertTrue($this->input->isValid());
+        $input->getValidatorChain()->attach($validator);
+        $this->assertTrue($input->isValid());
     }
 
     public function testValidationOperatesOnFilteredValue()
     {
-        $this->input->setValue(' 123 ');
+        $input = $this->createDefaultInput();
+
+        $input->setValue(' 123 ');
         $filter = new Filter\StringTrim();
-        $this->input->getFilterChain()->attach($filter);
+        $input->getFilterChain()->attach($filter);
         $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertTrue($this->input->isValid());
+        $input->getValidatorChain()->attach($validator);
+        $this->assertTrue($input->isValid());
     }
 
     public function testGetMessagesReturnsValidationMessages()
     {
-        $this->input->setValue('bar');
+        $input = $this->createDefaultInput();
+
+        $input->setValue('bar');
         $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertFalse($this->input->isValid());
-        $messages = $this->input->getMessages();
+        $input->getValidatorChain()->attach($validator);
+        $this->assertFalse($input->isValid());
+        $messages = $input->getMessages();
         $this->assertArrayHasKey(Validator\Digits::NOT_DIGITS, $messages);
     }
 
     public function testSpecifyingMessagesToInputReturnsThoseOnFailedValidation()
     {
-        $this->input->setValue('bar');
+        $input = $this->createDefaultInput();
+
+        $input->setValue('bar');
         $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->input->setErrorMessage('Please enter only digits');
-        $this->assertFalse($this->input->isValid());
-        $messages = $this->input->getMessages();
+        $input->getValidatorChain()->attach($validator);
+        $input->setErrorMessage('Please enter only digits');
+        $this->assertFalse($input->isValid());
+        $messages = $input->getMessages();
         $this->assertArrayNotHasKey(Validator\Digits::NOT_DIGITS, $messages);
         $this->assertContains('Please enter only digits', $messages);
     }
 
     public function testBreakOnFailureFlagIsOffByDefault()
     {
-        $this->assertFalse($this->input->breakOnFailure());
+        $input = $this->createDefaultInput();
+
+        $this->assertFalse($input->breakOnFailure());
     }
 
     public function testBreakOnFailureFlagIsMutable()
     {
-        $this->input->setBreakOnFailure(true);
-        $this->assertTrue($this->input->breakOnFailure());
+        $input = $this->createDefaultInput();
+
+        $input->setBreakOnFailure(true);
+        $this->assertTrue($input->breakOnFailure());
     }
 
     public function testNotEmptyValidatorAddedWhenIsValidIsCalled()
     {
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue('');
-        $validatorChain = $this->input->getValidatorChain();
+        $input = $this->createDefaultInput();
+
+        $this->assertTrue($input->isRequired());
+        $input->setValue('');
+        $validatorChain = $input->getValidatorChain();
         $this->assertEquals(0, count($validatorChain->getValidators()));
 
-        $this->assertFalse($this->input->isValid());
-        $messages = $this->input->getMessages();
+        $this->assertFalse($input->isValid());
+        $messages = $input->getMessages();
         $this->assertArrayHasKey('isEmpty', $messages);
         $this->assertEquals(1, count($validatorChain->getValidators()));
 
         // Assert that NotEmpty validator wasn't added again
-        $this->assertFalse($this->input->isValid());
+        $this->assertFalse($input->isValid());
         $this->assertEquals(1, count($validatorChain->getValidators()));
     }
 
     public function testRequiredNotEmptyValidatorNotAddedWhenOneExists()
     {
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue('');
+        $input = $this->createDefaultInput();
+
+        $this->assertTrue($input->isRequired());
+        $input->setValue('');
 
         /** @var Validator\NotEmpty|MockObject $notEmptyMock */
         $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
@@ -227,9 +261,9 @@ class InputTest extends TestCase
                      ->method('isValid')
                      ->will($this->returnValue(false));
 
-        $validatorChain = $this->input->getValidatorChain();
+        $validatorChain = $input->getValidatorChain();
         $validatorChain->prependValidator($notEmptyMock);
-        $this->assertFalse($this->input->isValid());
+        $this->assertFalse($input->isValid());
 
         $validators = $validatorChain->getValidators();
         $this->assertEquals(1, count($validators));
@@ -250,35 +284,45 @@ class InputTest extends TestCase
      */
     public function testValidatorSkippedIfValueIsEmptyAndAllowedAndNotContinue($emptyValue)
     {
+        $input = $this->createDefaultInput();
+
         $validator = function () {
             return false;
         };
-        $this->input->setAllowEmpty(true)
+        $input->setAllowEmpty(true)
             ->setContinueIfEmpty(false)
             ->setValue($emptyValue)
             ->getValidatorChain()->attach(new Validator\Callback($validator));
 
-        $this->assertTrue($this->input->isValid());
+        $this->assertTrue($input->isValid());
     }
 
     /**
      * @dataProvider emptyValuesProvider
      */
-    public function testAllowEmptyOptionSet($emptyValue)
+    public function testAllowEmptyOptionSet($emptyValue, $input = null)
     {
-        $this->input->setAllowEmpty(true);
-        $this->input->setValue($emptyValue);
-        $this->assertTrue($this->input->isValid());
+        if (empty($input)) {
+            $input = $this->createDefaultInput();
+        }
+
+        $input->setAllowEmpty(true);
+        $input->setValue($emptyValue);
+        $this->assertTrue($input->isValid());
     }
 
     /**
      * @dataProvider emptyValuesProvider
      */
-    public function testAllowEmptyOptionNotSet($emptyValue)
+    public function testAllowEmptyOptionNotSet($emptyValue, $input = null)
     {
-        $this->input->setAllowEmpty(false);
-        $this->input->setValue($emptyValue);
-        $this->assertFalse($this->input->isValid());
+        if (empty($input)) {
+            $input = $this->createDefaultInput();
+        }
+
+        $input->setAllowEmpty(false);
+        $input->setValue($emptyValue);
+        $this->assertFalse($input->isValid());
     }
 
     /**
@@ -286,37 +330,43 @@ class InputTest extends TestCase
      */
     public function testValidatorInvokedIfValueIsEmptyAndAllowedAndContinue($emptyValue)
     {
+        $input = $this->createDefaultInput();
+
         $message = 'failure by explicit validator';
         $validator = new Validator\Callback(function ($value) {
             return false;
         });
         $validator->setMessage($message);
-        $this->input->setAllowEmpty(true)
+        $input->setAllowEmpty(true)
                     ->setContinueIfEmpty(true)
                     ->setValue($emptyValue)
                     ->getValidatorChain()->attach($validator);
-        $this->assertFalse($this->input->isValid());
+        $this->assertFalse($input->isValid());
         // Test reason for validation failure; ensures that failure was not
         // caused by accidentally injected NotEmpty validator
-        $this->assertEquals(['callbackValue' => $message], $this->input->getMessages());
+        $this->assertEquals(['callbackValue' => $message], $input->getMessages());
     }
 
     public function testNotAllowEmptyWithFilterConvertsNonemptyToEmptyIsNotValid()
     {
-        $this->input->setValue('nonempty')
+        $input = $this->createDefaultInput();
+
+        $input->setValue('nonempty')
                     ->getFilterChain()->attach(new Filter\Callback(function () {
                         return '';
                     }));
-        $this->assertFalse($this->input->isValid());
+        $this->assertFalse($input->isValid());
     }
 
     public function testNotAllowEmptyWithFilterConvertsEmptyToNonEmptyIsValid()
     {
-        $this->input->setValue('')
+        $input = $this->createDefaultInput();
+
+        $input->setValue('')
                     ->getFilterChain()->attach(new Filter\Callback(function () {
                         return 'nonempty';
                     }));
-        $this->assertTrue($this->input->isValid());
+        $this->assertTrue($input->isValid());
     }
 
     public function testMerge()
@@ -346,8 +396,10 @@ class InputTest extends TestCase
 
     public function testDoNotInjectNotEmptyValidatorIfAnywhereInChain()
     {
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue('');
+        $input = $this->createDefaultInput();
+
+        $this->assertTrue($input->isRequired());
+        $input->setValue('');
 
         /** @var Validator\NotEmpty|MockObject $notEmptyMock */
         $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
@@ -355,10 +407,10 @@ class InputTest extends TestCase
                      ->method('isValid')
                      ->will($this->returnValue(false));
 
-        $validatorChain = $this->input->getValidatorChain();
+        $validatorChain = $input->getValidatorChain();
         $validatorChain->attach(new Validator\Digits());
         $validatorChain->attach($notEmptyMock);
-        $this->assertFalse($this->input->isValid());
+        $this->assertFalse($input->isValid());
 
         $validators = $validatorChain->getValidators();
         $this->assertEquals(2, count($validators));
@@ -385,14 +437,16 @@ class InputTest extends TestCase
      */
     public function testFallbackValue($fallbackValue)
     {
-        $this->input->setFallbackValue($fallbackValue);
-        $validator = new Validator\Date();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->input->setValue('123'); // not a date
+        $input = $this->createDefaultInput();
 
-        $this->assertTrue($this->input->isValid());
-        $this->assertEmpty($this->input->getMessages());
-        $this->assertSame($fallbackValue, $this->input->getValue());
+        $input->setFallbackValue($fallbackValue);
+        $validator = new Validator\Date();
+        $input->getValidatorChain()->attach($validator);
+        $input->setValue('123'); // not a date
+
+        $this->assertTrue($input->isValid());
+        $this->assertEmpty($input->getMessages());
+        $this->assertSame($fallbackValue, $input->getValue());
     }
 
     public function testMergeRetainsContinueIfEmptyFlag()
@@ -871,7 +925,7 @@ class InputTest extends TestCase
 
     protected function createDefaultInput()
     {
-        $input = new Input();
+        $input = new Input('foo');
 
         return $input;
     }

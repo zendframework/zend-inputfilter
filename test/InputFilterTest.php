@@ -26,36 +26,32 @@ class InputFilterTest extends TestCase
     use ReplaceableInputInterfaceTestTrait;
     use UnknownInputsCapableInterfaceTestTrait;
 
-    /**
-     * @var InputFilter
-     */
-    protected $filter;
-
-    public function setUp()
-    {
-        $this->filter = new InputFilter();
-    }
-
     public function testLazilyComposesAFactoryByDefault()
     {
-        $factory = $this->filter->getFactory();
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $factory = $inputFilter->getFactory();
         $this->assertInstanceOf(Factory::class, $factory);
     }
 
     public function testCanComposeAFactory()
     {
+        $inputFilter = $this->createDefaultInputFilter();
+
         $factory = new Factory();
-        $this->filter->setFactory($factory);
-        $this->assertSame($factory, $this->filter->getFactory());
+        $inputFilter->setFactory($factory);
+        $this->assertSame($factory, $inputFilter->getFactory());
     }
 
     public function testCanAddUsingSpecification()
     {
-        $this->filter->add([
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $inputFilter->add([
             'name' => 'foo',
         ]);
-        $this->assertTrue($this->filter->has('foo'));
-        $foo = $this->filter->get('foo');
+        $this->assertTrue($inputFilter->has('foo'));
+        $foo = $inputFilter->get('foo');
         $this->assertInstanceOf(InputInterface::class, $foo);
     }
 
@@ -66,10 +62,12 @@ class InputFilterTest extends TestCase
      */
     public function testGetValueReturnsArrayIfNestedInputFilters()
     {
-        $inputFilter = new InputFilter();
-        $inputFilter->add(new Input(), 'name');
+        $inputFilter = $this->createDefaultInputFilter();
 
-        $this->filter->add($inputFilter, 'people');
+        $nestedInputFilter = new InputFilter();
+        $nestedInputFilter->add(new Input(), 'name');
+
+        $inputFilter->add($nestedInputFilter, 'people');
 
         $data = [
             'people' => [
@@ -77,10 +75,10 @@ class InputFilterTest extends TestCase
             ]
         ];
 
-        $this->filter->setData($data);
-        $this->assertTrue($this->filter->isValid());
+        $inputFilter->setData($data);
+        $this->assertTrue($inputFilter->isValid());
 
-        $this->assertInternalType('array', $this->filter->getValue('people'));
+        $this->assertInternalType('array', $inputFilter->getValue('people'));
     }
 
     /**
@@ -88,14 +86,16 @@ class InputFilterTest extends TestCase
      */
     public function testCountZeroValidateInternalInputWithCollectionInputFilter()
     {
-        $inputFilter = new InputFilter();
-        $inputFilter->add(new Input(), 'name');
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $nestedInputFilter = new InputFilter();
+        $nestedInputFilter->add(new Input(), 'name');
 
         $collection = new CollectionInputFilter();
-        $collection->setInputFilter($inputFilter);
+        $collection->setInputFilter($nestedInputFilter);
         $collection->setCount(0);
 
-        $this->filter->add($collection, 'people');
+        $inputFilter->add($collection, 'people');
 
         $data = [
             'people' => [
@@ -104,14 +104,16 @@ class InputFilterTest extends TestCase
                 ],
             ],
         ];
-        $this->filter->setData($data);
+        $inputFilter->setData($data);
 
-        $this->assertTrue($this->filter->isvalid());
-        $this->assertSame($data, $this->filter->getValues());
+        $this->assertTrue($inputFilter->isvalid());
+        $this->assertSame($data, $inputFilter->getValues());
     }
 
     public function testCanUseContextPassedToInputFilter()
     {
+        $inputFilter = $this->createDefaultInputFilter();
+
         $context = new \stdClass();
 
         /** @var InputInterface|MockObject $input */
@@ -119,10 +121,10 @@ class InputFilterTest extends TestCase
         $input->expects($this->once())->method('isValid')->with($context)->will($this->returnValue(true));
         $input->expects($this->any())->method('getRawValue')->will($this->returnValue('Mwop'));
 
-        $this->filter->add($input, 'username');
-        $this->filter->setData(['username' => 'Mwop']);
+        $inputFilter->add($input, 'username');
+        $inputFilter->setData(['username' => 'Mwop']);
 
-        $this->filter->isValid($context);
+        $inputFilter->isValid($context);
     }
 
     protected function createDefaultInputFilter()

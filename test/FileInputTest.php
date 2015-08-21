@@ -19,21 +19,13 @@ use Zend\Validator;
  */
 class FileInputTest extends InputTest
 {
-    /** @var FileInput */
-    protected $input;
-
-    public function setUp()
-    {
-        $this->input = new FileInput('foo');
-        // Upload validator does not work in CLI test environment, disable
-        $this->input->setAutoPrependUploadValidator(false);
-    }
-
     public function testValueMayBeInjected()
     {
+        $input = $this->createDefaultInput();
+
         $value = ['tmp_name' => 'bar'];
-        $this->input->setValue($value);
-        $this->assertEquals($value, $this->input->getValue());
+        $input->setValue($value);
+        $this->assertEquals($value, $input->getValue());
     }
 
     public function testRetrievingValueFiltersTheValue()
@@ -43,8 +35,10 @@ class FileInputTest extends InputTest
 
     public function testRetrievingValueFiltersTheValueOnlyAfterValidating()
     {
+        $input = $this->createDefaultInput();
+
         $value = ['tmp_name' => 'bar'];
-        $this->input->setValue($value);
+        $input->setValue($value);
 
         $newValue = ['tmp_name' => 'foo'];
         /** @var Filter\File\Rename|MockObject $filterMock */
@@ -58,25 +52,27 @@ class FileInputTest extends InputTest
         // Why not attach mocked filter directly?
         // No worky without wrapping in a callback.
         // Missing something in mock setup?
-        $this->input->getFilterChain()->attach(
+        $input->getFilterChain()->attach(
             function ($value) use ($filterMock) {
                 return $filterMock->filter($value);
             }
         );
 
-        $this->assertEquals($value, $this->input->getValue());
-        $this->assertTrue($this->input->isValid());
-        $this->assertEquals($newValue, $this->input->getValue());
+        $this->assertEquals($value, $input->getValue());
+        $this->assertTrue($input->isValid());
+        $this->assertEquals($newValue, $input->getValue());
     }
 
     public function testCanFilterArrayOfMultiFileData()
     {
+        $input = $this->createDefaultInput();
+
         $values = [
             ['tmp_name' => 'foo'],
             ['tmp_name' => 'bar'],
             ['tmp_name' => 'baz'],
         ];
-        $this->input->setValue($values);
+        $input->setValue($values);
 
         $newValue = ['tmp_name' => 'new'];
         /** @var Filter\File\Rename|MockObject $filterMock */
@@ -90,43 +86,49 @@ class FileInputTest extends InputTest
         // Why not attach mocked filter directly?
         // No worky without wrapping in a callback.
         // Missing something in mock setup?
-        $this->input->getFilterChain()->attach(
+        $input->getFilterChain()->attach(
             function ($value) use ($filterMock) {
                 return $filterMock->filter($value);
             }
         );
 
-        $this->assertEquals($values, $this->input->getValue());
-        $this->assertTrue($this->input->isValid());
+        $this->assertEquals($values, $input->getValue());
+        $this->assertTrue($input->isValid());
         $this->assertEquals(
             [$newValue, $newValue, $newValue],
-            $this->input->getValue()
+            $input->getValue()
         );
     }
 
     public function testCanRetrieveRawValue()
     {
+        $input = $this->createDefaultInput();
+
         $value = ['tmp_name' => 'bar'];
-        $this->input->setValue($value);
+        $input->setValue($value);
         $filter = new Filter\StringToUpper();
-        $this->input->getFilterChain()->attach($filter);
-        $this->assertEquals($value, $this->input->getRawValue());
+        $input->getFilterChain()->attach($filter);
+        $this->assertEquals($value, $input->getRawValue());
     }
 
     public function testIsValidReturnsFalseIfValidationChainFails()
     {
-        $this->input->setValue(['tmp_name' => 'bar']);
+        $input = $this->createDefaultInput();
+
+        $input->setValue(['tmp_name' => 'bar']);
         $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertFalse($this->input->isValid());
+        $input->getValidatorChain()->attach($validator);
+        $this->assertFalse($input->isValid());
     }
 
     public function testIsValidReturnsTrueIfValidationChainSucceeds()
     {
-        $this->input->setValue(['tmp_name' => 'bar']);
+        $input = $this->createDefaultInput();
+
+        $input->setValue(['tmp_name' => 'bar']);
         $validator = new Validator\NotEmpty();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertTrue($this->input->isValid());
+        $input->getValidatorChain()->attach($validator);
+        $this->assertTrue($input->isValid());
     }
 
     public function testValidationOperatesOnFilteredValue()
@@ -136,13 +138,15 @@ class FileInputTest extends InputTest
 
     public function testValidationOperatesBeforeFiltering()
     {
+        $input = $this->createDefaultInput();
+
         $badValue = [
             'tmp_name' => ' ' . __FILE__ . ' ',
             'name'     => 'foo',
             'size'     => 1,
             'error'    => 0,
         ];
-        $this->input->setValue($badValue);
+        $input->setValue($badValue);
 
         $filteredValue = ['tmp_name' => 'new'];
         /** @var Filter\File\Rename|MockObject $filterMock */
@@ -156,16 +160,16 @@ class FileInputTest extends InputTest
         // Why not attach mocked filter directly?
         // No worky without wrapping in a callback.
         // Missing something in mock setup?
-        $this->input->getFilterChain()->attach(
+        $input->getFilterChain()->attach(
             function ($value) use ($filterMock) {
                 return $filterMock->filter($value);
             }
         );
 
         $validator = new Validator\File\Exists();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertFalse($this->input->isValid());
-        $this->assertEquals($badValue, $this->input->getValue());
+        $input->getValidatorChain()->attach($validator);
+        $this->assertFalse($input->isValid());
+        $this->assertEquals($badValue, $input->getValue());
 
         $goodValue = [
             'tmp_name' => __FILE__,
@@ -173,27 +177,31 @@ class FileInputTest extends InputTest
             'size'     => 1,
             'error'    => 0,
         ];
-        $this->input->setValue($goodValue);
-        $this->assertTrue($this->input->isValid());
-        $this->assertEquals($filteredValue, $this->input->getValue());
+        $input->setValue($goodValue);
+        $this->assertTrue($input->isValid());
+        $this->assertEquals($filteredValue, $input->getValue());
     }
 
     public function testGetMessagesReturnsValidationMessages()
     {
-        $this->input->setAutoPrependUploadValidator(true);
-        $this->input->setValue([
+        $input = $this->createDefaultInput();
+
+        $input->setAutoPrependUploadValidator(true);
+        $input->setValue([
             'tmp_name' => __FILE__,
             'name'     => 'foo',
             'size'     => 1,
             'error'    => 0,
         ]);
-        $this->assertFalse($this->input->isValid());
-        $messages = $this->input->getMessages();
+        $this->assertFalse($input->isValid());
+        $messages = $input->getMessages();
         $this->assertArrayHasKey(Validator\File\UploadFile::ATTACK, $messages);
     }
 
     public function testCanValidateArrayOfMultiFileData()
     {
+        $input = $this->createDefaultInput();
+
         $values = [
             [
                 'tmp_name' => __FILE__,
@@ -208,25 +216,27 @@ class FileInputTest extends InputTest
                 'name'     => 'baz',
             ],
         ];
-        $this->input->setValue($values);
+        $input->setValue($values);
         $validator = new Validator\File\Exists();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertTrue($this->input->isValid());
+        $input->getValidatorChain()->attach($validator);
+        $this->assertTrue($input->isValid());
 
         // Negative test
         $values[1]['tmp_name'] = 'file-not-found';
-        $this->input->setValue($values);
-        $this->assertFalse($this->input->isValid());
+        $input->setValue($values);
+        $this->assertFalse($input->isValid());
     }
 
     public function testSpecifyingMessagesToInputReturnsThoseOnFailedValidation()
     {
-        $this->input->setValue(['tmp_name' => 'bar']);
+        $input = $this->createDefaultInput();
+
+        $input->setValue(['tmp_name' => 'bar']);
         $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->input->setErrorMessage('Please enter only digits');
-        $this->assertFalse($this->input->isValid());
-        $messages = $this->input->getMessages();
+        $input->getValidatorChain()->attach($validator);
+        $input->setErrorMessage('Please enter only digits');
+        $this->assertFalse($input->isValid());
+        $messages = $input->getMessages();
         $this->assertArrayNotHasKey(Validator\Digits::NOT_DIGITS, $messages);
         $this->assertContains('Please enter only digits', $messages);
     }
@@ -239,19 +249,21 @@ class FileInputTest extends InputTest
 
     public function testUploadValidatorIsAddedWhenIsValidIsCalled()
     {
-        $this->input->setAutoPrependUploadValidator(true);
-        $this->assertTrue($this->input->getAutoPrependUploadValidator());
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue([
+        $input = $this->createDefaultInput();
+
+        $input->setAutoPrependUploadValidator(true);
+        $this->assertTrue($input->getAutoPrependUploadValidator());
+        $this->assertTrue($input->isRequired());
+        $input->setValue([
             'tmp_name' => __FILE__,
             'name'     => 'foo',
             'size'     => 1,
             'error'    => 0,
         ]);
-        $validatorChain = $this->input->getValidatorChain();
+        $validatorChain = $input->getValidatorChain();
         $this->assertEquals(0, count($validatorChain->getValidators()));
 
-        $this->assertFalse($this->input->isValid());
+        $this->assertFalse($input->isValid());
         $validators = $validatorChain->getValidators();
         $this->assertEquals(1, count($validators));
         $this->assertInstanceOf(Validator\File\UploadFile::class, $validators[0]['instance']);
@@ -259,22 +271,26 @@ class FileInputTest extends InputTest
 
     public function testUploadValidatorIsNotAddedWhenIsValidIsCalled()
     {
-        $this->assertFalse($this->input->getAutoPrependUploadValidator());
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue(['tmp_name' => 'bar']);
-        $validatorChain = $this->input->getValidatorChain();
+        $input = $this->createDefaultInput();
+
+        $this->assertFalse($input->getAutoPrependUploadValidator());
+        $this->assertTrue($input->isRequired());
+        $input->setValue(['tmp_name' => 'bar']);
+        $validatorChain = $input->getValidatorChain();
         $this->assertEquals(0, count($validatorChain->getValidators()));
 
-        $this->assertTrue($this->input->isValid());
+        $this->assertTrue($input->isValid());
         $this->assertEquals(0, count($validatorChain->getValidators()));
     }
 
     public function testRequiredUploadValidatorValidatorNotAddedWhenOneExists()
     {
-        $this->input->setAutoPrependUploadValidator(true);
-        $this->assertTrue($this->input->getAutoPrependUploadValidator());
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue(['tmp_name' => 'bar']);
+        $input = $this->createDefaultInput();
+
+        $input->setAutoPrependUploadValidator(true);
+        $this->assertTrue($input->getAutoPrependUploadValidator());
+        $this->assertTrue($input->isRequired());
+        $input->setValue(['tmp_name' => 'bar']);
 
         /** @var Validator\File\UploadFile|MockObject $uploadMock */
         $uploadMock = $this->getMock(Validator\File\UploadFile::class, ['isValid']);
@@ -282,9 +298,9 @@ class FileInputTest extends InputTest
                      ->method('isValid')
                      ->will($this->returnValue(true));
 
-        $validatorChain = $this->input->getValidatorChain();
+        $validatorChain = $input->getValidatorChain();
         $validatorChain->prependValidator($uploadMock);
-        $this->assertTrue($this->input->isValid());
+        $this->assertTrue($input->isValid());
 
         $validators = $validatorChain->getValidators();
         $this->assertEquals(1, count($validators));
@@ -293,10 +309,12 @@ class FileInputTest extends InputTest
 
     public function testValidationsRunWithoutFileArrayDueToAjaxPost()
     {
-        $this->input->setAutoPrependUploadValidator(true);
-        $this->assertTrue($this->input->getAutoPrependUploadValidator());
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue('');
+        $input = $this->createDefaultInput();
+
+        $input->setAutoPrependUploadValidator(true);
+        $this->assertTrue($input->getAutoPrependUploadValidator());
+        $this->assertTrue($input->isRequired());
+        $input->setValue('');
 
         /** @var Validator\File\UploadFile|MockObject $uploadMock */
         $uploadMock = $this->getMock(Validator\File\UploadFile::class, ['isValid']);
@@ -304,9 +322,9 @@ class FileInputTest extends InputTest
             ->method('isValid')
             ->will($this->returnValue(false));
 
-        $validatorChain = $this->input->getValidatorChain();
+        $validatorChain = $input->getValidatorChain();
         $validatorChain->prependValidator($uploadMock);
-        $this->assertFalse($this->input->isValid());
+        $this->assertFalse($input->isValid());
 
         $validators = $validatorChain->getValidators();
         $this->assertEquals(1, count($validators));
@@ -359,39 +377,49 @@ class FileInputTest extends InputTest
 
     public function testIsEmptyFileNotArray()
     {
+        $input = $this->createDefaultInput();
+
         $rawValue = 'file';
-        $this->assertTrue($this->input->isEmptyFile($rawValue));
+        $this->assertTrue($input->isEmptyFile($rawValue));
     }
 
     public function testIsEmptyFileUploadNoFile()
     {
+        $input = $this->createDefaultInput();
+
         $rawValue = [
             'tmp_name' => '',
             'error' => \UPLOAD_ERR_NO_FILE,
         ];
-        $this->assertTrue($this->input->isEmptyFile($rawValue));
+        $this->assertTrue($input->isEmptyFile($rawValue));
     }
 
     public function testIsEmptyFileOk()
     {
+        $input = $this->createDefaultInput();
+
         $rawValue = [
             'tmp_name' => 'name',
             'error' => \UPLOAD_ERR_OK,
         ];
-        $this->assertFalse($this->input->isEmptyFile($rawValue));
+        $this->assertFalse($input->isEmptyFile($rawValue));
     }
 
     public function testIsEmptyMultiFileUploadNoFile()
     {
+        $input = $this->createDefaultInput();
+
         $rawValue = [[
             'tmp_name' => 'foo',
             'error'    => \UPLOAD_ERR_NO_FILE
         ]];
-        $this->assertTrue($this->input->isEmptyFile($rawValue));
+        $this->assertTrue($input->isEmptyFile($rawValue));
     }
 
     public function testIsEmptyFileMultiFileOk()
     {
+        $input = $this->createDefaultInput();
+
         $rawValue = [
             [
                 'tmp_name' => 'foo',
@@ -402,7 +430,7 @@ class FileInputTest extends InputTest
                 'error'    => \UPLOAD_ERR_OK
             ],
         ];
-        $this->assertFalse($this->input->isEmptyFile($rawValue));
+        $this->assertFalse($input->isEmptyFile($rawValue));
     }
 
     public function emptyValuesProvider()
@@ -424,30 +452,34 @@ class FileInputTest extends InputTest
     /**
      * @dataProvider emptyValuesProvider
      */
-    public function testAllowEmptyOptionSet($emptyValue)
+    public function testAllowEmptyOptionSet($emptyValue, $input = null)
     {
+        $input = $this->createDefaultInput();
+
         // UploadFile validator is disabled, pretend one
         $validator = new Validator\Callback(function () {
             return false; // This should never be called
         });
-        $this->input->getValidatorChain()->attach($validator);
-        parent::testAllowEmptyOptionSet($emptyValue);
+        $input->getValidatorChain()->attach($validator);
+        parent::testAllowEmptyOptionSet($emptyValue, $input);
     }
 
     /**
      * @dataProvider emptyValuesProvider
      */
-    public function testAllowEmptyOptionNotSet($emptyValue)
+    public function testAllowEmptyOptionNotSet($emptyValue, $input = null)
     {
+        $input = $this->createDefaultInput();
+
         // UploadFile validator is disabled, pretend one
         $message = 'pretend failing UploadFile validator';
         $validator = new Validator\Callback(function () {
             return false;
         });
         $validator->setMessage($message);
-        $this->input->getValidatorChain()->attach($validator);
-        parent::testAllowEmptyOptionNotSet($emptyValue);
-        $this->assertEquals(['callbackValue' => $message], $this->input->getMessages());
+        $input->getValidatorChain()->attach($validator);
+        parent::testAllowEmptyOptionNotSet($emptyValue, $input);
+        $this->assertEquals(['callbackValue' => $message], $input->getMessages());
     }
 
     public function testNotAllowEmptyWithFilterConvertsNonemptyToEmptyIsNotValid()
@@ -462,7 +494,7 @@ class FileInputTest extends InputTest
 
     protected function createDefaultInput()
     {
-        $input = new FileInput();
+        $input = new FileInput('foo');
         // Upload validator does not work in CLI test environment, disable
         $input->setAutoPrependUploadValidator(false);
 
