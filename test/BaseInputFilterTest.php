@@ -186,6 +186,50 @@ class BaseInputFilterTest extends TestCase
         $inputFilter->getUnknown();
     }
 
+    /**
+     * Verify the state of the input filter is the desired after change it using the method `add()`
+     *
+     * @dataProvider addMethodArgumentsProvider
+     */
+    public function testAddHasGet($input, $name, $expectedInputName, $expectedInput)
+    {
+        $inputFilter = $this->getInputFilter();
+        $this->assertFalse(
+            $inputFilter->has($expectedInputName),
+            "InputFilter shouldn't have an input with the name $expectedInputName yet"
+        );
+        $currentNumberOfFilters = count($inputFilter);
+
+        $return = $inputFilter->add($input, $name);
+        $this->assertSame($inputFilter, $return, "add() must return it self");
+
+        // **Check input collection state**
+        $this->assertTrue($inputFilter->has($expectedInputName), "There is no input with name $expectedInputName");
+        $this->assertCount($currentNumberOfFilters + 1, $inputFilter, 'Number of filters must be increased by 1');
+
+        $returnInput = $inputFilter->get($expectedInputName);
+        $this->assertEquals($expectedInput, $returnInput, 'get() does not match the expected input');
+    }
+
+    /**
+     * Verify the state of the input filter is the desired after change it using the method `add()` and `remove()`
+     *
+     * @dataProvider addMethodArgumentsProvider
+     */
+    public function testAddRemove($input, $name, $expectedInputName)
+    {
+        $inputFilter = $this->getInputFilter();
+
+        $inputFilter->add($input, $name);
+        $currentNumberOfFilters = count($inputFilter);
+
+        $return = $inputFilter->remove($expectedInputName);
+        $this->assertSame($inputFilter, $return, 'remove() must return it self');
+
+        $this->assertFalse($inputFilter->has($expectedInputName), "There is no input with name $expectedInputName");
+        $this->assertCount($currentNumberOfFilters - 1, $inputFilter, 'Number of filters must be decreased by 1');
+    }
+
     public function testAddingInputsIncreasesCountOfFilter()
     {
         $filter = new InputFilter();
@@ -199,12 +243,14 @@ class BaseInputFilterTest extends TestCase
 
     public function testAddingInputWithNameDoesNotInjectNameInInput()
     {
-        $filter = new InputFilter();
-        $foo    = new Input('foo');
-        $filter->add($foo, 'bar');
-        $test   = $filter->get('bar');
-        $this->assertSame($foo, $test);
-        $this->assertEquals('foo', $foo->getName());
+        $inputFilter = $this->getInputFilter();
+
+        $foo = new Input('foo');
+        $inputFilter->add($foo, 'bas');
+
+        $test = $inputFilter->get('bas');
+        $this->assertSame($foo, $test, 'get() does not match the input added');
+        $this->assertEquals('foo', $foo->getName(), 'Input name should not change');
     }
 
     public function testCanAddInputFilterAsInput()
@@ -606,7 +652,7 @@ class BaseInputFilterTest extends TestCase
     {
         $filter = new InputFilter();
 
-        $input = $this->createInputInterfaceMock(true, true, $expectedContext);
+        $input = $this->createInputInterfaceMock('fooInput', true, true, $expectedContext);
         $filter->add($input, 'fooInput');
 
         $filter->setData($data);
@@ -623,7 +669,7 @@ class BaseInputFilterTest extends TestCase
         $expectedContext = ['fooInput' => 'fooRawValue'];
         $filter = new InputFilter();
 
-        $input = $this->createInputInterfaceMock(true, true, $expectedContext, 'fooRawValue');
+        $input = $this->createInputInterfaceMock('fooInput', true, true, $expectedContext, 'fooRawValue');
         $filter->add($input, 'fooInput');
 
         $filter->setData($data);
@@ -643,8 +689,8 @@ class BaseInputFilterTest extends TestCase
             'inputRequired' => 'inputRequiredValue',
             'inputOptional' => null,
         ];
-        $inputRequired = $this->createInputInterfaceMock(true, true, $expectedContext);
-        $inputOptional = $this->createInputInterfaceMock(false);
+        $inputRequired = $this->createInputInterfaceMock('fooInput', true, true, $expectedContext);
+        $inputOptional = $this->createInputInterfaceMock('fooInput', false);
 
         $filter = new InputFilter();
         $filter->add($inputRequired, 'inputRequired');
@@ -1194,17 +1240,75 @@ class BaseInputFilterTest extends TestCase
         $this->assertTrue($filter->isValid());
     }
 
+    public function addMethodArgumentsProvider()
+    {
+        // Description => [$input argument, $name argument, $expectedName, $expectedInput]
+        $tests = [];
+        $inputTypes = $this->inputProvider();
+
+        // Default $name argument (null)
+        foreach ($inputTypes as $inputTypeDescription => $inputTypeData) {
+            $description = $inputTypeDescription . ' - null';
+
+            $tests[$description] = [$inputTypeData[0], null, $inputTypeData[1], $inputTypeData[2]];
+        }
+
+        // Custom $name argument
+        foreach ($inputTypes as $inputTypeDescription => $inputTypeData) {
+            static $customInputName = 'custom_name';
+
+            $description = $inputTypeDescription . ' - ' . $customInputName;
+
+            $tests[$description] = [$inputTypeData[0], $customInputName, $customInputName, $inputTypeData[2]];
+        }
+
+        return $tests;
+    }
+
+    public function inputProvider()
+    {
+        $input = $this->createInputInterfaceMock('fooInput', null);
+        $inputFilter = $this->createInputFilterInterfaceMock();
+
+        return [
+            // Description => [input, name, expected name, $expectedReturnInput]
+            'InputInterface' => [$input, 'fooInput', $input],
+            'InputFilterInterface' => [$inputFilter, null, $inputFilter],
+        ];
+    }
+
     /**
+     * @return MockObject|InputFilterInterface
+     */
+    protected function createInputFilterInterfaceMock()
+    {
+        /** @var InputFilterInterface|MockObject $inputFilter */
+        $inputFilter = $this->getMock(InputFilterInterface::class);
+
+        return $inputFilter;
+    }
+
+    /**
+     * @param string $name
+     * @param bool $isRequired
      * @param null|bool $isValid
      * @param mixed $expectedContext
      * @param mixed $getRawValue
      *
      * @return MockObject|InputInterface
      */
-    protected function createInputInterfaceMock($isRequired, $isValid = null, $expectedContext = 'not-set', $getRawValue = 'not-set')
+    protected function createInputInterfaceMock(
+        $name,
+        $isRequired,
+        $isValid = null,
+        $expectedContext = 'not-set',
+        $getRawValue = 'not-set')
     {
         /** @var InputInterface|MockObject $input */
         $input = $this->getMock(InputInterface::class);
+        $input->method('getName')
+            ->willReturn($name)
+        ;
         $input->method('isRequired')
             ->willReturn($isRequired)
         ;
