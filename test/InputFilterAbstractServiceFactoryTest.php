@@ -12,8 +12,10 @@ namespace ZendTest\InputFilter;
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\Filter\FilterPluginManager;
 use Zend\InputFilter\InputFilterAbstractServiceFactory;
+use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputFilterPluginManager;
 use Zend\ServiceManager\ServiceManager;
+use Zend\Validator\ValidatorInterface;
 use Zend\Validator\ValidatorPluginManager;
 
 /**
@@ -68,7 +70,7 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
             ],
         ]);
         $filter = $this->factory->createServiceWithName($this->filters, 'filter', 'filter');
-        $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $filter);
+        $this->assertInstanceOf(InputFilterInterface::class, $filter);
     }
 
     /**
@@ -82,7 +84,7 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
         $filters->setService('foo', $filter);
 
         $validators = new ValidatorPluginManager();
-        $validator  = $this->getMock('Zend\Validator\ValidatorInterface');
+        $validator  = $this->getMock(ValidatorInterface::class);
         $validators->setService('foo', $validator);
 
         $this->services->setService('FilterManager', $filters);
@@ -130,7 +132,7 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
         $filters->setService('foo', $filter);
 
         $validators = new ValidatorPluginManager();
-        $validator  = $this->getMock('Zend\Validator\ValidatorInterface');
+        $validator  = $this->getMock(ValidatorInterface::class);
         $validators->setService('foo', $validator);
 
         $this->services->setService('FilterManager', $filters);
@@ -151,9 +153,9 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
                 ],
             ],
         ]);
-        $this->services->get('InputFilterManager')->addAbstractFactory('Zend\InputFilter\InputFilterAbstractServiceFactory');
+        $this->services->get('InputFilterManager')->addAbstractFactory(InputFilterAbstractServiceFactory::class);
 
         $inputFilter = $this->services->get('InputFilterManager')->get('foobar');
-        $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $inputFilter);
+        $this->assertInstanceOf(InputFilterInterface::class, $inputFilter);
     }
 }

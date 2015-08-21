@@ -38,14 +38,14 @@ class InputTest extends TestCase
     public function testInputHasEmptyFilterChainByDefault()
     {
         $filters = $this->input->getFilterChain();
-        $this->assertInstanceOf('Zend\Filter\FilterChain', $filters);
+        $this->assertInstanceOf(Filter\FilterChain::class, $filters);
         $this->assertEquals(0, count($filters));
     }
 
     public function testInputHasEmptyValidatorChainByDefault()
     {
         $validators = $this->input->getValidatorChain();
-        $this->assertInstanceOf('Zend\Validator\ValidatorChain', $validators);
+        $this->assertInstanceOf(Validator\ValidatorChain::class, $validators);
         $this->assertEquals(0, count($validators));
     }
 
@@ -217,7 +217,7 @@ class InputTest extends TestCase
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue('');
 
-        $notEmptyMock = $this->getMock('Zend\Validator\NotEmpty', ['isValid']);
+        $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
         $notEmptyMock->expects($this->exactly(1))
                      ->method('isValid')
                      ->will($this->returnValue(false));
@@ -333,10 +333,10 @@ class InputTest extends TestCase
         $this->assertEquals(1, $filterChain->count());
 
         $validators = $validatorChain->getValidators();
-        $this->assertInstanceOf('Zend\Validator\Digits', $validators[0]['instance']);
+        $this->assertInstanceOf(Validator\Digits::class, $validators[0]['instance']);
 
         $filters = $filterChain->getFilters()->toArray();
-        $this->assertInstanceOf('Zend\Filter\StringTrim', $filters[0]);
+        $this->assertInstanceOf(Filter\StringTrim::class, $filters[0]);
     }
 
     public function testDoNotInjectNotEmptyValidatorIfAnywhereInChain()
@@ -344,7 +344,7 @@ class InputTest extends TestCase
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue('');
 
-        $notEmptyMock = $this->getMock('Zend\Validator\NotEmpty', ['isValid']);
+        $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
         $notEmptyMock->expects($this->exactly(1))
                      ->method('isValid')
                      ->will($this->returnValue(false));

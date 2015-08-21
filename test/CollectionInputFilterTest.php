@@ -110,12 +110,12 @@ class CollectionInputFilterTest extends TestCase
     public function testSetInputFilter()
     {
         $this->filter->setInputFilter(new BaseInputFilter());
-        $this->assertInstanceOf('Zend\InputFilter\BaseInputFilter', $this->filter->getInputFilter());
+        $this->assertInstanceOf(BaseInputFilter::class, $this->filter->getInputFilter());
     }
 
     public function testGetDefaultInputFilter()
     {
-        $this->assertInstanceOf('Zend\InputFilter\BaseInputFilter', $this->filter->getInputFilter());
+        $this->assertInstanceOf(BaseInputFilter::class, $this->filter->getInputFilter());
     }
 
     public function testSetCount()

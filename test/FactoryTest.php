@@ -11,10 +11,15 @@ namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\Filter;
+use Zend\InputFilter\CollectionInputFilter;
 use Zend\InputFilter\Factory;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
+use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputFilterPluginManager;
+use Zend\InputFilter\InputFilterProviderInterface;
+use Zend\InputFilter\InputInterface;
+use Zend\InputFilter\InputProviderInterface;
 use Zend\ServiceManager;
 use Zend\Validator;
 
@@ -26,13 +31,13 @@ class FactoryTest extends TestCase
     public function testFactoryComposesFilterChainByDefault()
     {
         $factory = new Factory();
-        $this->assertInstanceOf('Zend\Filter\FilterChain', $factory->getDefaultFilterChain());
+        $this->assertInstanceOf(Filter\FilterChain::class, $factory->getDefaultFilterChain());
     }
 
     public function testFactoryComposesValidatorChainByDefault()
     {
         $factory = new Factory();
-        $this->assertInstanceOf('Zend\Validator\ValidatorChain', $factory->getDefaultValidatorChain());
+        $this->assertInstanceOf(Validator\ValidatorChain::class, $factory->getDefaultValidatorChain());
     }
 
     public function testFactoryAllowsInjectingFilterChain()
@@ -61,7 +66,7 @@ class FactoryTest extends TestCase
         $input = $factory->createInput([
             'name' => 'foo',
         ]);
-        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
+        $this->assertInstanceOf(InputInterface::class, $input);
         $inputFilterChain = $input->getFilterChain();
         $this->assertNotSame($filterChain, $inputFilterChain);
         $this->assertSame($pluginManager, $inputFilterChain->getPluginManager());
@@ -77,7 +82,7 @@ class FactoryTest extends TestCase
         $input = $factory->createInput([
             'name' => 'foo',
         ]);
-        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
+        $this->assertInstanceOf(InputInterface::class, $input);
         $inputValidatorChain = $input->getValidatorChain();
         $this->assertNotSame($validatorChain, $inputValidatorChain);
         $this->assertSame($validatorPlugins, $inputValidatorChain->getPluginManager());
@@ -100,10 +105,10 @@ class FactoryTest extends TestCase
                 'name' => 'foo',
             ],
         ]);
-        $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $inputFilter);
+        $this->assertInstanceOf(InputFilterInterface::class, $inputFilter);
         $this->assertEquals(1, count($inputFilter));
         $input = $inputFilter->get('foo');
-        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
+        $this->assertInstanceOf(InputInterface::class, $input);
         $inputFilterChain    = $input->getFilterChain();
         $inputValidatorChain = $input->getValidatorChain();
         $this->assertSame($filterPlugins, $inputFilterChain->getPluginManager());
@@ -129,20 +134,20 @@ class FactoryTest extends TestCase
                 ],
             ],
         ]);
-        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
+        $this->assertInstanceOf(InputInterface::class, $input);
         $this->assertEquals('foo', $input->getName());
         $chain = $input->getFilterChain();
         $index = 0;
         foreach ($chain as $filter) {
             switch ($index) {
                 case 0:
-                    $this->assertInstanceOf('Zend\Filter\StringTrim', $filter);
+                    $this->assertInstanceOf(Filter\StringTrim::class, $filter);
                     break;
                 case 1:
                     $this->assertSame($htmlEntities, $filter);
                     break;
                 case 2:
-                    $this->assertInstanceOf('Zend\Filter\StringToLower', $filter);
+                    $this->assertInstanceOf(Filter\StringToLower::class, $filter);
                     $this->assertEquals('ISO-8859-1', $filter->getEncoding());
                     break;
                 default:
@@ -172,20 +177,20 @@ class FactoryTest extends TestCase
                 ],
             ],
         ]);
-        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
+        $this->assertInstanceOf(InputInterface::class, $input);
         $this->assertEquals('foo', $input->getName());
         $chain = $input->getValidatorChain();
         $index = 0;
         foreach ($chain as $validator) {
             switch ($index) {
                 case 0:
-                    $this->assertInstanceOf('Zend\Validator\NotEmpty', $validator);
+                    $this->assertInstanceOf(Validator\NotEmpty::class, $validator);
                     break;
                 case 1:
                     $this->assertSame($digits, $validator);
                     break;
                 case 2:
-                    $this->assertInstanceOf('Zend\Validator\StringLength', $validator);
+                    $this->assertInstanceOf(Validator\StringLength::class, $validator);
                     $this->assertEquals(3, $validator->getMin());
                     $this->assertEquals(5, $validator->getMax());
                     break;
@@ -204,7 +209,7 @@ class FactoryTest extends TestCase
             'required' => false,
             'allow_empty' => false,
         ]);
-        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
+        $this->assertInstanceOf(InputInterface::class, $input);
         $this->assertFalse($input->isRequired());
         $this->assertFalse($input->allowEmpty());
     }
@@ -216,7 +221,7 @@ class FactoryTest extends TestCase
             'name'        => 'foo',
             'allow_empty' => true,
         ]);
-        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
+        $this->assertInstanceOf(InputInterface::class, $input);
         $this->assertTrue($input->allowEmpty());
         $this->assertFalse($input->isRequired());
     }
@@ -227,7 +232,7 @@ class FactoryTest extends TestCase
         $input   = $factory->createInput([
             'name'        => 'foo',
         ]);
-        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
+        $this->assertInstanceOf(InputInterface::class, $input);
         $this->assertEquals('foo', $input->getName());
     }
 
@@ -238,7 +243,7 @@ class FactoryTest extends TestCase
             'name'              => 'foo',
             'continue_if_empty' => true,
         ]);
-        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
+        $this->assertInstanceOf(InputInterface::class, $input);
         $this->assertTrue($input->continueIfEmpty());
     }
 
@@ -251,7 +256,7 @@ class FactoryTest extends TestCase
             'foo' => $input
         ]);
 
-        $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $inputFilter);
+        $this->assertInstanceOf(InputFilterInterface::class, $inputFilter);
         $this->assertTrue($inputFilter->has('foo'));
         $this->assertEquals($input, $inputFilter->get('foo'));
     }
@@ -265,7 +270,7 @@ class FactoryTest extends TestCase
             'foo' => $input
         ]);
 
-        $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $inputFilter);
+        $this->assertInstanceOf(InputFilterInterface::class, $inputFilter);
         $this->assertTrue($inputFilter->has('foo'));
         $this->assertEquals($input, $inputFilter->get('foo'));
     }
@@ -305,7 +310,7 @@ class FactoryTest extends TestCase
                 ],
             ],
             'baz' => [
-                'type'   => 'Zend\InputFilter\InputFilter',
+                'type'   => InputFilter::class,
                 'foo' => [
                     'name'       => 'foo',
                     'required'   => false,
@@ -346,7 +351,7 @@ class FactoryTest extends TestCase
                 'continue_if_empty' => true,
             ],
         ]);
-        $this->assertInstanceOf('Zend\InputFilter\InputFilter', $inputFilter);
+        $this->assertInstanceOf(InputFilter::class, $inputFilter);
         $this->assertEquals(5, count($inputFilter));
 
         foreach (['foo', 'bar', 'baz', 'bat', 'zomg'] as $name) {
@@ -354,24 +359,24 @@ class FactoryTest extends TestCase
 
             switch ($name) {
                 case 'foo':
-                    $this->assertInstanceOf('Zend\InputFilter\Input', $input);
+                    $this->assertInstanceOf(Input::class, $input);
                     $this->assertFalse($input->isRequired());
                     $this->assertEquals(2, count($input->getValidatorChain()));
                     break;
                 case 'bar':
-                    $this->assertInstanceOf('Zend\InputFilter\Input', $input);
+                    $this->assertInstanceOf(Input::class, $input);
                     $this->assertTrue($input->allowEmpty());
                     $this->assertEquals(2, count($input->getFilterChain()));
                     break;
                 case 'baz':
-                    $this->assertInstanceOf('Zend\InputFilter\InputFilter', $input);
+                    $this->assertInstanceOf(InputFilter::class, $input);
                     $this->assertEquals(2, count($input));
                     $foo = $input->get('foo');
-                    $this->assertInstanceOf('Zend\InputFilter\Input', $foo);
+                    $this->assertInstanceOf(Input::class, $foo);
                     $this->assertFalse($foo->isRequired());
                     $this->assertEquals(2, count($foo->getValidatorChain()));
                     $bar = $input->get('bar');
-                    $this->assertInstanceOf('Zend\InputFilter\Input', $bar);
+                    $this->assertInstanceOf(Input::class, $bar);
                     $this->assertTrue($bar->allowEmpty());
                     $this->assertEquals(2, count($bar->getFilterChain()));
                     break;
@@ -380,7 +385,7 @@ class FactoryTest extends TestCase
                     $this->assertEquals('bat', $input->getName());
                     break;
                 case 'zomg':
-                    $this->assertInstanceOf('Zend\InputFilter\Input', $input);
+                    $this->assertInstanceOf(Input::class, $input);
                     $this->assertTrue($input->continueIfEmpty());
             }
         }
@@ -394,7 +399,7 @@ class FactoryTest extends TestCase
         ]);
 
         $this->assertTrue($inputFilter->has('foo'));
-        $this->assertInstanceOf('Zend\InputFilter\Input', $inputFilter->get('foo'));
+        $this->assertInstanceOf(Input::class, $inputFilter->get('foo'));
     }
 
     public function testFactoryAllowsPassingValidatorChainsInInputSpec()
@@ -405,7 +410,7 @@ class FactoryTest extends TestCase
             'name'       => 'foo',
             'validators' => $chain,
         ]);
-        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
+        $this->assertInstanceOf(InputInterface::class, $input);
         $test = $input->getValidatorChain();
         $this->assertSame($chain, $test);
     }
@@ -418,7 +423,7 @@ class FactoryTest extends TestCase
             'name'    => 'foo',
             'filters' => $chain,
         ]);
-        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
+        $this->assertInstanceOf(InputInterface::class, $input);
         $test = $input->getFilterChain();
         $this->assertSame($chain, $test);
     }
@@ -428,14 +433,14 @@ class FactoryTest extends TestCase
         $factory = new Factory();
 
         $inputFilter = $factory->createInputFilter([
-            'type'        => 'Zend\InputFilter\CollectionInputFilter',
+            'type'        => CollectionInputFilter::class,
             'required'    => true,
             'inputfilter' => new InputFilter(),
             'count'       => 3,
         ]);
 
-        $this->assertInstanceOf('Zend\InputFilter\CollectionInputFilter', $inputFilter);
-        $this->assertInstanceOf('Zend\InputFilter\InputFilter', $inputFilter->getInputFilter());
+        $this->assertInstanceOf(CollectionInputFilter::class, $inputFilter);
+        $this->assertInstanceOf(InputFilter::class, $inputFilter->getInputFilter());
         $this->assertTrue($inputFilter->getIsRequired());
         $this->assertEquals(3, $inputFilter->getCount());
     }
@@ -480,13 +485,13 @@ class FactoryTest extends TestCase
         foreach ($input->getFilterChain()->getFilters() as $filter) {
             switch ($index) {
                 case 0:
-                    $this->assertInstanceOf('Zend\Filter\StringToUpper', $filter);
+                    $this->assertInstanceOf(Filter\StringToUpper::class, $filter);
                     break;
                 case 1:
-                    $this->assertInstanceOf('Zend\Filter\StringToLower', $filter);
+                    $this->assertInstanceOf(Filter\StringToLower::class, $filter);
                     break;
                 case 2:
-                    $this->assertInstanceOf('Zend\Filter\StringTrim', $filter);
+                    $this->assertInstanceOf(Filter\StringTrim::class, $filter);
                     break;
             }
             $index++;
@@ -505,7 +510,7 @@ class FactoryTest extends TestCase
             ]
         );
 
-        $this->assertInstanceOf('Zend\InputFilter\InputFilter', $inputFilter);
+        $this->assertInstanceOf(InputFilter::class, $inputFilter);
         $this->assertTrue($inputFilter->has('type'));
     }
 
@@ -516,7 +521,7 @@ class FactoryTest extends TestCase
             'type'        => 'collection',
             'input_filter' => new InputFilter(),
         ]);
-        $this->assertInstanceOf('ZendTest\InputFilter\TestAsset\CustomFactory', $inputFilter->getFactory());
+        $this->assertInstanceOf(TestAsset\CustomFactory::class, $inputFilter->getFactory());
     }
 
     /**
@@ -527,7 +532,7 @@ class FactoryTest extends TestCase
         $factory = new Factory();
         $input   = $factory->createInput([
             'name'          => 'test',
-            'type'          => 'Zend\InputFilter\Input',
+            'type'          => Input::class,
             'error_message' => 'Custom error message',
         ]);
         $this->assertEquals('Custom error message', $input->getErrorMessage());
@@ -543,11 +548,11 @@ class FactoryTest extends TestCase
         $factory = new Factory();
         $factory->setInputFilterManager($inputFilterManager);
         $this->assertInstanceOf(
-            'Zend\Validator\ValidatorPluginManager',
+            Validator\ValidatorPluginManager::class,
             $factory->getDefaultValidatorChain()->getPluginManager()
         );
         $this->assertInstanceOf(
-            'Zend\Filter\FilterPluginManager',
+            Filter\FilterPluginManager::class,
             $factory->getDefaultFilterChain()->getPluginManager()
         );
     }
@@ -595,7 +600,7 @@ class FactoryTest extends TestCase
             ],
         ]);
 
-        $this->assertInstanceOf('Zend\InputFilter\InputFilter', $inputFilter);
+        $this->assertInstanceOf(InputFilter::class, $inputFilter);
         $this->assertEquals(2, count($inputFilter));
         $this->assertTrue($inputFilter->has('foo'));
         $this->assertFalse($inputFilter->has('bar'));
@@ -607,8 +612,8 @@ class FactoryTest extends TestCase
      */
     public function testCanCreateInputFromProvider()
     {
-        /* @group $provider \Zend\InputFilter\InputProviderInterface|\PHPUnit_Framework_MockObject_MockObject */
-        $provider = $this->getMock('Zend\InputFilter\InputProviderInterface', ['getInputSpecification']);
+        /** @var InputProviderInterface|\PHPUnit_Framework_MockObject_MockObject $provider */
+        $provider = $this->getMock(InputProviderInterface::class, ['getInputSpecification']);
 
         $provider
             ->expects($this->any())
@@ -618,7 +623,7 @@ class FactoryTest extends TestCase
         $factory = new Factory();
         $input   = $factory->createInput($provider);
 
-        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $input);
+        $this->assertInstanceOf(InputInterface::class, $input);
     }
 
     /**
@@ -626,9 +631,9 @@ class FactoryTest extends TestCase
      */
     public function testCanCreateInputFilterFromProvider()
     {
-        /* @group $provider \Zend\InputFilter\InputFilterProviderInterface|\PHPUnit_Framework_MockObject_MockObject */
+        /** @var InputFilterProviderInterface|\PHPUnit_Framework_MockObject_MockObject $provider */
         $provider = $this->getMock(
-            'Zend\InputFilter\InputFilterProviderInterface',
+            InputFilterProviderInterface::class,
             ['getInputFilterSpecification']
         );
         $provider
@@ -648,7 +653,7 @@ class FactoryTest extends TestCase
         $factory     = new Factory();
         $inputFilter = $factory->createInputFilter($provider);
 
-        $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $inputFilter);
+        $this->assertInstanceOf(InputFilterInterface::class, $inputFilter);
     }
 
     public function testSuggestedTypeMayBePluginNameInInputFilterPluginManager()
@@ -663,7 +668,7 @@ class FactoryTest extends TestCase
         ]);
         $this->assertSame('bar', $input->getName());
 
-        $this->setExpectedException('Zend\Filter\Exception\RuntimeException');
+        $this->setExpectedException(Filter\Exception\RuntimeException::class);
         $factory->createInput([
             'type' => 'foo'
         ]);

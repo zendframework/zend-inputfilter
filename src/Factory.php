@@ -167,7 +167,7 @@ class Factory
             $inputSpecification = ArrayUtils::iteratorToArray($inputSpecification);
         }
 
-        $class = 'Zend\InputFilter\Input';
+        $class = Input::class;
 
         if (isset($inputSpecification['type'])) {
             $class = $inputSpecification['type'];
@@ -193,7 +193,7 @@ class Factory
         if (!$input instanceof InputInterface) {
             throw new Exception\RuntimeException(sprintf(
                 'Input factory expects the "type" to be a class implementing %s; received "%s"',
-                'Zend\InputFilter\InputInterface',
+                InputInterface::class,
                 $class
             ));
         }
@@ -293,7 +293,7 @@ class Factory
             $inputFilterSpecification = ArrayUtils::iteratorToArray($inputFilterSpecification);
         }
 
-        $type = 'Zend\InputFilter\InputFilter';
+        $type = InputFilter::class;
 
         if (isset($inputFilterSpecification['type']) && is_string($inputFilterSpecification['type'])) {
             $type = $inputFilterSpecification['type'];

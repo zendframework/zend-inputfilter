@@ -10,6 +10,7 @@
 namespace Zend\InputFilter;
 
 use Zend\Filter\FilterChain;
+use Zend\ServiceManager\AbstractPluginManager;
 use Zend\Validator\NotEmpty;
 use Zend\Validator\ValidatorChain;
 
@@ -390,7 +391,7 @@ class Input implements
 
         $this->notEmptyValidator = true;
 
-        if (class_exists('Zend\ServiceManager\AbstractPluginManager')) {
+        if (class_exists(AbstractPluginManager::class)) {
             $chain->prependByName('NotEmpty', [], true);
 
             return;

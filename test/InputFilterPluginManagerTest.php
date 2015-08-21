@@ -9,7 +9,10 @@
 
 namespace ZendTest\InputFilter;
 
+use Zend\InputFilter\Exception\RuntimeException;
+use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputFilterPluginManager;
+use Zend\InputFilter\InputInterface;
 
 /**
  * @covers Zend\InputFilter\InputFilterPluginManager
@@ -28,14 +31,14 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testRegisteringInvalidElementRaisesException()
     {
-        $this->setExpectedException('Zend\InputFilter\Exception\RuntimeException');
+        $this->setExpectedException(RuntimeException::class);
         $this->manager->setService('test', $this);
     }
 
     public function testLoadingInvalidElementRaisesException()
     {
         $this->manager->setInvokableClass('test', get_class($this));
-        $this->setExpectedException('Zend\InputFilter\Exception\RuntimeException');
+        $this->setExpectedException(RuntimeException::class);
         $this->manager->get('test');
     }
 
@@ -44,7 +47,7 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testAllowLoadingInstancesOfInputFilterInterface()
     {
-        $inputFilter = $this->getMock('Zend\InputFilter\InputFilterInterface');
+        $inputFilter = $this->getMock(InputFilterInterface::class);
 
         $this->assertNull($this->manager->validatePlugin($inputFilter));
     }
@@ -54,7 +57,7 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testAllowLoadingInstancesOfInputInterface()
     {
-        $input = $this->getMock('Zend\InputFilter\InputInterface');
+        $input = $this->getMock(InputInterface::class);
 
         $this->assertNull($this->manager->validatePlugin($input));
     }

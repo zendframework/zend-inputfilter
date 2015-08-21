@@ -60,7 +60,7 @@ class CollectionInputFilter extends InputFilter
             throw new Exception\RuntimeException(sprintf(
                 '%s expects an instance of %s; received "%s"',
                 __METHOD__,
-                'Zend\InputFilter\BaseInputFilter',
+                BaseInputFilter::class,
                 (is_object($inputFilter) ? get_class($inputFilter) : gettype($inputFilter))
             ));
         }
