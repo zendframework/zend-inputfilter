@@ -21,6 +21,9 @@ use Zend\Validator;
  */
 class InputTest extends TestCase
 {
+    use EmptyContextInterfaceTestTrait;
+    use InputInterfaceTestTrait;
+
     /**
      * @var Input
      */
@@ -859,5 +862,17 @@ class InputTest extends TestCase
     {
         $input->setValue($value);
         $this->{$assertion}($input->isValid());
+    }
+
+    protected function createDefaultEmptyContext()
+    {
+        return $this->createDefaultInput();
+    }
+
+    protected function createDefaultInput()
+    {
+        $input = new Input();
+
+        return $input;
     }
 }

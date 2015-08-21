@@ -253,4 +253,11 @@ class ArrayInputTest extends InputTest
                     }));
         $this->assertTrue($this->input->isValid());
     }
+
+    protected function createDefaultInput()
+    {
+        $input = new ArrayInput();
+
+        return $input;
+    }
 }

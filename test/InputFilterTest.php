@@ -22,6 +22,10 @@ use Zend\InputFilter\InputInterface;
  */
 class InputFilterTest extends TestCase
 {
+    use InputFilterInterfaceTestTrait;
+    use ReplaceableInputInterfaceTestTrait;
+    use UnknownInputsCapableInterfaceTestTrait;
+
     /**
      * @var InputFilter
      */
@@ -119,5 +123,22 @@ class InputFilterTest extends TestCase
         $this->filter->setData(['username' => 'Mwop']);
 
         $this->filter->isValid($context);
+    }
+
+    protected function createDefaultInputFilter()
+    {
+        $inputFilter = new InputFilter();
+
+        return $inputFilter;
+    }
+
+    protected function createDefaultReplaceableInput()
+    {
+        return $this->createDefaultInputFilter();
+    }
+
+    protected function createDefaultUnknownInputsCapable()
+    {
+        return $this->createDefaultInputFilter();
     }
 }

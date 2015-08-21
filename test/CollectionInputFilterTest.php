@@ -21,6 +21,10 @@ use Zend\Validator;
  */
 class CollectionInputFilterTest extends TestCase
 {
+    use InputFilterInterfaceTestTrait;
+    use ReplaceableInputInterfaceTestTrait;
+    use UnknownInputsCapableInterfaceTestTrait;
+
     /**
      * @var CollectionInputFilter
      */
@@ -783,5 +787,22 @@ class CollectionInputFilterTest extends TestCase
         $this->filter->setData($data);
 
         $this->assertFalse($this->filter->isValid());
+    }
+
+    protected function createDefaultInputFilter()
+    {
+        $inputFilter = new CollectionInputFilter();
+
+        return $inputFilter;
+    }
+
+    protected function createDefaultReplaceableInput()
+    {
+        return $this->createDefaultInputFilter();
+    }
+
+    protected function createDefaultUnknownInputsCapable()
+    {
+        return $this->createDefaultInputFilter();
     }
 }

@@ -28,6 +28,10 @@ use Zend\Validator;
  */
 class BaseInputFilterTest extends TestCase
 {
+    use InputFilterInterfaceTestTrait;
+    use ReplaceableInputInterfaceTestTrait;
+    use UnknownInputsCapableInterfaceTestTrait;
+
     public function testInputFilterIsEmptyByDefault()
     {
         $filter = new InputFilter();
@@ -1137,5 +1141,22 @@ class BaseInputFilterTest extends TestCase
         $data = new ArrayObject(['foo' => ' valid ']);
         $filter->setData($data);
         $this->assertTrue($filter->isValid());
+    }
+
+    protected function createDefaultInputFilter()
+    {
+        $inputFilter = new InputFilter();
+
+        return $inputFilter;
+    }
+
+    protected function createDefaultReplaceableInput()
+    {
+        return $this->createDefaultInputFilter();
+    }
+
+    protected function createDefaultUnknownInputsCapable()
+    {
+        return $this->createDefaultInputFilter();
     }
 }

@@ -459,4 +459,13 @@ class FileInputTest extends InputTest
     {
         $this->markTestSkipped('does not apply to FileInput');
     }
+
+    protected function createDefaultInput()
+    {
+        $input = new FileInput();
+        // Upload validator does not work in CLI test environment, disable
+        $input->setAutoPrependUploadValidator(false);
+
+        return $input;
+    }
 }
