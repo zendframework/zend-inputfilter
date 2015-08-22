@@ -10,7 +10,6 @@
 namespace Zend\InputFilter;
 
 use Traversable;
-use Zend\Filter\Exception;
 use Zend\Filter\FilterChain;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\ArrayUtils;

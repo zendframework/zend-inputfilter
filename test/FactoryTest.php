@@ -13,6 +13,8 @@ use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\Filter;
 use Zend\InputFilter\CollectionInputFilter;
+use Zend\InputFilter\Exception\InvalidArgumentException;
+use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\Factory;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
@@ -29,6 +31,196 @@ use Zend\Validator;
  */
 class FactoryTest extends TestCase
 {
+    public function testCreateInputWithInvalidDataTypeThrowsInvalidArgumentException()
+    {
+        $factory = $this->createDefaultFactory();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'expects an array or Traversable; received "string"'
+        );
+        /** @noinspection PhpParamsInspection */
+        $factory->createInput('invalid_value');
+    }
+
+    public function testCreateInputWithTypeAsAnUnknownPluginAndNotExistsAsClassNameThrowException()
+    {
+        $factory = $this->createDefaultFactory();
+        $type = 'foo';
+
+        /** @var InputFilterPluginManager|MockObject $pluginManager */
+        $pluginManager = $this->getMock(InputFilterPluginManager::class);
+        $pluginManager->expects($this->atLeastOnce())
+            ->method('has')
+            ->with($type)
+            ->willReturn(false)
+        ;
+        $factory->setInputFilterManager($pluginManager);
+
+        $this->setExpectedException(
+            RuntimeException::class,
+            'Input factory expects the "type" to be a valid class or a plugin name; received "foo"'
+        );
+        $factory->createInput(
+            [
+                'type' => $type,
+            ]
+        );
+    }
+
+    public function testCreateInputWithTypeAsAnInvalidPluginInstanceThrowException()
+    {
+        $factory = $this->createDefaultFactory();
+        $type = 'fooPlugin';
+        $pluginManager = $this->createInputFilterPluginManagerMockForPlugin($type, 'invalid_value');
+
+        $factory->setInputFilterManager($pluginManager);
+
+        $this->setExpectedException(
+            RuntimeException::class,
+            'Input factory expects the "type" to be a class implementing Zend\InputFilter\InputInterface; ' .
+            'received "fooPlugin"'
+        );
+        $factory->createInput(
+            [
+                'type' => $type,
+            ]
+        );
+    }
+
+    public function testCreateInputWithTypeAsAnInvalidClassInstanceThrowException()
+    {
+        $factory = $this->createDefaultFactory();
+        $type = 'stdClass';
+
+        $this->setExpectedException(
+            RuntimeException::class,
+            'Input factory expects the "type" to be a class implementing Zend\InputFilter\InputInterface; ' .
+            'received "stdClass"'
+        );
+        $factory->createInput(
+            [
+                'type' => $type,
+            ]
+        );
+    }
+
+    public function testCreateInputWithFiltersAsAnInvalidTypeThrowException()
+    {
+        $factory = $this->createDefaultFactory();
+
+        $this->setExpectedException(
+            RuntimeException::class,
+            'expects the value associated with "filters" to be an array/Traversable of filters or filter specifications,' .
+            ' or a FilterChain; received "string"'
+        );
+        $factory->createInput(
+            [
+                'filters' => 'invalid_value',
+            ]
+        );
+    }
+
+    public function testCreateInputWithFiltersAsAnSpecificationWithMissingNameThrowException()
+    {
+        $factory = $this->createDefaultFactory();
+
+        $this->setExpectedException(
+            RuntimeException::class,
+            'Invalid filter specification provided; does not include "name" key'
+        );
+        $factory->createInput(
+            [
+                'filters' => [
+                    [
+                        // empty
+                    ]
+                ],
+            ]
+        );
+    }
+
+    public function testCreateInputWithFiltersAsAnCollectionOfInvalidTypesThrowException()
+    {
+        $factory = $this->createDefaultFactory();
+
+        $this->setExpectedException(
+            RuntimeException::class,
+            'Invalid filter specification provided; was neither a filter instance nor an array specification'
+        );
+        $factory->createInput(
+            [
+                'filters' => [
+                    'invalid value'
+                ],
+            ]
+        );
+    }
+
+    public function testCreateInputWithValidatorsAsAnInvalidTypeThrowException()
+    {
+        $factory = $this->createDefaultFactory();
+
+        $this->setExpectedException(
+            RuntimeException::class,
+            'expects the value associated with "validators" to be an array/Traversable of validators or validator ' .
+            'specifications, or a ValidatorChain; received "string"'
+        );
+        $factory->createInput(
+            [
+                'validators' => 'invalid_value',
+            ]
+        );
+    }
+
+    public function testCreateInputWithValidatorsAsAnSpecificationWithMissingNameThrowException()
+    {
+        $factory = $this->createDefaultFactory();
+
+        $this->setExpectedException(
+            RuntimeException::class,
+            'Invalid validator specification provided; does not include "name" key'
+        );
+        $factory->createInput(
+            [
+                'validators' => [
+                    [
+                        // empty
+                    ]
+                ],
+            ]
+        );
+    }
+
+    public function testCreateInputWithValidatorsAsAnCollectionOfInvalidTypesThrowException()
+    {
+        $factory = $this->createDefaultFactory();
+
+        $this->setExpectedException(
+            RuntimeException::class,
+            'Invalid validator specification provided; was neither a validator instance nor an array specification'
+        );
+        $factory->createInput(
+            [
+                'validators' => [
+                    'invalid value'
+                ],
+            ]
+        );
+    }
+
+    public function testCreateInputFilterWithInvalidDataTypeThrowsInvalidArgumentException()
+    {
+        $factory = $this->createDefaultFactory();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'expects an array or Traversable; received "string"'
+        );
+        /** @noinspection PhpParamsInspection */
+        $factory->createInputFilter('invalid_value');
+    }
+
     public function testFactoryComposesFilterChainByDefault()
     {
         $factory = $this->createDefaultFactory();
@@ -670,11 +862,6 @@ class FactoryTest extends TestCase
             'type' => 'bar'
         ]);
         $this->assertSame('bar', $input->getName());
-
-        $this->setExpectedException(Filter\Exception\RuntimeException::class);
-        $factory->createInput([
-            'type' => 'foo'
-        ]);
     }
 
     public function testInputFromPluginManagerMayBeFurtherConfiguredWithSpec()
@@ -702,5 +889,28 @@ class FactoryTest extends TestCase
         $factory = new Factory();
 
         return $factory;
+    }
+
+    /**
+     * @param string $pluginName
+     * @param mixed $pluginValue
+     *
+     * @return MockObject|InputFilterPluginManager
+     */
+    protected function createInputFilterPluginManagerMockForPlugin($pluginName, $pluginValue)
+    {
+        /** @var InputFilterPluginManager|MockObject $pluginManager */
+        $pluginManager = $this->getMock(InputFilterPluginManager::class);
+        $pluginManager->expects($this->atLeastOnce())
+            ->method('has')
+            ->with($pluginName)
+            ->willReturn(true)
+        ;
+        $pluginManager->expects($this->atLeastOnce())
+            ->method('get')
+            ->with($pluginName)
+            ->willReturn($pluginValue)
+        ;
+        return $pluginManager;
     }
 }
