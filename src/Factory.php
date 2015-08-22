@@ -219,12 +219,26 @@ class Factory
                     }
                     break;
                 case 'continue_if_empty':
+                    if (!$input instanceof Input) {
+                        throw new Exception\RuntimeException(sprintf(
+                            '%s "continue_if_empty" can only set to inputs of type "%s"',
+                            __METHOD__,
+                            Input::class
+                        ));
+                    }
                     $input->setContinueIfEmpty($inputSpecification['continue_if_empty']);
                     break;
                 case 'error_message':
                     $input->setErrorMessage($value);
                     break;
                 case 'fallback_value':
+                    if (!$input instanceof Input) {
+                        throw new Exception\RuntimeException(sprintf(
+                            '%s "fallback_value" can only set to inputs of type "%s"',
+                            __METHOD__,
+                            Input::class
+                        ));
+                    }
                     $input->setFallbackValue($value);
                     break;
                 case 'break_on_failure':

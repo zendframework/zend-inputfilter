@@ -192,6 +192,38 @@ class FactoryTest extends TestCase
         );
     }
 
+    public function inputTypeSpecificationProvider()
+    {
+        return [
+            // Description => [$specificationKey]
+            'continue_if_empty' => ['continue_if_empty'],
+            'fallback_value' => ['fallback_value'],
+        ];
+    }
+
+    /**
+     * @dataProvider inputTypeSpecificationProvider
+     */
+    public function testCreateInputWithSpecificInputTypeSettingsThrowException($specificationKey)
+    {
+        $factory = $this->createDefaultFactory();
+        $type = 'pluginInputInterface';
+
+        $pluginManager = $this->createInputFilterPluginManagerMockForPlugin($type, $this->getMock(InputInterface::class));
+        $factory->setInputFilterManager($pluginManager);
+
+        $this->setExpectedException(
+            RuntimeException::class,
+            sprintf('"%s" can only set to inputs of type "Zend\InputFilter\Input"', $specificationKey)
+        );
+        $factory->createInput(
+            [
+                'type' => $type,
+                $specificationKey => true,
+            ]
+        );
+    }
+
     public function testCreateInputWithValidatorsAsAnCollectionOfInvalidTypesThrowException()
     {
         $factory = $this->createDefaultFactory();
