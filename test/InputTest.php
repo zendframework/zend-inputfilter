@@ -32,6 +32,53 @@ class InputTest extends TestCase
     }
 
     /**
+     * @dataProvider setValueProvider
+     */
+    public function testSetFallbackValue($fallbackValue)
+    {
+        $input = $this->createDefaultInput();
+
+        $return = $input->setFallbackValue($fallbackValue);
+        $this->assertSame($input, $return, 'setFallbackValue() must return it self');
+
+        $this->assertEquals($fallbackValue, $input->getFallbackValue(), 'getFallbackValue() value not match');
+        $this->assertEquals(true, $input->hasFallback(), 'hasFallback() value not match');
+    }
+
+    public function fallbackValueVsIsValidProvider()
+    {
+        $originalValue = 'value';
+        $fallbackValue = 'fallbackValue';
+
+        return [
+            // Description => [$fallbackValue, $originalValue, $isValid, $expectedValue]
+            'Input is invalid getValue return fallback value' => [$fallbackValue, $originalValue, false, $fallbackValue],
+            'Input is valid getValue return original value' => [$fallbackValue, $originalValue, true, $originalValue],
+        ];
+    }
+
+    /**
+     * @dataProvider fallbackValueVsIsValidProvider
+     */
+    public function testFallbackValueVsIsValidRules($fallbackValue, $originalValue, $isValid, $expectedValue)
+    {
+        $input = $this->createDefaultInput();
+        $input->setContinueIfEmpty(true);
+
+        $input->setValidatorChain($this->createValidatorChainMock($isValid));
+        $input->setFallbackValue($fallbackValue);
+        $input->setValue($originalValue);
+
+        $this->assertTrue($input->isValid(),
+            'isValid() should be return always true when fallback value is set. Detail: ' .
+            json_encode($input->getMessages())
+        );
+        $this->assertEquals([], $input->getMessages(), 'getMessages() should be empty because the input is valid');
+        $this->assertSame($expectedValue, $input->getRawValue(), 'getRawValue() value not match');
+        $this->assertSame($expectedValue, $input->getValue(), 'getValue() value not match');
+    }
+
+    /**
      * Specific Input::merge extras
      */
     public function testInputMerge()
@@ -330,38 +377,6 @@ class InputTest extends TestCase
         $validators = $validatorChain->getValidators();
         $this->assertEquals(2, count($validators));
         $this->assertEquals($notEmptyMock, $validators[1]['instance']);
-    }
-
-    public function dataFallbackValue()
-    {
-        return [
-            [
-                'fallbackValue' => null
-            ],
-            [
-                'fallbackValue' => ''
-            ],
-            [
-                'fallbackValue' => 'some value'
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataFallbackValue
-     */
-    public function testFallbackValue($fallbackValue)
-    {
-        $input = $this->createDefaultInput();
-
-        $input->setFallbackValue($fallbackValue);
-        $validator = new Validator\Date();
-        $input->getValidatorChain()->attach($validator);
-        $input->setValue('123'); // not a date
-
-        $this->assertTrue($input->isValid());
-        $this->assertEmpty($input->getMessages());
-        $this->assertSame($fallbackValue, $input->getValue());
     }
 
     /**

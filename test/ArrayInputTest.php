@@ -142,6 +142,40 @@ class ArrayInputTest extends InputTest
         $this->assertEquals(['*filter*'], $input->getValue(), 'getValue() value not match');
     }
 
+    public function testSetFallbackValue($fallbackValue = null)
+    {
+        $this->markTestSkipped('ArrayInput::setFallbackValue is not compatible with Input::setFallbackValue');
+    }
+
+    /**
+     * Specific ArrayInput::setFallbackValue behavior
+     *
+     * @dataProvider setValueProvider
+     */
+    public function testArrayInputSetFallbackValue($fallbackValue)
+    {
+        parent::testSetFallbackValue([$fallbackValue]);
+    }
+
+    public function testFallbackValueVsIsValidRules(
+        $fallbackValue = null,
+        $originalValue = null,
+        $isValid = null,
+        $expectedValue = null
+    ) {
+        $this->markTestSkipped('ArrayInput::setFallbackValue is not compatible with Input::setFallbackValue');
+    }
+
+    /**
+     * Specific ArrayInput::setFallbackValue and ArrayInput::setValue behavior
+     *
+     * @dataProvider fallbackValueVsIsValidProvider
+     */
+    public function testArrayInputFallbackValueVsIsValidRules($fallbackValue, $originalValue, $isValid, $expectedValue)
+    {
+        parent::testFallbackValueVsIsValidRules([$fallbackValue], [$originalValue], $isValid, [$expectedValue]);
+    }
+
     public function testIsValidReturnsFalseIfValidationChainFails()
     {
         $input = $this->createDefaultInput();
@@ -262,41 +296,6 @@ class ArrayInputTest extends InputTest
         $validators = $validatorChain->getValidators();
         $this->assertEquals(2, count($validators));
         $this->assertEquals($notEmptyMock, $validators[1]['instance']);
-    }
-
-    public function dataFallbackValue()
-    {
-        return [
-            [
-                'fallbackValue' => []
-            ],
-            [
-                'fallbackValue' => [''],
-            ],
-            [
-                'fallbackValue' => [null],
-            ],
-            [
-                'fallbackValue' => ['some value'],
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataFallbackValue
-     */
-    public function testFallbackValue($fallbackValue)
-    {
-        $input = $this->createDefaultInput();
-
-        $input->setFallbackValue($fallbackValue);
-        $validator = new Validator\Date();
-        $input->getValidatorChain()->attach($validator);
-        $input->setValue(['123']); // not a date
-
-        $this->assertTrue($input->isValid());
-        $this->assertEmpty($input->getMessages());
-        $this->assertSame($fallbackValue, $input->getValue());
     }
 
     public function testWhenRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input = null, $value = null)

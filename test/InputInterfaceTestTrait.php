@@ -263,12 +263,20 @@ trait InputInterfaceTestTrait
     }
 
     /**
+     * @param null|bool $isValid If set stub isValid method for return the argument value.
+     *
      * @return MockObject|ValidatorChain
      */
-    protected function createValidatorChainMock()
+    protected function createValidatorChainMock($isValid = null)
     {
         /** @var ValidatorChain|MockObject $validatorChain */
         $validatorChain = $this->getMock(ValidatorChain::class);
+
+        if ($isValid !== null) {
+            $validatorChain->method('isValid')
+                ->willReturn($isValid)
+            ;
+        }
 
         return $validatorChain;
     }

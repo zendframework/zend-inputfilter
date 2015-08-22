@@ -46,6 +46,20 @@ class FileInputTest extends InputTest
         $this->assertEquals($value, $input->getValue(), 'getValue() value not match');
     }
 
+    public function testSetFallbackValue($fallbackValue = null)
+    {
+        $this->markTestSkipped('Input::setFallbackValue is not implemented on FileInput');
+    }
+
+    public function testFallbackValueVsIsValidRules(
+        $fallbackValue = null,
+        $originalValue = null,
+        $isValid = null,
+        $expectedValue = null
+    ) {
+        $this->markTestSkipped('Input::setFallbackValue is not implemented on FileInput');
+    }
+
     /**
      * Specific FileInput::merge extras
      */
@@ -400,11 +414,6 @@ class FileInputTest extends InputTest
     public function testRequiredNotEmptyValidatorNotAddedWhenOneExists()
     {
         $this->markTestSkipped('Test is not enabled in FileInputTest');
-    }
-
-    public function testFallbackValue($fallbackValue = null)
-    {
-        $this->markTestSkipped('Not use fallback value');
     }
 
     public function testIsEmptyFileNotArray()
