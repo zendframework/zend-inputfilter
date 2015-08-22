@@ -10,8 +10,10 @@
 namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_TestCase as TestCase;
+use stdClass;
 use Zend\InputFilter\BaseInputFilter;
 use Zend\InputFilter\CollectionInputFilter;
+use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
 use Zend\Validator;
@@ -28,6 +30,18 @@ class CollectionInputFilterTest extends TestCase
     public function testIsASubclassOfInputFilter()
     {
         $this->assertInstanceOf(InputFilter::class, $this->createDefaultInputFilter());
+    }
+
+    public function testSetDataWithInvalidDataTypeThrowsInvalidArgumentException()
+    {
+        $filter = $this->createDefaultInputFilter();
+
+        $this->setExpectedException(
+            RuntimeException::class,
+            'expects an instance of Zend\InputFilter\BaseInputFilter; received "stdClass"'
+        );
+        /** @noinspection PhpParamsInspection */
+        $filter->setInputFilter(new stdClass());
     }
 
     public function getBaseInputFilter()

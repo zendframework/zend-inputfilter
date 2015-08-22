@@ -17,6 +17,7 @@ use Zend\Filter;
 use Zend\InputFilter\ArrayInput;
 use Zend\InputFilter\BaseInputFilter as InputFilter;
 use Zend\InputFilter\Exception\InvalidArgumentException;
+use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\FileInput;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilterInterface;
@@ -36,6 +37,137 @@ class BaseInputFilterTest extends TestCase
     {
         $filter = $this->createDefaultInputFilter();
         $this->assertEquals(0, count($filter));
+    }
+
+    public function testAddWithInvalidInputTypeThrowsInvalidArgumentException()
+    {
+        $filter = new InputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'expects an instance of Zend\InputFilter\InputInterface or Zend\InputFilter\InputFilterInterface '.
+            'as its first argument; received "stdClass"'
+        );
+        /** @noinspection PhpParamsInspection */
+        $filter->add(new stdClass());
+    }
+
+    public function testGetThrowExceptionIfInputDoesNotExists()
+    {
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'no input found matching "not exists"'
+        );
+        $inputFilter->get('not exists');
+    }
+
+    public function testReplaceWithInvalidInputTypeThrowsInvalidArgumentException()
+    {
+        $inputFilter = $this->createDefaultInputFilter();
+        $inputFilter->add(new Input('foo'), 'replace_me');
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'expects an instance of Zend\InputFilter\InputInterface or Zend\InputFilter\InputFilterInterface '.
+            'as its first argument; received "stdClass"'
+        );
+        /** @noinspection PhpParamsInspection */
+        $inputFilter->replace(new stdClass(), 'replace_me');
+    }
+
+    public function testReplaceThrowExceptionIfInputToReplaceDoesNotExists()
+    {
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'no input found matching "not exists"'
+        );
+        $inputFilter->replace(new Input('foo'), 'not exists');
+    }
+
+    public function testGetValueThrowExceptionIfInputDoesNotExists()
+    {
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            '"not exists" was not found in the filter'
+        );
+        $inputFilter->getValue('not exists');
+    }
+
+    public function testGetRawValueThrowExceptionIfInputDoesNotExists()
+    {
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            '"not exists" was not found in the filter'
+        );
+        $inputFilter->getRawValue('not exists');
+    }
+
+    public function testSetDataWithInvalidDataTypeThrowsInvalidArgumentException()
+    {
+        $filter = $this->createDefaultInputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'expects an array or Traversable argument; received stdClass'
+        );
+        /** @noinspection PhpParamsInspection */
+        $filter->setData(new stdClass());
+    }
+
+    public function testIsValidThrowExceptionIfDataWasNotSetYet()
+    {
+        $filter = $this->createDefaultInputFilter();
+
+        $this->setExpectedException(
+            RuntimeException::class,
+            'no data present to validate'
+        );
+        $filter->isValid();
+    }
+
+    public function testSetValidationGroupThrowExceptionIfInputIsNotAnInputFilter()
+    {
+        $filter = $this->getInputFilter();
+
+        /** @var InputInterface|MockObject $nestedInput */
+        $nestedInput = $this->getMock(InputInterface::class);
+        $filter->add($nestedInput, 'fooInput');
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'Input "fooInput" must implement InputFilterInterface'
+        );
+        $filter->setValidationGroup(['fooInput' => 'foo']);
+    }
+
+    public function testSetValidationGroupThrowExceptionIfInputFilterNotExists()
+    {
+        $filter = $this->getInputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'expects a list of valid input names; "anotherNotExistsInputFilter" was not found'
+        );
+        $filter->setValidationGroup(['notExistInputFilter' => 'anotherNotExistsInputFilter']);
+    }
+
+    public function testSetValidationGroupThrowExceptionIfInputFilterInArgumentListNotExists()
+    {
+        $filter = $this->getInputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'expects a list of valid input names; "notExistInputFilter" was not found'
+        );
+        $filter->setValidationGroup('notExistInputFilter');
     }
 
     public function testAddingInputsIncreasesCountOfFilter()
@@ -256,19 +388,6 @@ class BaseInputFilterTest extends TestCase
         // reset validation group
         $filter->setValidationGroup(InputFilter::VALIDATE_ALL);
         $this->assertEquals($data, $filter->getValues());
-    }
-
-    public function testSetDeepValidationGroupToNonInputFilterThrowsException()
-    {
-        $filter = $this->getInputFilter();
-        $filter->add(new Input, 'flat');
-        // we expect setValidationGroup to throw an exception when flat is treated
-        // like an inputfilter which it actually isn't
-        $this->setExpectedException(
-            InvalidArgumentException::class,
-            'Input "flat" must implement InputFilterInterface'
-        );
-        $filter->setValidationGroup(['flat' => 'foo']);
     }
 
     public function testCanRetrieveInvalidInputsOnFailedValidation()

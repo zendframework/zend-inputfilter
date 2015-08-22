@@ -38,7 +38,10 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testRegisteringInvalidElementRaisesException()
     {
-        $this->setExpectedException(RuntimeException::class);
+        $this->setExpectedException(
+            RuntimeException::class,
+            'must implement Zend\InputFilter\InputFilterInterface or Zend\InputFilter\InputInterface'
+        );
         $this->manager->setService('test', $this);
     }
 
