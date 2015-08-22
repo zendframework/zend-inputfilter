@@ -15,6 +15,28 @@ trait EmptyContextInterfaceTestTrait
         Assert::assertInstanceOf(EmptyContextInterface::class, $this->createDefaultEmptyContext());
     }
 
+    public function setContinueIfEmptyProvider()
+    {
+        return [
+            // Description => [$continueIfEmpty]
+            'Enable' => [true],
+            'Disable' => [false],
+        ];
+    }
+
+    /**
+     * @dataProvider setContinueIfEmptyProvider
+     */
+    public function testSetContinueIfEmpty($continueIfEmpty)
+    {
+        $input = $this->createDefaultEmptyContext();
+
+        $return = $input->setContinueIfEmpty($continueIfEmpty);
+        Assert::assertSame($input, $return, 'setContinueIfEmpty() must return it self');
+
+        Assert::assertEquals($continueIfEmpty, $input->continueIfEmpty(), 'continueIfEmpty() value not match');
+    }
+
     /**
      * @return EmptyContextInterface
      */

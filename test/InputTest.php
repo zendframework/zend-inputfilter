@@ -103,13 +103,6 @@ class InputTest extends TestCase
         $this->assertFalse($input->continueIfEmpty());
     }
 
-    public function testContinueIfEmptyFlagIsMutable()
-    {
-        $input = $this->createDefaultInput();
-        $input->setContinueIfEmpty(true);
-        $this->assertTrue($input->continueIfEmpty());
-    }
-
     public function testNotEmptyValidatorNotInjectedIfContinueIfEmptyIsTrue()
     {
         $input = $this->createDefaultInput();
