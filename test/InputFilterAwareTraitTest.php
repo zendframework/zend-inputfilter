@@ -10,7 +10,6 @@
 namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_TestCase as TestCase;
-use Zend\InputFilter\InputFilter;
 use Zend\InputFilter\InputFilterAwareTrait;
 
 /**
@@ -19,29 +18,17 @@ use Zend\InputFilter\InputFilterAwareTrait;
  */
 class InputFilterAwareTraitTest extends TestCase
 {
-    public function testSetInputFilter()
+    use InputFilterAwareInterfaceTestTrait;
+
+    public function testImplementsInputFilterAwareInterface()
     {
-        $object = $this->getObjectForTrait(InputFilterAwareTrait::class);
-
-        $this->assertAttributeEquals(null, 'inputFilter', $object);
-
-        $inputFilter = new InputFilter;
-
-        $object->setInputFilter($inputFilter);
-
-        $this->assertAttributeEquals($inputFilter, 'inputFilter', $object);
+        $this->markTestSkipped("Traits don't implement interfaces");
     }
 
-    public function testGetInputFilter()
+    protected function createDefaultInputFilterAware()
     {
-        $object = $this->getObjectForTrait(InputFilterAwareTrait::class);
+        $trait = $this->getObjectForTrait(InputFilterAwareTrait::class);
 
-        $this->assertNull($object->getInputFilter());
-
-        $inputFilter = new InputFilter;
-
-        $object->setInputFilter($inputFilter);
-
-        $this->assertEquals($inputFilter, $object->getInputFilter());
+        return $trait;
     }
 }
