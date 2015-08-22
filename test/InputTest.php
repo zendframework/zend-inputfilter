@@ -31,6 +31,23 @@ class InputTest extends TestCase
         $this->assertEquals('foo', $input->getName());
     }
 
+    /**
+     * Specific Input::merge extras
+     */
+    public function testInputMerge()
+    {
+        $source = new Input();
+        $source->setContinueIfEmpty(true);
+
+        $target = $this->createDefaultInput();
+        $target->setContinueIfEmpty(false);
+
+        $return = $target->merge($source);
+        $this->assertSame($target, $return, 'merge() must return it self');
+
+        $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
+    }
+
     public function testInputHasEmptyFilterChainByDefault()
     {
         $input = $this->createDefaultInput();
@@ -362,31 +379,6 @@ class InputTest extends TestCase
         $this->assertTrue($input->isValid());
     }
 
-    public function testMerge()
-    {
-        $input = $this->createDefaultInput();
-        $input->setValue(' 123 ');
-        $filter = new Filter\StringTrim();
-        $input->getFilterChain()->attach($filter);
-        $validator = new Validator\Digits();
-        $input->getValidatorChain()->attach($validator);
-
-        $input2 = new Input('bar');
-        $input2->merge($input);
-        $validatorChain = $input->getValidatorChain();
-        $filterChain    = $input->getFilterChain();
-
-        $this->assertEquals(' 123 ', $input2->getRawValue());
-        $this->assertEquals(1, $validatorChain->count());
-        $this->assertEquals(1, $filterChain->count());
-
-        $validators = $validatorChain->getValidators();
-        $this->assertInstanceOf(Validator\Digits::class, $validators[0]['instance']);
-
-        $filters = $filterChain->getFilters()->toArray();
-        $this->assertInstanceOf(Filter\StringTrim::class, $filters[0]);
-    }
-
     public function testDoNotInjectNotEmptyValidatorIfAnywhereInChain()
     {
         $input = $this->createDefaultInput();
@@ -440,31 +432,6 @@ class InputTest extends TestCase
         $this->assertTrue($input->isValid());
         $this->assertEmpty($input->getMessages());
         $this->assertSame($fallbackValue, $input->getValue());
-    }
-
-    public function testMergeRetainsContinueIfEmptyFlag()
-    {
-        $input = $this->createDefaultInput();
-        $input->setContinueIfEmpty(true);
-
-        $input2 = new Input('bar');
-        $input2->merge($input);
-        $this->assertTrue($input2->continueIfEmpty());
-    }
-
-    public function testMergeRetainsAllowEmptyFlag()
-    {
-        $input = $this->createDefaultInput();
-        $input->setRequired(true);
-        $input->setAllowEmpty(true);
-
-        $input2 = new Input('bar');
-        $input2->setRequired(true);
-        $input2->setAllowEmpty(false);
-        $input2->merge($input);
-
-        $this->assertTrue($input2->isRequired());
-        $this->assertTrue($input2->allowEmpty());
     }
 
     /**

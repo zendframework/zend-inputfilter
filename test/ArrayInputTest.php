@@ -26,6 +26,63 @@ class ArrayInputTest extends InputTest
         $this->assertInstanceOf(Input::class, $this->createDefaultInput());
     }
 
+    public function testMerge()
+    {
+        $this->markTestSkipped('ArrayInput::merge is not compatible with InputInterface::merge');
+    }
+
+    public function testInputMerge()
+    {
+        $this->markTestSkipped('ArrayInput::merge is not compatible with Input::merge');
+    }
+
+    /**
+     * Specific ArrayInput::merge behavior
+     */
+    public function testArrayInputMergeWithInput()
+    {
+        $source = new Input('bazInput');
+        $source->setName('bazInput');
+        $source->setErrorMessage('bazErrorMessage');
+        $source->setBreakOnFailure(true);
+        $source->setRequired(true);
+        $source->setValue(['bazRawValue']);
+        $source->setFilterChain($this->createFilterChainMock());
+        $source->setValidatorChain($this->createValidatorChainMock());
+        $source->setContinueIfEmpty(true);
+
+        $targetFilterChain = $this->createFilterChainMock();
+        $targetFilterChain->expects($this->once())
+            ->method('merge')
+            ->with($source->getFilterChain())
+        ;
+
+        $targetValidatorChain = $this->createValidatorChainMock();
+        $targetValidatorChain->expects($this->once())
+            ->method('merge')
+            ->with($source->getValidatorChain())
+        ;
+
+        $target = $this->createDefaultInput();
+        $target->setName('fooInput');
+        $target->setErrorMessage('fooErrorMessage');
+        $target->setBreakOnFailure(false);
+        $target->setRequired(false);
+        $target->setFilterChain($targetFilterChain);
+        $target->setValidatorChain($targetValidatorChain);
+        $target->setContinueIfEmpty(false);
+
+        $return = $target->merge($source);
+        $this->assertSame($target, $return, 'merge() must return it self');
+
+        $this->assertEquals('bazInput', $target->getName(), 'getName() value not match');
+        $this->assertEquals('bazErrorMessage', $target->getErrorMessage(), 'getErrorMessage() value not match');
+        $this->assertEquals(true, $target->breakOnFailure(), 'breakOnFailure() value not match');
+        $this->assertEquals(true, $target->isRequired(), 'isRequired() value not match');
+        $this->assertEquals(['bazRawValue'], $target->getRawValue(), 'getRawValue() value not match');
+        $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
+    }
+
     public function testNotEmptyValidatorNotInjectedIfContinueIfEmptyIsTrue()
     {
         $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
@@ -179,31 +236,6 @@ class ArrayInputTest extends InputTest
         $validators = $validatorChain->getValidators();
         $this->assertEquals(1, count($validators));
         $this->assertEquals($notEmptyMock, $validators[0]['instance']);
-    }
-
-    public function testMerge()
-    {
-        $input = $this->createDefaultInput();
-        $input->setValue([' 123 ']);
-        $filter = new Filter\StringTrim();
-        $input->getFilterChain()->attach($filter);
-        $validator = new Validator\Digits();
-        $input->getValidatorChain()->attach($validator);
-
-        $input2 = new ArrayInput('bar');
-        $input2->merge($input);
-        $validatorChain = $input->getValidatorChain();
-        $filterChain    = $input->getFilterChain();
-
-        $this->assertEquals([' 123 '], $input2->getRawValue());
-        $this->assertEquals(1, $validatorChain->count());
-        $this->assertEquals(1, $filterChain->count());
-
-        $validators = $validatorChain->getValidators();
-        $this->assertInstanceOf(Validator\Digits::class, $validators[0]['instance']);
-
-        $filters = $filterChain->getFilters()->toArray();
-        $this->assertInstanceOf(Filter\StringTrim::class, $filters[0]);
     }
 
     public function testDoNotInjectNotEmptyValidatorIfAnywhereInChain()

@@ -25,6 +25,27 @@ class FileInputTest extends InputTest
         $this->assertInstanceOf(Input::class, $this->createDefaultInput());
     }
 
+    /**
+     * Specific FileInput::merge extras
+     */
+    public function testFileInputMerge()
+    {
+        $source = new FileInput();
+        $source->setAutoPrependUploadValidator(true);
+
+        $target = $this->createDefaultInput();
+        $target->setAutoPrependUploadValidator(false);
+
+        $return = $target->merge($source);
+        $this->assertSame($target, $return, 'merge() must return it self');
+
+        $this->assertEquals(
+            true,
+            $target->getAutoPrependUploadValidator(),
+            'getAutoPrependUploadValidator() value not match'
+        );
+    }
+
     public function testValueMayBeInjected()
     {
         $input = $this->createDefaultInput();
@@ -383,35 +404,6 @@ class FileInputTest extends InputTest
     public function testRequiredNotEmptyValidatorNotAddedWhenOneExists()
     {
         $this->markTestSkipped('Test is not enabled in FileInputTest');
-    }
-
-    public function testMerge()
-    {
-        $value  = ['tmp_name' => 'bar'];
-
-        $input  = $this->createDefaultInput();
-        $input->setAutoPrependUploadValidator(false);
-        $input->setValue($value);
-        $filter = new Filter\StringTrim();
-        $input->getFilterChain()->attach($filter);
-        $validator = new Validator\Digits();
-        $input->getValidatorChain()->attach($validator);
-
-        $input2 = new FileInput('bar');
-        $input2->merge($input);
-        $validatorChain = $input->getValidatorChain();
-        $filterChain    = $input->getFilterChain();
-
-        $this->assertFalse($input2->getAutoPrependUploadValidator());
-        $this->assertEquals($value, $input2->getRawValue());
-        $this->assertEquals(1, $validatorChain->count());
-        $this->assertEquals(1, $filterChain->count());
-
-        $validators = $validatorChain->getValidators();
-        $this->assertInstanceOf(Validator\Digits::class, $validators[0]['instance']);
-
-        $filters = $filterChain->getFilters()->toArray();
-        $this->assertInstanceOf(Filter\StringTrim::class, $filters[0]);
     }
 
     public function testFallbackValue($fallbackValue = null)
