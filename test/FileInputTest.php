@@ -20,6 +20,11 @@ use Zend\Validator;
  */
 class FileInputTest extends InputTest
 {
+    public function testIsASubclassOfInput()
+    {
+        $this->assertInstanceOf(Input::class, $this->createDefaultInput());
+    }
+
     public function testValueMayBeInjected()
     {
         $input = $this->createDefaultInput();

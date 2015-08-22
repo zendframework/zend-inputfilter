@@ -10,6 +10,7 @@
 namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use Zend\InputFilter\BaseInputFilter;
 use Zend\InputFilter\CollectionInputFilter;
 use Zend\InputFilter\Factory;
 use Zend\InputFilter\Input;
@@ -21,6 +22,11 @@ use Zend\InputFilter\InputInterface;
  */
 class InputFilterTest extends BaseInputFilterTest
 {
+    public function testIsASubclassOfBaseInputFilter()
+    {
+        $this->assertInstanceOf(BaseInputFilter::class, $this->createDefaultInputFilter());
+    }
+
     public function testLazilyComposesAFactoryByDefault()
     {
         $inputFilter = $this->createDefaultInputFilter();

@@ -14,6 +14,7 @@ use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputFilterPluginManager;
 use Zend\InputFilter\InputInterface;
+use Zend\ServiceManager\AbstractPluginManager;
 
 /**
  * @covers Zend\InputFilter\InputFilterPluginManager
@@ -28,6 +29,11 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->manager = new InputFilterPluginManager();
+    }
+
+    public function testIsASubclassOfAbstractPluginManager()
+    {
+        $this->assertInstanceOf(AbstractPluginManager::class, $this->manager);
     }
 
     public function testRegisteringInvalidElementRaisesException()

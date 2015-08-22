@@ -15,6 +15,7 @@ use Zend\Filter\FilterPluginManager;
 use Zend\InputFilter\InputFilterAbstractServiceFactory;
 use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputFilterPluginManager;
+use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Validator\ValidatorInterface;
 use Zend\Validator\ValidatorPluginManager;
@@ -41,6 +42,11 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
         $this->services->setService('InputFilterManager', $this->filters);
 
         $this->factory = new InputFilterAbstractServiceFactory();
+    }
+
+    public function testImplementsAbstractFactoryInterface()
+    {
+        $this->assertInstanceOf(AbstractFactoryInterface::class, $this->factory);
     }
 
     public function testCannotCreateServiceIfNoConfigServicePresent()

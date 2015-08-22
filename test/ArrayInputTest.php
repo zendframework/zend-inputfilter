@@ -21,6 +21,11 @@ use Zend\Validator;
  */
 class ArrayInputTest extends InputTest
 {
+    public function testIsASubclassOfInput()
+    {
+        $this->assertInstanceOf(Input::class, $this->createDefaultInput());
+    }
+
     public function testNotEmptyValidatorNotInjectedIfContinueIfEmptyIsTrue()
     {
         $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');

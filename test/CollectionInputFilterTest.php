@@ -25,6 +25,11 @@ class CollectionInputFilterTest extends TestCase
     use ReplaceableInputInterfaceTestTrait;
     use UnknownInputsCapableInterfaceTestTrait;
 
+    public function testIsASubclassOfInputFilter()
+    {
+        $this->assertInstanceOf(InputFilter::class, $this->createDefaultInputFilter());
+    }
+
     public function getBaseInputFilter()
     {
         $filter = new BaseInputFilter();
