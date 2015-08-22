@@ -111,32 +111,35 @@ class ArrayInputTest extends InputTest
         $input->setValue('bar');
     }
 
-    public function testValueMayBeInjected()
+    public function testSetValue($value = null)
     {
-        $input = $this->createDefaultInput();
-
-        $input->setValue(['bar']);
-        $this->assertEquals(['bar'], $input->getValue());
+        $this->markTestSkipped('ArrayInput::setValue is not compatible with InputInterface::setValue');
     }
 
-    public function testRetrievingValueFiltersTheValue()
+    /**
+     * Specific ArrayInput::setValue behavior
+     *
+     * @dataProvider setValueProvider
+     */
+    public function testArrayInputSetValue($value)
     {
+        $arrayValue = [$value];
+
+        $filterChain = $this->createFilterChainMock();
+        $filterChain->expects($this::atLeastOnce())
+            ->method('filter')
+            ->with($value)
+            ->willReturn('*filter*')
+        ;
+
         $input = $this->createDefaultInput();
+        $input->setFilterChain($filterChain);
 
-        $input->setValue(['bar']);
-        $filter = new Filter\StringToUpper();
-        $input->getFilterChain()->attach($filter);
-        $this->assertEquals(['BAR'], $input->getValue());
-    }
+        $return = $input->setValue($arrayValue);
+        $this->assertSame($input, $return, 'setValue() must return it self');
 
-    public function testCanRetrieveRawValue()
-    {
-        $input = $this->createDefaultInput();
-
-        $input->setValue(['bar']);
-        $filter = new Filter\StringToUpper();
-        $input->getFilterChain()->attach($filter);
-        $this->assertEquals(['bar'], $input->getRawValue());
+        $this->assertEquals($arrayValue, $input->getRawValue(), 'getRawValue() value not match');
+        $this->assertEquals(['*filter*'], $input->getValue(), 'getValue() value not match');
     }
 
     public function testIsValidReturnsFalseIfValidationChainFails()

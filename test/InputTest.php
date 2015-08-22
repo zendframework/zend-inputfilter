@@ -66,24 +66,6 @@ class InputTest extends TestCase
         $this->assertEquals(0, count($validators));
     }
 
-    public function testCanInjectFilterChain()
-    {
-        $input = $this->createDefaultInput();
-
-        $chain = new Filter\FilterChain();
-        $input->setFilterChain($chain);
-        $this->assertSame($chain, $input->getFilterChain());
-    }
-
-    public function testCanInjectValidatorChain()
-    {
-        $input = $this->createDefaultInput();
-
-        $chain = new Validator\ValidatorChain();
-        $input->setValidatorChain($chain);
-        $this->assertSame($chain, $input->getValidatorChain());
-    }
-
     public function testInputIsMarkedAsRequiredByDefault()
     {
         $input = $this->createDefaultInput();
@@ -91,27 +73,11 @@ class InputTest extends TestCase
         $this->assertTrue($input->isRequired());
     }
 
-    public function testRequiredFlagIsMutable()
-    {
-        $input = $this->createDefaultInput();
-
-        $input->setRequired(false);
-        $this->assertFalse($input->isRequired());
-    }
-
     public function testInputDoesNotAllowEmptyValuesByDefault()
     {
         $input = $this->createDefaultInput();
 
         $this->assertFalse($input->allowEmpty());
-    }
-
-    public function testAllowEmptyFlagIsMutable()
-    {
-        $input = $this->createDefaultInput();
-
-        $input->setAllowEmpty(true);
-        $this->assertTrue($input->allowEmpty());
     }
 
     public function testContinueIfEmptyFlagIsFalseByDefault()
@@ -136,34 +102,6 @@ class InputTest extends TestCase
         $input = $this->createDefaultInput();
 
         $this->assertNull($input->getValue());
-    }
-
-    public function testValueMayBeInjected()
-    {
-        $input = $this->createDefaultInput();
-
-        $input->setValue('bar');
-        $this->assertEquals('bar', $input->getValue());
-    }
-
-    public function testRetrievingValueFiltersTheValue()
-    {
-        $input = $this->createDefaultInput();
-
-        $input->setValue('bar');
-        $filter = new Filter\StringToUpper();
-        $input->getFilterChain()->attach($filter);
-        $this->assertEquals('BAR', $input->getValue());
-    }
-
-    public function testCanRetrieveRawValue()
-    {
-        $input = $this->createDefaultInput();
-
-        $input->setValue('bar');
-        $filter = new Filter\StringToUpper();
-        $input->getFilterChain()->attach($filter);
-        $this->assertEquals('bar', $input->getRawValue());
     }
 
     public function testIsValidReturnsFalseIfValidationChainFails()
@@ -229,14 +167,6 @@ class InputTest extends TestCase
         $input = $this->createDefaultInput();
 
         $this->assertFalse($input->breakOnFailure());
-    }
-
-    public function testBreakOnFailureFlagIsMutable()
-    {
-        $input = $this->createDefaultInput();
-
-        $input->setBreakOnFailure(true);
-        $this->assertTrue($input->breakOnFailure());
     }
 
     public function testNotEmptyValidatorAddedWhenIsValidIsCalled()

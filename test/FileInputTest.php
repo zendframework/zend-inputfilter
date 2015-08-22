@@ -25,6 +25,27 @@ class FileInputTest extends InputTest
         $this->assertInstanceOf(Input::class, $this->createDefaultInput());
     }
 
+    public function testSetValue($value = null)
+    {
+        $this->markTestSkipped('FileInput::setValue is not compatible with InputInterface::setValue');
+    }
+
+    /**
+     * @dataProvider setValueProvider
+     *
+     * @param mixed $value
+     */
+    public function testFileInputSetValue($value)
+    {
+        $input = $this->createDefaultInput();
+
+        $return = $input->setValue($value);
+        $this->assertSame($input, $return, 'setValue() must return it self');
+
+        $this->assertEquals($value, $input->getRawValue(), 'getRawValue() value not match');
+        $this->assertEquals($value, $input->getValue(), 'getValue() value not match');
+    }
+
     /**
      * Specific FileInput::merge extras
      */
@@ -44,20 +65,6 @@ class FileInputTest extends InputTest
             $target->getAutoPrependUploadValidator(),
             'getAutoPrependUploadValidator() value not match'
         );
-    }
-
-    public function testValueMayBeInjected()
-    {
-        $input = $this->createDefaultInput();
-
-        $value = ['tmp_name' => 'bar'];
-        $input->setValue($value);
-        $this->assertEquals($value, $input->getValue());
-    }
-
-    public function testRetrievingValueFiltersTheValue()
-    {
-        $this->markTestSkipped('Test are not enabled in FileInputTest');
     }
 
     public function testRetrievingValueFiltersTheValueOnlyAfterValidating()
@@ -125,17 +132,6 @@ class FileInputTest extends InputTest
             [$newValue, $newValue, $newValue],
             $input->getValue()
         );
-    }
-
-    public function testCanRetrieveRawValue()
-    {
-        $input = $this->createDefaultInput();
-
-        $value = ['tmp_name' => 'bar'];
-        $input->setValue($value);
-        $filter = new Filter\StringToUpper();
-        $input->getFilterChain()->attach($filter);
-        $this->assertEquals($value, $input->getRawValue());
     }
 
     public function testIsValidReturnsFalseIfValidationChainFails()
