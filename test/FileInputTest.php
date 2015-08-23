@@ -81,6 +81,32 @@ class FileInputTest extends InputTest
         );
     }
 
+    public function isEmptyProvider()
+    {
+        $data = [/* Description => [$value, $expectedIsEmptyFile] */];
+        $emptyValues = $this->fileInputEmptyValueProvider();
+        $values = $this->fileInputValueProvider();
+
+        foreach ($emptyValues as $valueDescription => $value) {
+            $data[$valueDescription] = [$value, true];
+        }
+        foreach ($values as $valueDescription => $value) {
+            $data[$valueDescription] = [$value, false];
+        }
+
+        return $data;
+    }
+
+    /**
+     * @dataProvider isEmptyProvider
+     */
+    public function testIsEmpty($value, $expectedIsEmptyFile)
+    {
+        $input = $this->createDefaultInput();
+
+        $this->assertEquals($expectedIsEmptyFile, $input->isEmptyFile($value), 'isEmptyFile() value not match');
+    }
+
     public function testRetrievingValueFiltersTheValueOnlyAfterValidating()
     {
         $input = $this->createDefaultInput();
@@ -416,78 +442,47 @@ class FileInputTest extends InputTest
         $this->markTestSkipped('Test is not enabled in FileInputTest');
     }
 
-    public function testIsEmptyFileNotArray()
+    public function fileInputValueProvider()
     {
-        $input = $this->createDefaultInput();
+        $fooErrorOk = [
+            'tmp_name' => 'foo',
+            'error' => \UPLOAD_ERR_OK,
+        ];
+        $barErrorOk = [
+            'tmp_name' => 'bar',
+            'error' => \UPLOAD_ERR_OK,
+        ];
 
-        $rawValue = 'file';
-        $this->assertTrue($input->isEmptyFile($rawValue));
+        return [
+            // Description => [$value]
+            'err_ok' => [$fooErrorOk],
+            '[err_ok]' => [[$fooErrorOk,$barErrorOk]],
+        ];
     }
 
-    public function testIsEmptyFileUploadNoFile()
+    public function fileInputEmptyValueProvider()
     {
-        $input = $this->createDefaultInput();
-
-        $rawValue = [
+        $fileEmptyTmpName = [
             'tmp_name' => '',
             'error' => \UPLOAD_ERR_NO_FILE,
         ];
-        $this->assertTrue($input->isEmptyFile($rawValue));
-    }
-
-    public function testIsEmptyFileOk()
-    {
-        $input = $this->createDefaultInput();
-
-        $rawValue = [
-            'tmp_name' => 'name',
-            'error' => \UPLOAD_ERR_OK,
-        ];
-        $this->assertFalse($input->isEmptyFile($rawValue));
-    }
-
-    public function testIsEmptyMultiFileUploadNoFile()
-    {
-        $input = $this->createDefaultInput();
-
-        $rawValue = [[
+        $fooErrorNoFile = [
             'tmp_name' => 'foo',
-            'error'    => \UPLOAD_ERR_NO_FILE
-        ]];
-        $this->assertTrue($input->isEmptyFile($rawValue));
-    }
-
-    public function testIsEmptyFileMultiFileOk()
-    {
-        $input = $this->createDefaultInput();
-
-        $rawValue = [
-            [
-                'tmp_name' => 'foo',
-                'error'    => \UPLOAD_ERR_OK
-            ],
-            [
-                'tmp_name' => 'bar',
-                'error'    => \UPLOAD_ERR_OK
-            ],
+            'error' => \UPLOAD_ERR_NO_FILE,
         ];
-        $this->assertFalse($input->isEmptyFile($rawValue));
+
+        return [
+            // Description => [$value]
+            'not array' => ['file'],
+            'empty tmp_name' => [$fileEmptyTmpName],
+            'err_no_file' => [$fooErrorNoFile],
+            '[err_no_file]' => [[$fooErrorNoFile]],
+        ];
     }
 
     public function emptyValuesProvider()
     {
-        // Provide empty values specific for file input
-        return [
-            ['file'],
-            [[
-                'tmp_name' => '',
-                'error' => \UPLOAD_ERR_NO_FILE,
-            ]],
-            [[[
-                'tmp_name' => 'foo',
-                'error'    => \UPLOAD_ERR_NO_FILE
-            ]]],
-        ];
+        return $this->fileInputEmptyValueProvider();
     }
 
     /**
