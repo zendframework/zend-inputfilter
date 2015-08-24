@@ -23,7 +23,7 @@
         "zendframework/zend-servicemanager": "~2.5",
         "fabpot/php-cs-fixer": "1.7.*",
         "maks3w/phpunit-methods-trait": "^4.6",
-        "phpunit/PHPUnit": "~4.0"
+        "phpunit/PHPUnit": "^4.5"
     },
     "suggest": {
         "zendframework/zend-servicemanager": "To support plugin manager support"
