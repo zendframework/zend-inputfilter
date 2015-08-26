@@ -350,6 +350,8 @@ class InputTest extends TestCase
             'isValid() value not match. Detail: ' . json_encode($this->input->getMessages())
         );
         $this->assertEquals($expectedMessages, $this->input->getMessages(), 'getMessages() value not match');
+        $this->assertEquals($value, $this->input->getRawValue(), 'getRawValue() must return the value always');
+        $this->assertEquals($value, $this->input->getValue(), 'getValue() must return the filtered value always');
     }
 
     /**
