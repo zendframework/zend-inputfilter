@@ -1082,6 +1082,8 @@ class BaseInputFilterTest extends TestCase
         $data = $filter->getValues();
         $this->assertArrayHasKey('bar', $data);
         $this->assertEquals($bar->getFallbackValue(), $data['bar']);
+        $this->assertArrayHasKey('bar', $filter->getValidInput());
+        $this->assertArrayNotHasKey('bar', $filter->getInvalidInput());
     }
 
     /**
@@ -1109,6 +1111,8 @@ class BaseInputFilterTest extends TestCase
         $data = $filter->getValues();
         $this->assertArrayHasKey('bar', $data);
         $this->assertEquals($bar->getFallbackValue(), $data['bar']);
+        $this->assertArrayHasKey('bar', $filter->getValidInput());
+        $this->assertArrayNotHasKey('bar', $filter->getInvalidInput());
     }
 
     /**
