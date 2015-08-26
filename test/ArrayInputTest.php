@@ -176,6 +176,43 @@ class ArrayInputTest extends InputTest
         parent::testFallbackValueVsIsValidRules([$fallbackValue], [$originalValue], $isValid, [$expectedValue]);
     }
 
+    public function testInputContinueIfEmptyAllowEmptyVsIsRequiredVsIsValidRules(
+        $continueIfEmpty = null,
+        $allowEmpty = null,
+        $isRequired = null,
+        $isValid = null,
+        $value = null,
+        $expectedIsValid = null,
+        $expectedMessages = null
+    ) {
+        $this->markTestSkipped('ArrayInput::setValue is not compatible with InputInterface::setValue');
+    }
+
+    /**
+     * Specific ArrayInput::setValue behavior
+     *
+     * @dataProvider continueIfEmptyVsAllowEmptyVsIsRequiredVsIsValidProviderRules
+     */
+    public function testArrayInputContinueIfEmptyAllowEmptyVsIsRequiredVsIsValidRules(
+        $continueIfEmpty,
+        $allowEmpty,
+        $isRequired,
+        $isValid,
+        $value,
+        $expectedIsValid,
+        $expectedMessages
+    ) {
+        parent::testInputContinueIfEmptyAllowEmptyVsIsRequiredVsIsValidRules(
+            $continueIfEmpty,
+            $allowEmpty,
+            $isRequired,
+            $isValid,
+            [$value],
+            $expectedIsValid,
+            $expectedMessages
+        );
+    }
+
     public function testIsValidReturnsFalseIfValidationChainFails()
     {
         $input = $this->createDefaultInput();

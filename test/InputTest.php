@@ -95,6 +95,109 @@ class InputTest extends TestCase
         $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
     }
 
+    public function testAllowEmptyVsIsRequiredVsIsValidRules()
+    {
+        $this->markTestSkipped('Supersede by testInputContinueIfEmptyAllowEmptyVsIsRequiredVsIsValidRules');
+    }
+
+    public function continueIfEmptyVsAllowEmptyVsIsRequiredVsIsValidProviderRules()
+    {
+        $allValues = $this->setValueProvider();
+        $emptyValues = $this->emptyValueProvider();
+        $nonEmptyValues = array_diff_key($allValues, $emptyValues);
+
+        $cIEmpty = true;
+        $isEmpty = true;
+        $isRequired = true;
+        $isValid = true;
+        $valid = true;
+
+        $noMessages = [];
+        $notEmptyMessages = ['isEmpty' => "Value is required and can't be empty"];
+        $validatorMessages = ['callbackValue' => 'The input is not valid'];
+        $notEmptyAndVChain = array_merge($notEmptyMessages, $validatorMessages);
+
+        // @codingStandardsIgnoreStart
+        $dataTemplates = [
+            // Description => [$cIEmpty, $allowEmpty, $isRequired, $isValid, $valuesToTest, $expectedIsValid, $expectedMessages]
+            'CIEmpty: T, AEmpty: T, Required: T, ValidChain: T'                   => [$cIEmpty, $isEmpty,  $isRequired,  $isValid,  $allValues,      $valid,  $noMessages],
+            'CIEmpty: T, AEmpty: T, Required: T, ValidChain: F'                   => [$cIEmpty, $isEmpty,  $isRequired,  !$isValid, $allValues,      !$valid, $validatorMessages],
+
+            'CIEmpty: T, AEmpty: T, Required: F, ValidChain: T'                   => [$cIEmpty, $isEmpty,  !$isRequired, $isValid,  $allValues,      $valid,  $noMessages],
+            'CIEmpty: T, AEmpty: T, Required: F, ValidChain: F'                   => [$cIEmpty, $isEmpty,  !$isRequired, !$isValid, $allValues,      !$valid, $validatorMessages],
+
+            'CIEmpty: T, AEmpty: F, Required: T, ValidChain: T, Value: Empty'     => [$cIEmpty, !$isEmpty, $isRequired,  $isValid,  $emptyValues,    $valid,  $noMessages],
+            'CIEmpty: T, AEmpty: F, Required: T, ValidChain: T, Value: Not Empty' => [$cIEmpty, !$isEmpty, $isRequired,  $isValid,  $nonEmptyValues, $valid,  $noMessages],
+            'CIEmpty: T, AEmpty: F, Required: T, ValidChain: F, Value: Empty'     => [$cIEmpty, !$isEmpty, $isRequired,  !$isValid, $emptyValues,    !$valid, $validatorMessages],
+            'CIEmpty: T, AEmpty: F, Required: T, ValidChain: F, Value: Not Empty' => [$cIEmpty, !$isEmpty, $isRequired,  !$isValid, $nonEmptyValues, !$valid, $validatorMessages],
+
+            'CIEmpty: T, AEmpty: F, Required: F, ValidChain: T, Value: Empty'     => [$cIEmpty, !$isEmpty, !$isRequired, $isValid,  $emptyValues,    $valid,  $noMessages],
+            'CIEmpty: T, AEmpty: F, Required: F, ValidChain: T, Value: Not Empty' => [$cIEmpty, !$isEmpty, !$isRequired, $isValid,  $nonEmptyValues, $valid,  $noMessages],
+            'CIEmpty: T, AEmpty: F, Required: F, ValidChain: F, Value: Empty'     => [$cIEmpty, !$isEmpty, !$isRequired, !$isValid, $emptyValues,    !$valid, $validatorMessages],
+            'CIEmpty: T, AEmpty: F, Required: F, ValidChain: F, Value: Not Empty' => [$cIEmpty, !$isEmpty, !$isRequired, !$isValid, $nonEmptyValues, !$valid, $validatorMessages],
+
+            'CIEmpty: F, AEmpty: T, Required: T, ValidChain: T'                   => [!$cIEmpty, $isEmpty,  $isRequired,  $isValid,  $allValues,      $valid,  $noMessages],
+            'CIEmpty: F, AEmpty: T, Required: T, ValidChain: F, Value: Empty'     => [!$cIEmpty, $isEmpty,  $isRequired,  !$isValid, $emptyValues,    $valid,  $noMessages],
+            'CIEmpty: F, AEmpty: T, Required: T, ValidChain: F, Value: Not Empty' => [!$cIEmpty, $isEmpty,  $isRequired,  !$isValid, $nonEmptyValues, !$valid, $validatorMessages],
+
+            'CIEmpty: F, AEmpty: T, Required: F, ValidChain: T'                   => [!$cIEmpty, $isEmpty,  !$isRequired, $isValid,  $allValues,      $valid,  $noMessages],
+            'CIEmpty: F, AEmpty: T, Required: F, ValidChain: F, Value: Empty'     => [!$cIEmpty, $isEmpty,  !$isRequired, !$isValid, $emptyValues,    $valid,  $noMessages],
+            'CIEmpty: F, AEmpty: T, Required: F, ValidChain: F, Value: Not Empty' => [!$cIEmpty, $isEmpty,  !$isRequired, !$isValid, $nonEmptyValues, !$valid, $validatorMessages],
+
+            'CIEmpty: F, AEmpty: F, Required: T, ValidChain: T, Value: Empty'     => [!$cIEmpty, !$isEmpty, $isRequired,  $isValid,  $emptyValues,    !$valid, $notEmptyMessages],
+            'CIEmpty: F, AEmpty: F, Required: T, ValidChain: T, Value: Not Empty' => [!$cIEmpty, !$isEmpty, $isRequired,  $isValid,  $nonEmptyValues, $valid,  $noMessages],
+            'CIEmpty: F, AEmpty: F, Required: T, ValidChain: F, Value: Empty'     => [!$cIEmpty, !$isEmpty, $isRequired,  !$isValid, $emptyValues,    !$valid, $notEmptyMessages],
+            'CIEmpty: F, AEmpty: F, Required: T, ValidChain: F, Value: Not Empty' => [!$cIEmpty, !$isEmpty, $isRequired,  !$isValid, $nonEmptyValues, !$valid, $validatorMessages],
+
+            'CIEmpty: F, AEmpty: F, Required: F, ValidChain: T, Value: Empty'     => [!$cIEmpty, !$isEmpty, !$isRequired, $isValid,  $emptyValues,    $valid,  $noMessages],
+            'CIEmpty: F, AEmpty: F, Required: F, ValidChain: T, Value: Not Empty' => [!$cIEmpty, !$isEmpty, !$isRequired, $isValid,  $nonEmptyValues, $valid,  $noMessages],
+            'CIEmpty: F, AEmpty: F, Required: F, ValidChain: F, Value: Empty'     => [!$cIEmpty, !$isEmpty, !$isRequired, !$isValid, $emptyValues,    $valid,  $noMessages],
+            'CIEmpty: F, AEmpty: F, Required: F, ValidChain: F, Value: Not Empty' => [!$cIEmpty, !$isEmpty, !$isRequired, !$isValid, $nonEmptyValues, !$valid, $validatorMessages],
+        ];
+        // @codingStandardsIgnoreEnd
+
+
+        // Expand data template matrix for each possible input value.
+        // Description => [$cIEmpty, $allowEmpty, $isRequired, $isValid, $value, $expectedIsValid, $expectedMessages]
+        foreach ($dataTemplates as $dataTemplateDescription => $dataTemplate) {
+            $temporalTemplate = $dataTemplate;
+            foreach ($dataTemplate[4] as $valueDescription => $value) {
+                $temporalTemplate[4] = current($value);
+                yield $dataTemplateDescription . ' / ' . $valueDescription => $temporalTemplate;
+            }
+        }
+    }
+
+    /**
+     * @dataProvider continueIfEmptyVsAllowEmptyVsIsRequiredVsIsValidProviderRules
+     */
+    public function testInputContinueIfEmptyAllowEmptyVsIsRequiredVsIsValidRules(
+        $continueIfEmpty,
+        $allowEmpty,
+        $isRequired,
+        $isValid,
+        $value,
+        $expectedIsValid,
+        $expectedMessages
+    ) {
+        $input = $this->createDefaultInput();
+
+        $input->setAllowEmpty($allowEmpty);
+        $input->setContinueIfEmpty($continueIfEmpty);
+        $input->setRequired($isRequired);
+        $input->setValidatorChain($this->createValidatorChainMock($isValid));
+        $input->setValue($value);
+
+        $this->assertEquals(
+            $expectedIsValid,
+            $input->isValid(),
+            'isValid() value not match. Detail: ' . json_encode($input->getMessages())
+        );
+        $this->assertEquals($expectedMessages, $input->getMessages(), 'getMessages() value not match');
+        $this->assertEquals($value, $input->getRawValue(), 'getRawValue() must return the value always');
+        $this->assertEquals($value, $input->getValue(), 'getValue() must return the filtered value always');
+    }
+
     public function testInputHasEmptyFilterChainByDefault()
     {
         $input = $this->createDefaultInput();

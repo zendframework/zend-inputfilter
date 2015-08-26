@@ -107,6 +107,18 @@ class FileInputTest extends InputTest
         $this->assertEquals($expectedIsEmptyFile, $input->isEmptyFile($value), 'isEmptyFile() value not match');
     }
 
+    public function testInputContinueIfEmptyAllowEmptyVsIsRequiredVsIsValidRules(
+        $continueIfEmpty = null,
+        $allowEmpty = null,
+        $isRequired = null,
+        $isValid = null,
+        $value = null,
+        $expectedIsValid = null,
+        $expectedMessages = null
+    ) {
+        $this->markTestSkipped('FileInput::isValid is not compatible with Input::isValid');
+    }
+
     public function testRetrievingValueFiltersTheValueOnlyAfterValidating()
     {
         $input = $this->createDefaultInput();

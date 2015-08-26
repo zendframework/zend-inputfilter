@@ -9,6 +9,7 @@ use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
 use Zend\Filter\FilterChain;
 use Zend\InputFilter\InputInterface;
+use Zend\Validator\Callback as CallbackValidator;
 use Zend\Validator\ValidatorChain;
 
 /**
@@ -204,16 +205,91 @@ trait InputInterfaceTestTrait
         Assert::assertEquals('bazRawValue', $target->getRawValue(), 'getRawValue() value not match');
     }
 
+    public function allowEmptyVsIsRequiredVsIsValidProviderRules()
+    {
+        $allValues = $this->setValueProvider();
+        $emptyValues = $this->emptyValueProvider();
+        $notEmptyValues = array_diff_key($allValues, $emptyValues);
+
+        $isEmpty = true;
+        $isRequired = true;
+        $isValid = true;
+        $valid = true;
+
+        $noMessages = [];
+        $notEmptyMessages = ['isEmpty' => "Value is required and can't be empty"];
+        $validatorMessages = ['callbackValue' => 'The input is not valid'];
+
+        // @formatter:off
+        $dataTemplates = [
+            // Description => [$allowEmpty, $isRequired, $isValid, $valuesToTest, $expectedIsValid, $expectedMessages]
+            'AEmpty: T, Required: T, ValidChain: T'                   => [$isEmpty,  $isRequired,  $isValid,  $allValues,      $valid,  $noMessages],
+            'AEmpty: T, Required: T, ValidChain: F'                   => [$isEmpty,  $isRequired,  !$isValid, $allValues,      !$valid, $validatorMessages],
+
+            'AEmpty: T, Required: F, ValidChain: T'                   => [$isEmpty,  !$isRequired, $isValid,  $allValues,      $valid,  $noMessages],
+            'AEmpty: T, Required: F, ValidChain: F'                   => [$isEmpty,  !$isRequired, !$isValid, $allValues,      !$valid, $validatorMessages],
+
+            'AEmpty: F, Required: T, ValidChain: T, Value: Empty'     => [!$isEmpty, $isRequired,  $isValid,  $emptyValues,    !$valid, $notEmptyMessages],
+            'AEmpty: F, Required: T, ValidChain: T, Value: Not Empty' => [!$isEmpty, $isRequired,  $isValid,  $notEmptyValues, $valid,  $noMessages],
+            'AEmpty: F, Required: T, ValidChain: F, Value: Empty'     => [!$isEmpty, $isRequired,  !$isValid, $emptyValues,    !$valid, $notEmptyMessages],
+            'AEmpty: F, Required: T, ValidChain: F, Value: Not Empty' => [!$isEmpty, $isRequired,  !$isValid, $notEmptyValues, !$valid, $validatorMessages],
+
+            'AEmpty: F, Required: F, ValidChain: T, Value: Empty'     => [!$isEmpty, !$isRequired, $isValid,  $emptyValues,    !$valid, $notEmptyMessages],
+            'AEmpty: F, Required: F, ValidChain: T, Value: Not Empty' => [!$isEmpty, !$isRequired, $isValid,  $notEmptyValues, $valid,  $noMessages],
+            'AEmpty: F, Required: F, ValidChain: F, Value: Empty'     => [!$isEmpty, !$isRequired, !$isValid, $emptyValues,    !$valid, $notEmptyMessages],
+            'AEmpty: F, Required: F, ValidChain: F, Value: Not Empty' => [!$isEmpty, !$isRequired, !$isValid, $notEmptyValues, !$valid, $validatorMessages],
+        ];
+        // @formatter:on
+
+        // Expand data template matrix for each possible input value.
+        // Description => [$allowEmpty, $isRequired, $isValid, $value, $expectedIsValid, $expectedMessages]
+        foreach ($dataTemplates as $dataTemplateDescription => $dataTemplate) {
+            $temporalTemplate = $dataTemplate;
+            foreach ($dataTemplate[3] as $valueDescription => $value) {
+                $temporalTemplate[3] = current($value);
+                yield $dataTemplateDescription . ' / ' . $valueDescription => $temporalTemplate;
+            }
+        }
+    }
+
+    /**
+     * @dataProvider allowEmptyVsIsRequiredVsIsValidProviderRules
+     */
+    public function testAllowEmptyVsIsRequiredVsIsValidRules(
+        $allowEmpty,
+        $isRequired,
+        $isValid,
+        $value,
+        $expectedIsValid,
+        $expectedMessages
+    ) {
+        $input = $this->createDefaultInput();
+
+        $input->setAllowEmpty($allowEmpty);
+        $input->setRequired($isRequired);
+        $input->setValidatorChain($this->createValidatorChainMock($isValid));
+        $input->setValue($value);
+
+        Assert::assertEquals(
+            $expectedIsValid,
+            $input->isValid(),
+            'isValid() value not match. Detail: ' . json_encode($input->getMessages())
+        );
+        Assert::assertEquals($expectedMessages, $input->getMessages(), 'getMessages() value not match');
+        Assert::assertEquals($value, $input->getRawValue(), 'getRawValue() must return the value always');
+        Assert::assertEquals($value, $input->getValue(), 'getValue() must return the filtered value always');
+    }
+
     public function emptyValueProvider()
     {
         return [
             // Description => [$value]
             'null' => [null],
             '""' => [''],
-            '"0"' => ['0'],
-            '0' => [0],
-            '0.0' => [0.0],
-            'false' => [false],
+//            '"0"' => ['0'],
+//            '0' => [0],
+//            '0.0' => [0.0],
+//            'false' => [false],
             '[]' => [[]],
         ];
     }
@@ -222,6 +298,10 @@ trait InputInterfaceTestTrait
     {
         return [
             // Description => [$value]
+            '"0"' => ['0'],
+            '0' => [0],
+            '0.0' => [0.0],
+            'false' => [false],
             'php' => ['php'],
             'whitespace' => [' '],
             '1' => [1],
@@ -270,12 +350,19 @@ trait InputInterfaceTestTrait
     protected function createValidatorChainMock($isValid = null)
     {
         /** @var ValidatorChain|MockObject $validatorChain */
-        $validatorChain = $this->getMock(ValidatorChain::class);
+        $validatorChain = $this->getMockBuilder(ValidatorChain::class)
+            ->enableProxyingToOriginalMethods()
+            ->getMock()
+        ;
 
-        if ($isValid !== null) {
-            $validatorChain->method('isValid')
-                ->willReturn($isValid)
-            ;
+        if ($isValid === false) {
+            $validator = new CallbackValidator(
+                function () use ($isValid) {
+                    return $isValid;
+                }
+            );
+
+            $validatorChain->attach($validator);
         }
 
         return $validatorChain;
