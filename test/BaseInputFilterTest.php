@@ -10,9 +10,11 @@
 namespace ZendTest\InputFilter;
 
 use ArrayObject;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
 use Zend\InputFilter\Input;
+use Zend\InputFilter\InputInterface;
 use Zend\InputFilter\FileInput;
 use Zend\InputFilter\BaseInputFilter as InputFilter;
 use Zend\Filter;
@@ -508,21 +510,32 @@ class BaseInputFilterTest extends TestCase
     {
         $filter = new InputFilter();
 
-        $foo   = new Input();
-        $foo->getValidatorChain()->attach(new Validator\StringLength(3, 5));
-        $foo->setRequired(false);
+        $optionalInputName = 'fooOptionalInput';
+        /** @var InputInterface|MockObject $optionalInput */
+        $optionalInput = $this->getMock(InputInterface::class);
+        $optionalInput->method('getName')
+            ->willReturn($optionalInputName)
+        ;
+        $optionalInput->expects($this->never())
+            ->method('isValid')
+        ;
+        $data = [];
 
-        $bar = new Input();
-        $bar->getValidatorChain()->attach(new Validator\Digits());
-        $bar->setRequired(true);
+        $filter->add($optionalInput);
 
-        $filter->add($foo, 'foo')
-               ->add($bar, 'bar');
-
-        $data = ['bar' => 124];
         $filter->setData($data);
 
-        $this->assertTrue($filter->isValid());
+        $this->assertTrue($filter->isValid(), json_encode($filter->getMessages()));
+        $this->assertArrayNotHasKey(
+            $optionalInputName,
+            $filter->getValidInput(),
+            'Missing optional fields must not appear as valid input neither invalid input'
+        );
+        $this->assertArrayNotHasKey(
+            $optionalInputName,
+            $filter->getInvalidInput(),
+            'Missing optional fields must not appear as valid input neither invalid input'
+        );
     }
 
     public function testValidationSkipsFileInputsMarkedNotRequiredWhenNoFileDataIsPresent()

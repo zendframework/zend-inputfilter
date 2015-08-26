@@ -231,11 +231,6 @@ class BaseInputFilter implements
      */
     protected function validateInputs(array $inputs, $data = [], $context = null)
     {
-        // backwards compatibility
-        if (empty($data)) {
-            $data = $this->getRawValues();
-        }
-
         $this->validInputs   = [];
         $this->invalidInputs = [];
         $valid               = true;
@@ -260,6 +255,13 @@ class BaseInputFilter implements
             }
 
             $hasFallback = ($input instanceof Input && $input->hasFallback());
+
+            // If input is optional (not required) and value is not set then ignore.
+            if (!array_key_exists($name, $data)
+                && !$input->isRequired()
+            ) {
+                continue;
+            }
 
             // If the value is required, not present in the data set, and
             // has no fallback, validation fails.
