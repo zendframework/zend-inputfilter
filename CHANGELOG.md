@@ -18,7 +18,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#31](https://github.com/zendframework/zend-inputfilter/pull/31) updates the
+  `InputFilterInterface::add()` docblock to match existing, shipped implementations.
 
 ## 2.5.4 - 2015-08-11
 
