@@ -256,7 +256,7 @@ class BaseInputFilter implements
 
             $hasFallback = ($input instanceof Input && $input->hasFallback());
 
-            // If input is optional (not required) and value is not set then ignore.
+            // If input is optional (not required), and value is not set, then ignore.
             if (!array_key_exists($name, $data)
                 && !$input->isRequired()
             ) {
