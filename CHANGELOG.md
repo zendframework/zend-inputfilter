@@ -18,6 +18,12 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
+- [#22](https://github.com/zendframework/zend-inputfilter/pull/22) adds tests to
+  verify two conditions around inputs with fallback values:
+  - If the input was not in the data set, it should not be represented in either
+    the list of valid *or* invalid inputs.
+  - If the input *was* in the data set, but empty, it should be represented in
+    the list of valid inputs.
 - [#31](https://github.com/zendframework/zend-inputfilter/pull/31) updates the
   `InputFilterInterface::add()` docblock to match existing, shipped implementations.
 - [#25](https://github.com/zendframework/zend-inputfilter/pull/25) updates the
