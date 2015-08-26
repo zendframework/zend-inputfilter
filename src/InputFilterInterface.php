@@ -19,9 +19,12 @@ interface InputFilterInterface extends Countable
     /**
      * Add an input to the input filter
      *
-     * @param  InputInterface|InputFilterInterface|array $input
+     * @param  InputInterface|InputFilterInterface|array|Traversable $input
+     *     Implementations MUST handle at least one of the specified types, and
+     *     raise an exception for any they cannot process.
      * @param  null|string $name Name used to retrieve this input
      * @return InputFilterInterface
+     * @throws Exception\InvalidArgumentInterface if unable to handle the input type.
      */
     public function add($input, $name = null);
 
