@@ -445,10 +445,84 @@ class BaseInputFilterTest extends TestCase
     }
      */
 
-    /**
+    /*
      * Idea for this one is that validation may need to rely on context -- e.g., a "password confirmation"
      * field may need to know what the original password entered was in order to compare.
      */
+
+    public function contextProvider()
+    {
+        $data = ['fooInput' => 'fooValue'];
+        $arrayAccessData = new ArrayObject(['fooInput' => 'fooValue']);
+        $expectedFromData = ['fooInput' => 'fooValue'];
+
+        return [
+            // Description => [$data, $customContext, $expectedContext]
+            'by default get context from data (array)' => [$data, null, $expectedFromData],
+            'by default get context from data (ArrayAccess)' => [$arrayAccessData, null, $expectedFromData],
+            'use custom context' => [[], 'fooContext', 'fooContext'],
+        ];
+    }
+
+    /**
+     * @dataProvider contextProvider
+     */
+    public function testValidationContext($data, $customContext, $expectedContext)
+    {
+        $filter = new InputFilter();
+
+        $input = $this->createInputInterfaceMock(true, true, $expectedContext);
+        $filter->add($input, 'fooInput');
+
+        $filter->setData($data);
+
+        $this->assertTrue(
+            $filter->isValid($customContext),
+            'isValid() value not match. Detail: ' . json_encode($filter->getMessages())
+        );
+    }
+
+    public function testBuildValidationContextUsingInputGetRawValue()
+    {
+        $data = [];
+        $expectedContext = ['fooInput' => 'fooRawValue'];
+        $filter = new InputFilter();
+
+        $input = $this->createInputInterfaceMock(true, true, $expectedContext, 'fooRawValue');
+        $filter->add($input, 'fooInput');
+
+        $filter->setData($data);
+
+        $this->assertTrue(
+            $filter->isValid(),
+            'isValid() value not match. Detail: ' . json_encode($filter->getMessages())
+        );
+    }
+
+    public function testContextIsTheSameWhenARequiredInputIsGivenAndOptionalInputIsMissing()
+    {
+        $data = [
+            'inputRequired' => 'inputRequiredValue',
+        ];
+        $expectedContext = [
+            'inputRequired' => 'inputRequiredValue',
+            'inputOptional' => null,
+        ];
+        $inputRequired = $this->createInputInterfaceMock(true, true, $expectedContext);
+        $inputOptional = $this->createInputInterfaceMock(false);
+
+        $filter = new InputFilter();
+        $filter->add($inputRequired, 'inputRequired');
+        $filter->add($inputOptional, 'inputOptional');
+
+        $filter->setData($data);
+
+        $this->assertTrue(
+            $filter->isValid(),
+            'isValid() value not match. Detail: ' . json_encode($filter->getMessages())
+        );
+    }
+
     public function testValidationCanUseContext()
     {
         $filter = new InputFilter();
@@ -1050,5 +1124,37 @@ class BaseInputFilterTest extends TestCase
         $data = new ArrayObject(['foo' => ' valid ']);
         $filter->setData($data);
         $this->assertTrue($filter->isValid());
+    }
+
+    /**
+     * @param null|bool $isValid
+     * @param mixed $expectedContext
+     * @param mixed $getRawValue
+     *
+     * @return MockObject|InputInterface
+     */
+    protected function createInputInterfaceMock($isRequired, $isValid = null, $expectedContext = 'not-set', $getRawValue = 'not-set')
+    {
+        /** @var InputInterface|MockObject $input */
+        $input = $this->getMock(InputInterface::class);
+        $input->method('isRequired')
+            ->willReturn($isRequired)
+        ;
+        if ($getRawValue !== 'not-set') {
+            $input->method('getRawValue')
+                ->willReturn($getRawValue)
+            ;
+        }
+        if ($isValid !== null) {
+            $mockMethod = $input->expects($this->once())
+                ->method('isValid')
+                ->willReturn($isValid)
+            ;
+            if ($expectedContext !== 'not-set') {
+                $mockMethod->with($expectedContext);
+            }
+        }
+
+        return $input;
     }
 }
