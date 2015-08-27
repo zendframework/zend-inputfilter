@@ -19,11 +19,15 @@ class Input implements
     EmptyContextInterface
 {
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
+     *
      * @var bool
      */
     protected $allowEmpty = false;
 
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
+     *
      * @var bool
      */
     protected $continueIfEmpty = false;
@@ -49,6 +53,8 @@ class Input implements
     protected $name;
 
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
+     *
      * @var bool
      */
     protected $notEmptyValidator = false;
@@ -91,6 +97,8 @@ class Input implements
     }
 
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain and set this to `true`.
+     *
      * @param  bool $allowEmpty
      * @return Input
      */
@@ -111,6 +119,8 @@ class Input implements
     }
 
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain and set this to `true`.
+     *
      * @param bool $continueIfEmpty
      * @return Input
      */
@@ -216,6 +226,8 @@ class Input implements
     }
 
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
+     *
      * @return bool
      */
     public function allowEmpty()
@@ -232,6 +244,8 @@ class Input implements
     }
 
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain. Should always return `true`.
+     *
      * @return bool
      */
     public function continueIfEmpty()
@@ -429,6 +443,8 @@ class Input implements
     }
 
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
+     *
      * @return void
      */
     protected function injectNotEmptyValidator()
