@@ -371,10 +371,21 @@ class Input implements
     public function isValid($context = null)
     {
         $value           = $this->getValue();
+        $hasValue        = $this->hasValue();
         $empty           = ($value === null || $value === '' || $value === []);
         $required        = $this->isRequired();
         $allowEmpty      = $this->allowEmpty();
         $continueIfEmpty = $this->continueIfEmpty();
+
+        if (! $hasValue && $required && ! $this->hasFallback()) {
+            $this->setErrorMessage('Value is required');
+            return false;
+        }
+
+        if (! $hasValue && $required && $this->hasFallback()) {
+            $this->setValue($this->getFallbackValue());
+            return true;
+        }
 
         if ($empty && ! $required && ! $continueIfEmpty) {
             return true;

@@ -311,6 +311,25 @@ class FileInputTest extends InputTest
         $this->markTestSkipped('Test is not enabled in FileInputTest');
     }
 
+    public function testFallbackValueVsIsValidRules(
+        $fallbackValue = null,
+        $originalValue = null,
+        $isValid = null,
+        $expectedValue = null
+    ) {
+        $this->markTestSkipped('Input::setFallbackValue is not implemented on FileInput');
+    }
+
+
+    public function testFallbackValueVsIsValidRulesWhenValueNotSet(
+        $fallbackValue = null,
+        $originalValue = null,
+        $isValid = null,
+        $expectedValue = null
+    ) {
+        $this->markTestSkipped('Input::setFallbackValue is not implemented on FileInput');
+    }
+
     public function testMerge()
     {
         $value  = ['tmp_name' => 'bar'];
