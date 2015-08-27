@@ -435,16 +435,6 @@ class BaseInputFilterTest extends TestCase
         }
     }
 
-    /**
-     * Idea for this one is that one input may only need to be validated if another input is present.
-     *
-     * Commenting out for now, as validation context may make this irrelevant, and unsure what API to expose.
-    public function testCanConditionallyInvokeValidators()
-    {
-        $this->markTestIncomplete();
-    }
-     */
-
     /*
      * Idea for this one is that validation may need to rely on context -- e.g., a "password confirmation"
      * field may need to know what the original password entered was in order to compare.
@@ -521,32 +511,6 @@ class BaseInputFilterTest extends TestCase
             $filter->isValid(),
             'isValid() value not match. Detail: ' . json_encode($filter->getMessages())
         );
-    }
-
-    public function testValidationCanUseContext()
-    {
-        $filter = new InputFilter();
-
-        $store = new stdClass;
-        $foo   = new Input();
-        $foo->getValidatorChain()->attach(new Validator\Callback(function ($value, $context) use ($store) {
-            $store->value   = $value;
-            $store->context = $context;
-            return true;
-        }));
-
-        $bar = new Input();
-        $bar->getValidatorChain()->attach(new Validator\Digits());
-
-        $filter->add($foo, 'foo')
-               ->add($bar, 'bar');
-
-        $data = ['foo' => 'foo', 'bar' => 123];
-        $filter->setData($data);
-
-        $this->assertTrue($filter->isValid());
-        $this->assertEquals('foo', $store->value);
-        $this->assertEquals($data, $store->context);
     }
 
     /**
@@ -712,48 +676,6 @@ class BaseInputFilterTest extends TestCase
         $filter->setData($data);
 
         $this->assertFalse($filter->isValid());
-    }
-
-    public static function contextDataProvider()
-    {
-        return [
-            ['', 'y', true],
-            ['', 'n', false],
-        ];
-    }
-
-    /**
-     * Idea here is that an empty field may or may not be valid based on
-     * context.
-     */
-    /**
-     * @dataProvider contextDataProvider()
-     */
-    // @codingStandardsIgnoreStart
-    public function testValidationMarksInputValidWhenAllowEmptyFlagIsTrueAndContinueIfEmptyIsTrueAndContextValidatesEmptyField($allowEmpty, $blankIsValid, $valid)
-    {
-        // @codingStandardsIgnoreEnd
-        $filter = new InputFilter();
-
-        $data = [
-            'allowEmpty' => $allowEmpty,
-            'blankIsValid' => $blankIsValid,
-        ];
-
-        $allowEmpty = new Input();
-        $allowEmpty->setAllowEmpty(true)
-                   ->setContinueIfEmpty(true);
-
-        $blankIsValid = new Input();
-        $blankIsValid->getValidatorChain()->attach(new Validator\Callback(function ($value, $context) {
-            return ('y' === $value && empty($context['allowEmpty']));
-        }));
-
-        $filter->add($allowEmpty, 'allowEmpty')
-               ->add($blankIsValid, 'blankIsValid');
-        $filter->setData($data);
-
-        $this->assertSame($valid, $filter->isValid());
     }
 
     public function testCanRetrieveRawValuesIndividuallyWithoutValidating()
