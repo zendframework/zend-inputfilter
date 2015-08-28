@@ -126,14 +126,14 @@ class InputTest extends TestCase
             'CIEmpty: T, AEmpty: T, Required: F, ValidChain: T'                   => [$cIEmpty, $isEmpty,  !$isRequired, $isValid,  $allValues,      $valid,  $noMessages],
             'CIEmpty: T, AEmpty: T, Required: F, ValidChain: F'                   => [$cIEmpty, $isEmpty,  !$isRequired, !$isValid, $allValues,      !$valid, $validatorMessages],
 
-            'CIEmpty: T, AEmpty: F, Required: T, ValidChain: T, Value: Empty'     => [$cIEmpty, !$isEmpty, $isRequired,  $isValid,  $emptyValues,    $valid,  $noMessages],
+            'CIEmpty: T, AEmpty: F, Required: T, ValidChain: T, Value: Empty'     => [$cIEmpty, !$isEmpty, $isRequired,  $isValid,  $emptyValues,    !$valid, $notEmptyMessages],
             'CIEmpty: T, AEmpty: F, Required: T, ValidChain: T, Value: Not Empty' => [$cIEmpty, !$isEmpty, $isRequired,  $isValid,  $nonEmptyValues, $valid,  $noMessages],
-            'CIEmpty: T, AEmpty: F, Required: T, ValidChain: F, Value: Empty'     => [$cIEmpty, !$isEmpty, $isRequired,  !$isValid, $emptyValues,    !$valid, $validatorMessages],
+            'CIEmpty: T, AEmpty: F, Required: T, ValidChain: F, Value: Empty'     => [$cIEmpty, !$isEmpty, $isRequired,  !$isValid, $emptyValues,    !$valid, $notEmptyAndVChain],
             'CIEmpty: T, AEmpty: F, Required: T, ValidChain: F, Value: Not Empty' => [$cIEmpty, !$isEmpty, $isRequired,  !$isValid, $nonEmptyValues, !$valid, $validatorMessages],
 
-            'CIEmpty: T, AEmpty: F, Required: F, ValidChain: T, Value: Empty'     => [$cIEmpty, !$isEmpty, !$isRequired, $isValid,  $emptyValues,    $valid,  $noMessages],
+            'CIEmpty: T, AEmpty: F, Required: F, ValidChain: T, Value: Empty'     => [$cIEmpty, !$isEmpty, !$isRequired, $isValid,  $emptyValues,    !$valid, $notEmptyMessages],
             'CIEmpty: T, AEmpty: F, Required: F, ValidChain: T, Value: Not Empty' => [$cIEmpty, !$isEmpty, !$isRequired, $isValid,  $nonEmptyValues, $valid,  $noMessages],
-            'CIEmpty: T, AEmpty: F, Required: F, ValidChain: F, Value: Empty'     => [$cIEmpty, !$isEmpty, !$isRequired, !$isValid, $emptyValues,    !$valid, $validatorMessages],
+            'CIEmpty: T, AEmpty: F, Required: F, ValidChain: F, Value: Empty'     => [$cIEmpty, !$isEmpty, !$isRequired, !$isValid, $emptyValues,    !$valid, $notEmptyAndVChain],
             'CIEmpty: T, AEmpty: F, Required: F, ValidChain: F, Value: Not Empty' => [$cIEmpty, !$isEmpty, !$isRequired, !$isValid, $nonEmptyValues, !$valid, $validatorMessages],
 
             'CIEmpty: F, AEmpty: T, Required: T, ValidChain: T'                   => [!$cIEmpty, $isEmpty,  $isRequired,  $isValid,  $allValues,      $valid,  $noMessages],
@@ -149,9 +149,9 @@ class InputTest extends TestCase
             'CIEmpty: F, AEmpty: F, Required: T, ValidChain: F, Value: Empty'     => [!$cIEmpty, !$isEmpty, $isRequired,  !$isValid, $emptyValues,    !$valid, $notEmptyMessages],
             'CIEmpty: F, AEmpty: F, Required: T, ValidChain: F, Value: Not Empty' => [!$cIEmpty, !$isEmpty, $isRequired,  !$isValid, $nonEmptyValues, !$valid, $validatorMessages],
 
-            'CIEmpty: F, AEmpty: F, Required: F, ValidChain: T, Value: Empty'     => [!$cIEmpty, !$isEmpty, !$isRequired, $isValid,  $emptyValues,    $valid,  $noMessages],
+            'CIEmpty: F, AEmpty: F, Required: F, ValidChain: T, Value: Empty'     => [!$cIEmpty, !$isEmpty, !$isRequired, $isValid,  $emptyValues,    !$valid, $notEmptyMessages],
             'CIEmpty: F, AEmpty: F, Required: F, ValidChain: T, Value: Not Empty' => [!$cIEmpty, !$isEmpty, !$isRequired, $isValid,  $nonEmptyValues, $valid,  $noMessages],
-            'CIEmpty: F, AEmpty: F, Required: F, ValidChain: F, Value: Empty'     => [!$cIEmpty, !$isEmpty, !$isRequired, !$isValid, $emptyValues,    $valid,  $noMessages],
+            'CIEmpty: F, AEmpty: F, Required: F, ValidChain: F, Value: Empty'     => [!$cIEmpty, !$isEmpty, !$isRequired, !$isValid, $emptyValues,    !$valid, $notEmptyMessages],
             'CIEmpty: F, AEmpty: F, Required: F, ValidChain: F, Value: Not Empty' => [!$cIEmpty, !$isEmpty, !$isRequired, !$isValid, $nonEmptyValues, !$valid, $validatorMessages],
         ];
         // @codingStandardsIgnoreEnd
