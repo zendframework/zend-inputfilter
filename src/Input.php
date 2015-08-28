@@ -407,10 +407,6 @@ class Input implements
             return false;
         }
 
-        if ($empty && ! $required && ! $continueIfEmpty) {
-            return true;
-        }
-
         if ($empty && $allowEmpty && ! $continueIfEmpty) {
             return true;
         }
@@ -419,7 +415,7 @@ class Input implements
         // If we do not allow empty and the "continue if empty" flag are
         // BOTH false, we inject the "not empty" validator into the chain,
         // which adds that logic into the validation routine.
-        if (! $allowEmpty && ! $continueIfEmpty) {
+        if ($empty && ! $allowEmpty) {
             $this->injectNotEmptyValidator();
         }
 
@@ -474,11 +470,11 @@ class Input implements
         $this->notEmptyValidator = true;
 
         if (class_exists(AbstractPluginManager::class)) {
-            $chain->prependByName('NotEmpty', [], true);
+            $chain->prependByName('NotEmpty', [], !$this->continueIfEmpty());
 
             return;
         }
 
-        $chain->prependValidator(new NotEmpty(), true);
+        $chain->prependValidator(new NotEmpty(), !$this->continueIfEmpty());
     }
 }

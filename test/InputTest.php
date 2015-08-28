@@ -574,8 +574,10 @@ class InputTest extends TestCase
             'Required: T; AEmpty: T; CIEmpty: F; Validator: T, Value: Not Empty' => [ $isRequired,  $aEmpty, !$cIEmpty, $validatorValid  , $nonEmptyValues,  $isValid, []],
             'Required: T; AEmpty: T; CIEmpty: F; Validator: F, Value: Not Empty' => [ $isRequired,  $aEmpty, !$cIEmpty, $validatorInvalid, $nonEmptyValues, !$isValid, $validatorMsg],
 
-            'Required: T; AEmpty: F; CIEmpty: T; Validator: T'                   => [ $isRequired, !$aEmpty,  $cIEmpty, $validatorValid  , $allValues     ,  $isValid, []],
-            'Required: T; AEmpty: F; CIEmpty: T; Validator: F'                   => [ $isRequired, !$aEmpty,  $cIEmpty, $validatorInvalid, $allValues     , !$isValid, $validatorMsg],
+            'Required: T; AEmpty: F; CIEmpty: T; Validator: T, Value: Empty'     => [ $isRequired, !$aEmpty, !$cIEmpty, $validatorValid  , $emptyValues   , !$isValid, $notEmptyMsg],
+            'Required: T; AEmpty: F; CIEmpty: T; Validator: F, Value: Empty'     => [ $isRequired, !$aEmpty, !$cIEmpty, $validatorInvalid, $emptyValues   , !$isValid, $notEmptyMsg],
+            'Required: T; AEmpty: F; CIEmpty: T; Validator: T, Value: Not Empty' => [ $isRequired, !$aEmpty, !$cIEmpty, $validatorValid  , $nonEmptyValues,  $isValid, []],
+            'Required: T; AEmpty: F; CIEmpty: T; Validator: F, Value: Not Empty' => [ $isRequired, !$aEmpty, !$cIEmpty, $validatorInvalid, $nonEmptyValues, !$isValid, $validatorMsg],
 
             'Required: T; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty'     => [ $isRequired, !$aEmpty, !$cIEmpty, $validatorNotCall, $emptyValues   , !$isValid, $notEmptyMsg],
             'Required: T; AEmpty: F; CIEmpty: F; Validator: T, Value: Not Empty' => [ $isRequired, !$aEmpty, !$cIEmpty, $validatorValid  , $nonEmptyValues,  $isValid, []],
@@ -588,10 +590,12 @@ class InputTest extends TestCase
             'Required: F; AEmpty: T; CIEmpty: F; Validator: T, Value: Not Empty' => [!$isRequired,  $aEmpty, !$cIEmpty, $validatorValid  , $nonEmptyValues,  $isValid, []],
             'Required: F; AEmpty: T; CIEmpty: F; Validator: F, Value: Not Empty' => [!$isRequired,  $aEmpty, !$cIEmpty, $validatorInvalid, $nonEmptyValues, !$isValid, $validatorMsg],
 
-            'Required: F; AEmpty: F; CIEmpty: T; Validator: T'                   => [!$isRequired, !$aEmpty,  $cIEmpty, $validatorValid  , $allValues     ,  $isValid, []],
-            'Required: F; AEmpty: F; CIEmpty: T; Validator: F'                   => [!$isRequired, !$aEmpty,  $cIEmpty, $validatorInvalid, $allValues     , !$isValid, $validatorMsg],
+            'Required: F; AEmpty: F; CIEmpty: T; Validator: T, Value: Empty'     => [!$isRequired, !$aEmpty, !$cIEmpty, $validatorValid  , $emptyValues   , !$isValid, $notEmptyMsg],
+            'Required: F; AEmpty: F; CIEmpty: T; Validator: F, Value: Empty'     => [!$isRequired, !$aEmpty, !$cIEmpty, $validatorInvalid, $emptyValues   , !$isValid, $notEmptyMsg],
+            'Required: F; AEmpty: F; CIEmpty: T; Validator: T, Value: Not Empty' => [!$isRequired, !$aEmpty, !$cIEmpty, $validatorValid  , $nonEmptyValues,  $isValid, []],
+            'Required: F; AEmpty: F; CIEmpty: T; Validator: F, Value: Not Empty' => [!$isRequired, !$aEmpty, !$cIEmpty, $validatorInvalid, $nonEmptyValues, !$isValid, $validatorMsg],
 
-            'Required: F; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty'     => [!$isRequired, !$aEmpty, !$cIEmpty, $validatorNotCall, $emptyValues   ,  $isValid, []],
+            'Required: F; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty'     => [!$isRequired, !$aEmpty, !$cIEmpty, $validatorNotCall, $emptyValues   , !$isValid, $notEmptyMsg],
             'Required: F; AEmpty: F; CIEmpty: F; Validator: T, Value: Not Empty' => [!$isRequired, !$aEmpty, !$cIEmpty, $validatorValid  , $nonEmptyValues,  $isValid, []],
             'Required: F; AEmpty: F; CIEmpty: F; Validator: F, Value: Not Empty' => [!$isRequired, !$aEmpty, !$cIEmpty, $validatorInvalid, $nonEmptyValues, !$isValid, $validatorMsg],
         ];
