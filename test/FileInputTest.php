@@ -414,4 +414,55 @@ class FileInputTest extends InputTest
     {
         $this->markTestSkipped('does not apply to FileInput');
     }
+
+
+    public function isRequiredVsAllowEmptyVsContinueIfEmptyVsIsValidProvider()
+    {
+        $dataSets = parent::isRequiredVsAllowEmptyVsContinueIfEmptyVsIsValidProvider();
+
+        // FileInput do not use NotEmpty validator so the only validator present in the chain is the custom one.
+        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X / tmp_name']);
+        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X / single']);
+        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X / multi']);
+
+        return $dataSets;
+    }
+
+    public function emptyValueProvider()
+    {
+        return [
+            'tmp_name' => [
+                'raw' => 'file',
+                'filtered' => [
+                    'tmp_name' => 'file',
+                    'name' => 'file',
+                    'size' => 0,
+                    'type' => '',
+                    'error' => UPLOAD_ERR_NO_FILE,
+                ],
+            ],
+            'single' => [
+                'raw' => [
+                    'tmp_name' => '',
+                    'error' => UPLOAD_ERR_NO_FILE,
+                ],
+                'filtered' => [
+                    'tmp_name' => '',
+                    'error' => UPLOAD_ERR_NO_FILE,
+                ],
+            ],
+            'multi' => [
+                'raw' => [
+                    [
+                        'tmp_name' => 'foo',
+                        'error' => UPLOAD_ERR_NO_FILE,
+                    ],
+                ],
+                'filtered' => [
+                    'tmp_name' => 'foo',
+                    'error' => UPLOAD_ERR_NO_FILE,
+                ],
+            ],
+        ];
+    }
 }

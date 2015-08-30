@@ -382,6 +382,35 @@ class InputTest extends TestCase
         $this->assertTrue($input2->allowEmpty());
     }
 
+    /**
+     * @group 7448
+     * @dataProvider isRequiredVsAllowEmptyVsContinueIfEmptyVsIsValidProvider
+     */
+    public function testIsRequiredVsAllowEmptyVsContinueIfEmptyVsIsValid(
+        $required,
+        $allowEmpty,
+        $continueIfEmpty,
+        $validator,
+        $value,
+        $expectedIsValid,
+        $expectedMessages
+    ) {
+        $this->input->setRequired($required);
+        $this->input->setAllowEmpty($allowEmpty);
+        $this->input->setContinueIfEmpty($continueIfEmpty);
+        $this->input->getValidatorChain()
+            ->attach($validator)
+        ;
+        $this->input->setValue($value);
+
+        $this->assertEquals(
+            $expectedIsValid,
+            $this->input->isValid(),
+            'isValid() value not match. Detail: ' . json_encode($this->input->getMessages())
+        );
+        $this->assertEquals($expectedMessages, $this->input->getMessages(), 'getMessages() value not match');
+    }
+
     public function whenRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun()
     {
         $validator = new Validator\Callback(function ($value) {
@@ -740,17 +769,82 @@ class InputTest extends TestCase
         return $values;
     }
 
+    public function isRequiredVsAllowEmptyVsContinueIfEmptyVsIsValidProvider()
+    {
+        $emptyValues = $this->emptyValueProvider();
+
+        $isRequired = true;
+        $aEmpty = true;
+        $cIEmpty = true;
+        $isValid = true;
+
+        $validatorMsg = ['FooValidator' => 'Invalid Value'];
+        $notEmptyMsg = ['isEmpty' => "Value is required and can't be empty"];
+
+        $validatorNotCall = function ($value, $context = null) {
+            return $this->createValidatorMock(null, $value, $context);
+        };
+        $validatorInvalid = function ($value, $context = null) use ($validatorMsg) {
+            return $this->createValidatorMock(false, $value, $context, $validatorMsg);
+        };
+        $validatorValid = function ($value, $context = null) {
+            return $this->createValidatorMock(true, $value, $context);
+        };
+
+        // @codingStandardsIgnoreStart
+        $dataTemplates=[
+            // Description => [$isRequired, $allowEmpty, $continueIfEmpty, $validator, [$values], $expectedIsValid, $expectedMessages]
+            'Required: T; AEmpty: T; CIEmpty: T; Validator: T' => [ $isRequired,  $aEmpty,  $cIEmpty, $validatorValid  , $emptyValues,  $isValid, []],
+            'Required: T; AEmpty: T; CIEmpty: T; Validator: F' => [ $isRequired,  $aEmpty,  $cIEmpty, $validatorInvalid, $emptyValues, !$isValid, $validatorMsg],
+            'Required: T; AEmpty: T; CIEmpty: F; Validator: X' => [ $isRequired,  $aEmpty, !$cIEmpty, $validatorNotCall, $emptyValues,  $isValid, []],
+            'Required: T; AEmpty: F; CIEmpty: T; Validator: T' => [ $isRequired, !$aEmpty,  $cIEmpty, $validatorValid  , $emptyValues,  $isValid, []],
+            'Required: T; AEmpty: F; CIEmpty: T; Validator: F' => [ $isRequired, !$aEmpty,  $cIEmpty, $validatorInvalid, $emptyValues, !$isValid, $validatorMsg],
+            'Required: T; AEmpty: F; CIEmpty: F; Validator: X' => [ $isRequired, !$aEmpty, !$cIEmpty, $validatorNotCall, $emptyValues, !$isValid, $notEmptyMsg],
+            'Required: F; AEmpty: T; CIEmpty: T; Validator: T' => [!$isRequired,  $aEmpty,  $cIEmpty, $validatorValid  , $emptyValues,  $isValid, []],
+            'Required: F; AEmpty: T; CIEmpty: T; Validator: F' => [!$isRequired,  $aEmpty,  $cIEmpty, $validatorInvalid, $emptyValues, !$isValid, $validatorMsg],
+            'Required: F; AEmpty: T; CIEmpty: F; Validator: X' => [!$isRequired,  $aEmpty, !$cIEmpty, $validatorNotCall, $emptyValues,  $isValid, []],
+            'Required: F; AEmpty: F; CIEmpty: T; Validator: T' => [!$isRequired, !$aEmpty,  $cIEmpty, $validatorValid  , $emptyValues,  $isValid, []],
+            'Required: F; AEmpty: F; CIEmpty: T; Validator: F' => [!$isRequired, !$aEmpty,  $cIEmpty, $validatorInvalid, $emptyValues, !$isValid, $validatorMsg],
+            'Required: F; AEmpty: F; CIEmpty: F; Validator: X' => [!$isRequired, !$aEmpty, !$cIEmpty, $validatorNotCall, $emptyValues,  $isValid, []],
+        ];
+        // @codingStandardsIgnoreEnd
+
+        // Expand data template matrix for each possible input value.
+        // Description => [$isRequired, $allowEmpty, $continueIfEmpty, $validator, $value, $expectedIsValid]
+        $dataSets = [];
+        foreach ($dataTemplates as $dataTemplateDescription => $dataTemplate) {
+            foreach ($dataTemplate[4] as $valueDescription => $value) {
+                $tmpTemplate = $dataTemplate;
+                $tmpTemplate[3] = $dataTemplate[3]($value['filtered']); // Get validator mock for each data set
+                $tmpTemplate[4] = $value['raw']; // expand value
+
+                $dataSets[$dataTemplateDescription . ' / ' . $valueDescription] = $tmpTemplate;
+            }
+        }
+
+        return $dataSets;
+    }
+
     public function emptyValueProvider()
     {
         return [
             // Description => [$value]
-            'null' => [null],
-            '""' => [''],
+            'null' => [
+                'raw' => null,
+                'filtered' => null,
+            ],
+            '""' => [
+                'raw' => '',
+                'filtered' => '',
+            ],
 //            '"0"' => ['0'],
 //            '0' => [0],
 //            '0.0' => [0.0],
 //            'false' => [false],
-            '[]' => [[]],
+            '[]' => [
+                'raw' => [],
+                'filtered' => [],
+            ],
         ];
     }
 
@@ -792,5 +886,38 @@ class InputTest extends TestCase
         }
 
         return $validatorChain;
+    }
+
+    /**
+     * @param null|bool $isValid
+     * @param mixed $value
+     * @param mixed $context
+     * @param string[] $messages
+     *
+     * @return Validator\ValidatorInterface|MockObject
+     */
+    protected function createValidatorMock($isValid, $value, $context = null, $messages = [])
+    {
+        /** @var Validator\ValidatorInterface|MockObject $validator */
+        $validator = $this->getMock(Validator\ValidatorInterface::class);
+
+        if (($isValid === false) || ($isValid === true)) {
+            $validator->expects($this->once())
+                ->method('isValid')
+                ->with($value, $context)
+                ->willReturn($isValid)
+            ;
+        } else {
+            $validator->expects($this->never())
+                ->method('isValid')
+                ->with($value, $context)
+            ;
+        }
+
+        $validator->method('getMessages')
+            ->willReturn($messages)
+        ;
+
+        return $validator;
     }
 }
