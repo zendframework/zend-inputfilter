@@ -73,16 +73,6 @@ class ArrayInputTest extends InputTest
         $this->assertTrue($this->input->isValid());
     }
 
-    public function testGetMessagesReturnsValidationMessages()
-    {
-        $this->input->setValue(['bar']);
-        $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertFalse($this->input->isValid());
-        $messages = $this->input->getMessages();
-        $this->assertArrayHasKey(Validator\Digits::NOT_DIGITS, $messages);
-    }
-
     public function testSpecifyingMessagesToInputReturnsThoseOnFailedValidation()
     {
         $this->input->setValue(['bar']);
