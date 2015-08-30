@@ -63,22 +63,6 @@ class ArrayInputTest extends InputTest
         $this->assertEquals(['bar'], $this->input->getRawValue());
     }
 
-    public function testIsValidReturnsFalseIfValidationChainFails()
-    {
-        $this->input->setValue(['123', 'bar']);
-        $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertFalse($this->input->isValid());
-    }
-
-    public function testIsValidReturnsTrueIfValidationChainSucceeds()
-    {
-        $this->input->setValue(['123', '123']);
-        $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertTrue($this->input->isValid());
-    }
-
     public function testValidationOperatesOnFilteredValue()
     {
         $this->input->setValue([' 123 ', '  123']);
@@ -192,15 +176,6 @@ class ArrayInputTest extends InputTest
         $validators = $validatorChain->getValidators();
         $this->assertEquals(2, count($validators));
         $this->assertEquals($notEmptyMock, $validators[1]['instance']);
-    }
-
-    public function emptyValuesProvider()
-    {
-        return [
-            [[null]],
-            [['']],
-            [[[]]],
-        ];
     }
 
     public function testNotAllowEmptyWithFilterConvertsNonemptyToEmptyIsNotValid()
