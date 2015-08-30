@@ -82,7 +82,11 @@ class ArrayInput extends Input
         $result    = true;
         foreach ($values as $value) {
             $empty = ($value === null || $value === '' || $value === []);
-            if ($empty && $this->allowEmpty() && !$this->continueIfEmpty()) {
+            if ($empty && !$this->isRequired() && !$this->continueIfEmpty()) {
+                $result = true;
+                continue;
+            }
+            if ($empty && $this->isRequired() && $this->allowEmpty() && !$this->continueIfEmpty()) {
                 $result = true;
                 continue;
             }
