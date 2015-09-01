@@ -9,11 +9,14 @@
 
 namespace ZendTest\InputFilter;
 
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use RuntimeException;
+use stdClass;
 use Zend\Filter;
 use Zend\InputFilter\Input;
 use Zend\Validator;
+use Zend\Validator\ValidatorChain;
 
 class InputTest extends TestCase
 {
@@ -93,6 +96,80 @@ class InputTest extends TestCase
         $input = new Input('foo');
         $input->setContinueIfEmpty(true);
         $this->assertTrue($input->continueIfEmpty());
+    }
+
+    /**
+     * @dataProvider setValueProvider
+     */
+    public function testSetFallbackValue($fallbackValue)
+    {
+        $input = $this->input;
+
+        $return = $input->setFallbackValue($fallbackValue);
+        $this->assertSame($input, $return, 'setFallbackValue() must return it self');
+
+        $this->assertEquals($fallbackValue, $input->getFallbackValue(), 'getFallbackValue() value not match');
+        $this->assertEquals(true, $input->hasFallback(), 'hasFallback() value not match');
+    }
+
+    /**
+     * @dataProvider fallbackValueVsIsValidProvider
+     */
+    public function testFallbackValueVsIsValidRules($required, $fallbackValue, $originalValue, $isValid, $expectedValue)
+    {
+        $input = $this->input;
+        $input->setContinueIfEmpty(true);
+
+        $input->setRequired($required);
+        $input->setValidatorChain($this->createValidatorChainMock($isValid));
+        $input->setFallbackValue($fallbackValue);
+        $input->setValue($originalValue);
+
+        $this->assertTrue(
+            $input->isValid(),
+            'isValid() should be return always true when fallback value is set. Detail: ' .
+            json_encode($input->getMessages())
+        );
+        $this->assertEquals([], $input->getMessages(), 'getMessages() should be empty because the input is valid');
+        $this->assertSame($expectedValue, $input->getRawValue(), 'getRawValue() value not match');
+        $this->assertSame($expectedValue, $input->getValue(), 'getValue() value not match');
+    }
+
+    /**
+     * @dataProvider fallbackValueVsIsValidProvider
+     */
+    public function testFallbackValueVsIsValidRulesWhenValueNotSet($required, $fallbackValue, $originalValue, $isValid)
+    {
+        $expectedValue = $fallbackValue; // Should always return the fallback value
+
+        $input = $this->input;
+        $input->setContinueIfEmpty(true);
+
+        $input->setRequired($required);
+        $input->setValidatorChain($this->createValidatorChainMock($isValid));
+        $input->setFallbackValue($fallbackValue);
+
+        $this->assertTrue(
+            $input->isValid(),
+            'isValid() should be return always true when fallback value is set. Detail: ' .
+            json_encode($input->getMessages())
+        );
+        $this->assertEquals([], $input->getMessages(), 'getMessages() should be empty because the input is valid');
+        $this->assertSame($expectedValue, $input->getRawValue(), 'getRawValue() value not match');
+        $this->assertSame($expectedValue, $input->getValue(), 'getValue() value not match');
+    }
+
+    public function testRequiredWithoutFallbackAndValueNotSetThenFail()
+    {
+        $input = $this->input;
+        $input->setRequired(true);
+        $input->setContinueIfEmpty(true);
+
+        $this->assertFalse(
+            $input->isValid(),
+            'isValid() should be return always false when no fallback value, is required, and not data is set.'
+        );
+        $this->assertEquals(['Value is required'], $input->getMessages(), 'getMessages() should be empty because the input is valid');
     }
 
     public function testNotEmptyValidatorNotInjectedIfContinueIfEmptyIsTrue()
@@ -354,36 +431,6 @@ class InputTest extends TestCase
         $validators = $validatorChain->getValidators();
         $this->assertEquals(2, count($validators));
         $this->assertEquals($notEmptyMock, $validators[1]['instance']);
-    }
-
-    public function dataFallbackValue()
-    {
-        return [
-            [
-                'fallbackValue' => null
-            ],
-            [
-                'fallbackValue' => ''
-            ],
-            [
-                'fallbackValue' => 'some value'
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataFallbackValue
-     */
-    public function testFallbackValue($fallbackValue)
-    {
-        $this->input->setFallbackValue($fallbackValue);
-        $validator = new Validator\Date();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->input->setValue('123'); // not a date
-
-        $this->assertTrue($this->input->isValid());
-        $this->assertEmpty($this->input->getMessages());
-        $this->assertSame($fallbackValue, $this->input->getValue());
     }
 
     public function testMergeRetainsContinueIfEmptyFlag()
@@ -882,5 +929,88 @@ class InputTest extends TestCase
         $return = $input->resetValue();
         $this->assertSame($input, $return, 'resetValue() must return itself');
         $this->assertEquals($originalInput, $input, 'Input was not reset to the default value state');
+    }
+
+    public function fallbackValueVsIsValidProvider()
+    {
+        $required = true;
+        $isValid = true;
+
+        $originalValue = 'fooValue';
+        $fallbackValue = 'fooFallbackValue';
+
+        // @codingStandardsIgnoreStart
+        return [
+            // Description => [$inputIsRequired, $fallbackValue, $originalValue, $isValid, $expectedValue]
+            'Required: T, Input: Invalid. getValue: fallback' => [ $required, $fallbackValue, $originalValue, !$isValid, $fallbackValue],
+            'Required: T, Input: Valid. getValue: original' =>   [ $required, $fallbackValue, $originalValue,  $isValid, $originalValue],
+            'Required: F, Input: Invalid. getValue: fallback' => [!$required, $fallbackValue, $originalValue, !$isValid, $fallbackValue],
+            'Required: F, Input: Valid. getValue: original' =>   [!$required, $fallbackValue, $originalValue,  $isValid, $originalValue],
+        ];
+        // @codingStandardsIgnoreEnd
+    }
+
+    public function setValueProvider()
+    {
+        $emptyValues = $this->emptyValueProvider();
+        $mixedValues = $this->mixedValueProvider();
+
+        $values = array_merge($emptyValues, $mixedValues);
+
+        return $values;
+    }
+
+    public function emptyValueProvider()
+    {
+        return [
+            // Description => [$value]
+            'null' => [null],
+            '""' => [''],
+//            '"0"' => ['0'],
+//            '0' => [0],
+//            '0.0' => [0.0],
+//            'false' => [false],
+            '[]' => [[]],
+        ];
+    }
+
+    public function mixedValueProvider()
+    {
+        return [
+            // Description => [$value]
+            '"0"' => ['0'],
+            '0' => [0],
+            '0.0' => [0.0],
+            'false' => [false],
+            'php' => ['php'],
+            'whitespace' => [' '],
+            '1' => [1],
+            '1.0' => [1.0],
+            'true' => [true],
+            '["php"]' => [['php']],
+            'object' => [new stdClass()],
+            // @codingStandardsIgnoreStart
+            'callable' => [function () {}],
+            // @codingStandardsIgnoreEnd
+        ];
+    }
+
+    /**
+     * @param null|bool $isValid If set stub isValid method for return the argument value.
+     *
+     * @return MockObject|ValidatorChain
+     */
+    protected function createValidatorChainMock($isValid = null)
+    {
+        /** @var ValidatorChain|MockObject $validatorChain */
+        $validatorChain = $this->getMock(ValidatorChain::class);
+
+        if ($isValid !== null) {
+            $validatorChain->method('isValid')
+                ->willReturn($isValid)
+            ;
+        }
+
+        return $validatorChain;
     }
 }

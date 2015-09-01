@@ -113,10 +113,16 @@ class FileInput extends Input
     public function isValid($context = null)
     {
         $rawValue        = $this->getRawValue();
+        $hasValue        = $this->hasValue();
         $empty           = $this->isEmptyFile($rawValue);
         $required        = $this->isRequired();
         $allowEmpty      = $this->allowEmpty();
         $continueIfEmpty = $this->continueIfEmpty();
+
+        if (! $hasValue && $required && ! $this->hasFallback()) {
+            $this->setErrorMessage('Value is required');
+            return false;
+        }
 
         if ($empty && ! $required && ! $continueIfEmpty) {
             return true;

@@ -187,39 +187,6 @@ class ArrayInputTest extends InputTest
         $this->assertEquals($notEmptyMock, $validators[1]['instance']);
     }
 
-    public function dataFallbackValue()
-    {
-        return [
-            [
-                'fallbackValue' => []
-            ],
-            [
-                'fallbackValue' => [''],
-            ],
-            [
-                'fallbackValue' => [null],
-            ],
-            [
-                'fallbackValue' => ['some value'],
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataFallbackValue
-     */
-    public function testFallbackValue($fallbackValue)
-    {
-        $this->input->setFallbackValue($fallbackValue);
-        $validator = new Validator\Date();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->input->setValue(['123']); // not a date
-
-        $this->assertTrue($this->input->isValid());
-        $this->assertEmpty($this->input->getMessages());
-        $this->assertSame($fallbackValue, $this->input->getValue());
-    }
-
     public function emptyValuesProvider()
     {
         return [
@@ -245,5 +212,17 @@ class ArrayInputTest extends InputTest
                         return 'nonempty';
                     }));
         $this->assertTrue($this->input->isValid());
+    }
+
+    public function fallbackValueVsIsValidProvider()
+    {
+        $dataSets = parent::fallbackValueVsIsValidProvider();
+        array_walk($dataSets, function (&$set) {
+            $set[1] = [$set[1]]; // Wrap fallback value into an array.
+            $set[2] = [$set[2]]; // Wrap value into an array.
+            $set[4] = [$set[4]]; // Wrap expected value into an array.
+        });
+
+        return $dataSets;
     }
 }

@@ -60,6 +60,20 @@ class ArrayInput extends Input
      */
     public function isValid($context = null)
     {
+        $hasValue = $this->hasValue();
+        $required = $this->isRequired();
+        $hasFallback = $this->hasFallback();
+
+        if (! $hasValue && $hasFallback) {
+            $this->setValue($this->getFallbackValue());
+            return true;
+        }
+
+        if (! $hasValue && $required) {
+            $this->setErrorMessage('Value is required');
+            return false;
+        }
+
         if (!$this->continueIfEmpty() && !$this->allowEmpty()) {
             $this->injectNotEmptyValidator();
         }
@@ -74,9 +88,9 @@ class ArrayInput extends Input
             }
             $result = $validator->isValid($value, $context);
             if (!$result) {
-                if ($this->hasFallback()) {
+                if ($hasFallback) {
                     $this->setValue($this->getFallbackValue());
-                    $result = true;
+                    return true;
                 }
                 break;
             }
