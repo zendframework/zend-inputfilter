@@ -359,11 +359,6 @@ class FileInputTest extends InputTest
         $this->assertInstanceOf('Zend\Filter\StringTrim', $filters[0]);
     }
 
-    public function testFallbackValue($fallbackValue = null)
-    {
-        $this->markTestSkipped('Not use fallback value');
-    }
-
     public function testIsEmptyFileNotArray()
     {
         $rawValue = 'file';
