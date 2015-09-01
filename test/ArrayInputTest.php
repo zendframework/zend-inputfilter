@@ -9,15 +9,83 @@
 
 namespace ZendTest\InputFilter;
 
-use Zend\InputFilter\ArrayInput;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Zend\Filter;
+use Zend\InputFilter\ArrayInput;
+use Zend\InputFilter\Exception\InvalidArgumentException;
+use Zend\InputFilter\Input;
 use Zend\Validator;
 
+/**
+ * @covers Zend\InputFilter\ArrayInput
+ */
 class ArrayInputTest extends InputTest
 {
-    public function setUp()
+    public function testIsASubclassOfInput()
     {
-        $this->input = new ArrayInput('foo');
+        $this->assertInstanceOf(Input::class, $this->createDefaultInput());
+    }
+
+    public function testMerge()
+    {
+        $this->markTestSkipped('ArrayInput::merge is not compatible with InputInterface::merge');
+    }
+
+    public function testInputMerge()
+    {
+        $this->markTestSkipped('ArrayInput::merge is not compatible with Input::merge');
+    }
+
+    /**
+     * Specific ArrayInput::merge behavior
+     */
+    public function testArrayInputMergeWithInput()
+    {
+        $source = new Input('bazInput');
+        $source->setName('bazInput');
+        $source->setErrorMessage('bazErrorMessage');
+        $source->setBreakOnFailure(true);
+        $source->setRequired(true);
+        $source->setValue(['bazRawValue']);
+        $source->setFilterChain($this->createFilterChainMock());
+        $source->setValidatorChain($this->createValidatorChainMock());
+        $source->setContinueIfEmpty(true);
+
+        $targetFilterChain = $this->createFilterChainMock();
+        $targetFilterChain->expects($this->once())
+            ->method('merge')
+            ->with($source->getFilterChain())
+        ;
+
+        $targetValidatorChain = $this->createValidatorChainMock();
+        $targetValidatorChain->expects($this->once())
+            ->method('merge')
+            ->with($source->getValidatorChain())
+        ;
+
+        $target = $this->createDefaultInput();
+        $target->setName('fooInput');
+        $target->setErrorMessage('fooErrorMessage');
+        $target->setBreakOnFailure(false);
+        $target->setRequired(false);
+        $target->setFilterChain($targetFilterChain);
+        $target->setValidatorChain($targetValidatorChain);
+        $target->setContinueIfEmpty(false);
+
+        $return = $target->merge($source);
+        $this->assertSame($target, $return, 'merge() must return it self');
+
+        $this->assertEquals('bazInput', $target->getName(), 'getName() value not match');
+        $this->assertEquals('bazErrorMessage', $target->getErrorMessage(), 'getErrorMessage() value not match');
+        $this->assertEquals(true, $target->breakOnFailure(), 'breakOnFailure() value not match');
+        $this->assertEquals(true, $target->isRequired(), 'isRequired() value not match');
+        $this->assertEquals(['bazRawValue'], $target->getRawValue(), 'getRawValue() value not match');
+        $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
+    }
+
+    public function testNotEmptyValidatorNotInjectedIfContinueIfEmptyIsTrue()
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
     }
 
     public function testValueIsNullByDefault()
@@ -27,197 +95,287 @@ class ArrayInputTest extends InputTest
 
     public function testValueIsEmptyArrayByDefault()
     {
-        $this->assertCount(0, $this->input->getValue());
+        $input = $this->createDefaultInput();
+
+        $this->assertCount(0, $input->getValue());
     }
 
-    public function testNotArrayValueCannotBeInjected()
+    public function testSetValueWithInvalidInputTypeThrowsInvalidArgumentException()
     {
-        $this->setExpectedException('Zend\InputFilter\Exception\InvalidArgumentException');
-        $this->input->setValue('bar');
+        $input = $this->createDefaultInput();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'Value must be an array, string given'
+        );
+        $input->setValue('bar');
     }
 
-    public function testValueMayBeInjected()
+    public function testSetValue($value = null)
     {
-        $this->input->setValue(['bar']);
-        $this->assertEquals(['bar'], $this->input->getValue());
+        $this->markTestSkipped('ArrayInput::setValue is not compatible with InputInterface::setValue');
     }
 
-    public function testRetrievingValueFiltersTheValue()
+    /**
+     * Specific ArrayInput::setValue behavior
+     *
+     * @dataProvider setValueProvider
+     */
+    public function testArrayInputSetValue($value)
     {
-        $this->input->setValue(['bar']);
-        $filter = new Filter\StringToUpper();
-        $this->input->getFilterChain()->attach($filter);
-        $this->assertEquals(['BAR'], $this->input->getValue());
+        $arrayValue = [$value];
+
+        $filterChain = $this->createFilterChainMock();
+        $filterChain->expects($this::atLeastOnce())
+            ->method('filter')
+            ->with($value)
+            ->willReturn('*filter*')
+        ;
+
+        $input = $this->createDefaultInput();
+        $input->setFilterChain($filterChain);
+
+        $return = $input->setValue($arrayValue);
+        $this->assertSame($input, $return, 'setValue() must return it self');
+
+        $this->assertEquals($arrayValue, $input->getRawValue(), 'getRawValue() value not match');
+        $this->assertEquals(['*filter*'], $input->getValue(), 'getValue() value not match');
     }
 
-    public function testCanRetrieveRawValue()
+    public function testSetFallbackValue($fallbackValue = null)
     {
-        $this->input->setValue(['bar']);
-        $filter = new Filter\StringToUpper();
-        $this->input->getFilterChain()->attach($filter);
-        $this->assertEquals(['bar'], $this->input->getRawValue());
+        $this->markTestSkipped('ArrayInput::setFallbackValue is not compatible with Input::setFallbackValue');
+    }
+
+    /**
+     * Specific ArrayInput::setFallbackValue behavior
+     *
+     * @dataProvider setValueProvider
+     */
+    public function testArrayInputSetFallbackValue($fallbackValue)
+    {
+        parent::testSetFallbackValue([$fallbackValue]);
+    }
+
+    public function testFallbackValueVsIsValidRules(
+        $fallbackValue = null,
+        $originalValue = null,
+        $isValid = null,
+        $expectedValue = null
+    ) {
+        $this->markTestSkipped('ArrayInput::setFallbackValue is not compatible with Input::setFallbackValue');
+    }
+
+    /**
+     * Specific ArrayInput::setFallbackValue and ArrayInput::setValue behavior
+     *
+     * @dataProvider fallbackValueVsIsValidProvider
+     */
+    public function testArrayInputFallbackValueVsIsValidRules($fallbackValue, $originalValue, $isValid, $expectedValue)
+    {
+        parent::testFallbackValueVsIsValidRules([$fallbackValue], [$originalValue], $isValid, [$expectedValue]);
+    }
+
+    public function testInputContinueIfEmptyAllowEmptyVsIsRequiredVsIsValidRules(
+        $continueIfEmpty = null,
+        $allowEmpty = null,
+        $isRequired = null,
+        $isValid = null,
+        $value = null,
+        $expectedIsValid = null,
+        $expectedMessages = null
+    ) {
+        $this->markTestSkipped('ArrayInput::setValue is not compatible with InputInterface::setValue');
+    }
+
+    /**
+     * Specific ArrayInput::setValue behavior
+     *
+     * @dataProvider continueIfEmptyVsAllowEmptyVsIsRequiredVsIsValidProviderRules
+     */
+    public function testArrayInputContinueIfEmptyAllowEmptyVsIsRequiredVsIsValidRules(
+        $continueIfEmpty,
+        $allowEmpty,
+        $isRequired,
+        $isValid,
+        $value,
+        $expectedIsValid,
+        $expectedMessages
+    ) {
+        parent::testInputContinueIfEmptyAllowEmptyVsIsRequiredVsIsValidRules(
+            $continueIfEmpty,
+            $allowEmpty,
+            $isRequired,
+            $isValid,
+            [$value],
+            $expectedIsValid,
+            $expectedMessages
+        );
     }
 
     public function testIsValidReturnsFalseIfValidationChainFails()
     {
-        $this->input->setValue(['123', 'bar']);
+        $input = $this->createDefaultInput();
+
+        $input->setValue(['123', 'bar']);
         $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertFalse($this->input->isValid());
+        $input->getValidatorChain()->attach($validator);
+        $this->assertFalse($input->isValid());
     }
 
     public function testIsValidReturnsTrueIfValidationChainSucceeds()
     {
-        $this->input->setValue(['123', '123']);
+        $input = $this->createDefaultInput();
+
+        $input->setValue(['123', '123']);
         $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertTrue($this->input->isValid());
+        $input->getValidatorChain()->attach($validator);
+        $this->assertTrue($input->isValid());
     }
 
     public function testValidationOperatesOnFilteredValue()
     {
-        $this->input->setValue([' 123 ', '  123']);
+        $input = $this->createDefaultInput();
+
+        $input->setValue([' 123 ', '  123']);
         $filter = new Filter\StringTrim();
-        $this->input->getFilterChain()->attach($filter);
+        $input->getFilterChain()->attach($filter);
         $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertTrue($this->input->isValid());
+        $input->getValidatorChain()->attach($validator);
+        $this->assertTrue($input->isValid());
     }
 
     public function testGetMessagesReturnsValidationMessages()
     {
-        $this->input->setValue(['bar']);
+        $input = $this->createDefaultInput();
+
+        $input->setValue(['bar']);
         $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertFalse($this->input->isValid());
-        $messages = $this->input->getMessages();
+        $input->getValidatorChain()->attach($validator);
+        $this->assertFalse($input->isValid());
+        $messages = $input->getMessages();
         $this->assertArrayHasKey(Validator\Digits::NOT_DIGITS, $messages);
     }
 
     public function testSpecifyingMessagesToInputReturnsThoseOnFailedValidation()
     {
-        $this->input->setValue(['bar']);
+        $input = $this->createDefaultInput();
+
+        $input->setValue(['bar']);
         $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->input->setErrorMessage('Please enter only digits');
-        $this->assertFalse($this->input->isValid());
-        $messages = $this->input->getMessages();
+        $input->getValidatorChain()->attach($validator);
+        $input->setErrorMessage('Please enter only digits');
+        $this->assertFalse($input->isValid());
+        $messages = $input->getMessages();
         $this->assertArrayNotHasKey(Validator\Digits::NOT_DIGITS, $messages);
         $this->assertContains('Please enter only digits', $messages);
     }
 
     public function testNotEmptyValidatorAddedWhenIsValidIsCalled()
     {
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue(['bar', '']);
-        $validatorChain = $this->input->getValidatorChain();
+        $input = $this->createDefaultInput();
+
+        $this->assertTrue($input->isRequired());
+        $input->setValue(['bar', '']);
+        $validatorChain = $input->getValidatorChain();
         $this->assertEquals(0, count($validatorChain->getValidators()));
 
-        $this->assertFalse($this->input->isValid());
-        $messages = $this->input->getMessages();
+        $this->assertFalse($input->isValid());
+        $messages = $input->getMessages();
         $this->assertArrayHasKey('isEmpty', $messages);
         $this->assertEquals(1, count($validatorChain->getValidators()));
 
         // Assert that NotEmpty validator wasn't added again
-        $this->assertFalse($this->input->isValid());
+        $this->assertFalse($input->isValid());
         $this->assertEquals(1, count($validatorChain->getValidators()));
     }
 
     public function testRequiredNotEmptyValidatorNotAddedWhenOneExists()
     {
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue(['bar', '']);
+        $input = $this->createDefaultInput();
 
-        $notEmptyMock = $this->getMock('Zend\Validator\NotEmpty', ['isValid']);
+        $this->assertTrue($input->isRequired());
+        $input->setValue(['bar', '']);
+
+        /** @var Validator\NotEmpty|MockObject $notEmptyMock */
+        $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
         $notEmptyMock->expects($this->exactly(1))
             ->method('isValid')
             ->will($this->returnValue(false));
 
-        $validatorChain = $this->input->getValidatorChain();
+        $validatorChain = $input->getValidatorChain();
         $validatorChain->prependValidator($notEmptyMock);
-        $this->assertFalse($this->input->isValid());
+        $this->assertFalse($input->isValid());
 
         $validators = $validatorChain->getValidators();
         $this->assertEquals(1, count($validators));
         $this->assertEquals($notEmptyMock, $validators[0]['instance']);
     }
 
-    public function testMerge()
-    {
-        $input = new ArrayInput('foo');
-        $input->setValue([' 123 ']);
-        $filter = new Filter\StringTrim();
-        $input->getFilterChain()->attach($filter);
-        $validator = new Validator\Digits();
-        $input->getValidatorChain()->attach($validator);
-
-        $input2 = new ArrayInput('bar');
-        $input2->merge($input);
-        $validatorChain = $input->getValidatorChain();
-        $filterChain    = $input->getFilterChain();
-
-        $this->assertEquals([' 123 '], $input2->getRawValue());
-        $this->assertEquals(1, $validatorChain->count());
-        $this->assertEquals(1, $filterChain->count());
-
-        $validators = $validatorChain->getValidators();
-        $this->assertInstanceOf('Zend\Validator\Digits', $validators[0]['instance']);
-
-        $filters = $filterChain->getFilters()->toArray();
-        $this->assertInstanceOf('Zend\Filter\StringTrim', $filters[0]);
-    }
-
     public function testDoNotInjectNotEmptyValidatorIfAnywhereInChain()
     {
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue(['bar', '']);
+        $input = $this->createDefaultInput();
 
-        $notEmptyMock = $this->getMock('Zend\Validator\NotEmpty', ['isValid']);
+        $this->assertTrue($input->isRequired());
+        $input->setValue(['bar', '']);
+
+        /** @var Validator\NotEmpty|MockObject $notEmptyMock */
+        $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
         $notEmptyMock->expects($this->exactly(1))
             ->method('isValid')
             ->will($this->returnValue(false));
 
-        $validatorChain = $this->input->getValidatorChain();
+        $validatorChain = $input->getValidatorChain();
         $validatorChain->attach(new Validator\Digits());
         $validatorChain->attach($notEmptyMock);
-        $this->assertFalse($this->input->isValid());
+        $this->assertFalse($input->isValid());
 
         $validators = $validatorChain->getValidators();
         $this->assertEquals(2, count($validators));
         $this->assertEquals($notEmptyMock, $validators[1]['instance']);
     }
 
-    public function dataFallbackValue()
+    public function testWhenRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input = null, $value = null)
     {
-        return [
-            [
-                'fallbackValue' => []
-            ],
-            [
-                'fallbackValue' => [''],
-            ],
-            [
-                'fallbackValue' => [null],
-            ],
-            [
-                'fallbackValue' => ['some value'],
-            ],
-        ];
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
     }
 
-    /**
-     * @dataProvider dataFallbackValue
-     */
-    public function testFallbackValue($fallbackValue)
+    public function testWhenRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input = null, $value = null, $assertion = null)
     {
-        $this->input->setFallbackValue($fallbackValue);
-        $validator = new Validator\Date();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->input->setValue(['123']); // not a date
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
 
-        $this->assertTrue($this->input->isValid());
-        $this->assertEmpty($this->input->getMessages());
-        $this->assertSame($fallbackValue, $this->input->getValue());
+    public function testWhenRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input = null, $value = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input = null, $value = null, $assertion = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenNotRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input = null, $value = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenNotRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input = null, $value = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenNotRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input = null, $value = null, $assertion = null)
+    {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
+    }
+
+    public function testWhenNotRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun(
+        Input $input = null,
+        $value = null,
+        $assertion = null
+    ) {
+        $this->markTestIncomplete('Parent test does did not verify ArrayInput object. Pending review');
     }
 
     public function emptyValuesProvider()
@@ -231,19 +389,30 @@ class ArrayInputTest extends InputTest
 
     public function testNotAllowEmptyWithFilterConvertsNonemptyToEmptyIsNotValid()
     {
-        $this->input->setValue(['nonempty'])
+        $input = $this->createDefaultInput();
+
+        $input->setValue(['nonempty'])
                     ->getFilterChain()->attach(new Filter\Callback(function () {
                         return '';
                     }));
-        $this->assertFalse($this->input->isValid());
+        $this->assertFalse($input->isValid());
     }
 
     public function testNotAllowEmptyWithFilterConvertsEmptyToNonEmptyIsValid()
     {
-        $this->input->setValue([''])
+        $input = $this->createDefaultInput();
+
+        $input->setValue([''])
                     ->getFilterChain()->attach(new Filter\Callback(function () {
                         return 'nonempty';
                     }));
-        $this->assertTrue($this->input->isValid());
+        $this->assertTrue($input->isValid());
+    }
+
+    protected function createDefaultInput()
+    {
+        $input = new ArrayInput('foo');
+
+        return $input;
     }
 }

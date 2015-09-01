@@ -119,7 +119,7 @@ interface InputInterface
     public function isValid();
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getMessages();
 }

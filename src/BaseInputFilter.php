@@ -36,7 +36,7 @@ class BaseInputFilter implements
     protected $invalidInputs;
 
     /**
-     * @var array
+     * @var null|string[] Input names
      */
     protected $validationGroup;
 
@@ -81,8 +81,8 @@ class BaseInputFilter implements
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects an instance of %s or %s as its first argument; received "%s"',
                 __METHOD__,
-                'Zend\InputFilter\InputInterface',
-                'Zend\InputFilter\InputFilterInterface',
+                InputInterface::class,
+                InputFilterInterface::class,
                 (is_object($input) ? get_class($input) : gettype($input))
             ));
         }
@@ -117,8 +117,8 @@ class BaseInputFilter implements
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects an instance of %s or %s as its first argument; received "%s"',
                 __METHOD__,
-                'Zend\InputFilter\InputInterface',
-                'Zend\InputFilter\InputFilterInterface',
+                InputInterface::class,
+                InputFilterInterface::class,
                 (is_object($input) ? get_class($input) : gettype($input))
             ));
         }
@@ -514,7 +514,7 @@ class BaseInputFilter implements
     /**
      * Ensure all names of a validation group exist as input in the filter
      *
-     * @param  array $inputs
+     * @param  string[] $inputs Input names
      * @return void
      * @throws Exception\InvalidArgumentException
      */
@@ -630,7 +630,7 @@ class BaseInputFilter implements
     /**
      * Get an array of all inputs
      *
-     * @return array
+     * @return InputInterface[]|InputFilterInterface[]
      */
     public function getInputs()
     {

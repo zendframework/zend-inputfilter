@@ -10,22 +10,38 @@
 namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_TestCase as TestCase;
+use stdClass;
 use Zend\InputFilter\BaseInputFilter;
 use Zend\InputFilter\CollectionInputFilter;
+use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
 use Zend\Validator;
 
+/**
+ * @covers Zend\InputFilter\CollectionInputFilter
+ */
 class CollectionInputFilterTest extends TestCase
 {
-    /**
-     * @var \Zend\InputFilter\CollectionInputFilter
-     */
-    protected $filter;
+    use InputFilterInterfaceTestTrait;
+    use ReplaceableInputInterfaceTestTrait;
+    use UnknownInputsCapableInterfaceTestTrait;
 
-    public function setUp()
+    public function testIsASubclassOfInputFilter()
     {
-        $this->filter = new CollectionInputFilter();
+        $this->assertInstanceOf(InputFilter::class, $this->createDefaultInputFilter());
+    }
+
+    public function testSetDataWithInvalidDataTypeThrowsInvalidArgumentException()
+    {
+        $filter = $this->createDefaultInputFilter();
+
+        $this->setExpectedException(
+            RuntimeException::class,
+            'expects an instance of Zend\InputFilter\BaseInputFilter; received "stdClass"'
+        );
+        /** @noinspection PhpParamsInspection */
+        $filter->setInputFilter(new stdClass());
     }
 
     public function getBaseInputFilter()
@@ -106,48 +122,60 @@ class CollectionInputFilterTest extends TestCase
 
     public function testSetInputFilter()
     {
-        $this->filter->setInputFilter(new BaseInputFilter());
-        $this->assertInstanceOf('Zend\InputFilter\BaseInputFilter', $this->filter->getInputFilter());
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $inputFilter->setInputFilter(new BaseInputFilter());
+        $this->assertInstanceOf(BaseInputFilter::class, $inputFilter->getInputFilter());
     }
 
     public function testGetDefaultInputFilter()
     {
-        $this->assertInstanceOf('Zend\InputFilter\BaseInputFilter', $this->filter->getInputFilter());
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $this->assertInstanceOf(BaseInputFilter::class, $inputFilter->getInputFilter());
     }
 
     public function testSetCount()
     {
-        $this->filter->setCount(5);
-        $this->assertEquals(5, $this->filter->getCount());
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $inputFilter->setCount(5);
+        $this->assertEquals(5, $inputFilter->getCount());
     }
 
     public function testSetCountBelowZero()
     {
-        $this->filter->setCount(-1);
-        $this->assertEquals(0, $this->filter->getCount());
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $inputFilter->setCount(-1);
+        $this->assertEquals(0, $inputFilter->getCount());
     }
 
     public function testGetCountUsesCountOfCollectionDataWhenNotSet()
     {
+        $inputFilter = $this->createDefaultInputFilter();
+
         $collectionData = [
             ['foo' => 'bar'],
             ['foo' => 'baz']
         ];
 
-        $this->filter->setData($collectionData);
-        $this->assertEquals(2, $this->filter->getCount());
+        $inputFilter->setData($collectionData);
+        $this->assertEquals(2, $inputFilter->getCount());
     }
 
     public function testGetCountUsesSpecifiedCount()
     {
+        $inputFilter = $this->createDefaultInputFilter();
+
         $collectionData = [
             ['foo' => 'bar'],
             ['foo' => 'baz']
         ];
 
-        $this->filter->setCount(3);
-        $this->filter->setData($collectionData);
-        $this->assertEquals(3, $this->filter->getCount());
+        $inputFilter->setCount(3);
+        $inputFilter->setData($collectionData);
+        $this->assertEquals(3, $inputFilter->getCount());
     }
 
     /**
@@ -155,6 +183,8 @@ class CollectionInputFilterTest extends TestCase
      */
     public function testGetCountReturnsRightCountOnConsecutiveCallsWithDifferentData()
     {
+        $inputFilter = $this->createDefaultInputFilter();
+
         $collectionData1 = [
             ['foo' => 'bar'],
             ['foo' => 'baz']
@@ -164,10 +194,10 @@ class CollectionInputFilterTest extends TestCase
             ['foo' => 'bar']
         ];
 
-        $this->filter->setData($collectionData1);
-        $this->assertEquals(2, $this->filter->getCount());
-        $this->filter->setData($collectionData2);
-        $this->assertEquals(1, $this->filter->getCount());
+        $inputFilter->setData($collectionData1);
+        $this->assertEquals(2, $inputFilter->getCount());
+        $inputFilter->setData($collectionData2);
+        $this->assertEquals(1, $inputFilter->getCount());
     }
 
     public function testCanValidateValidData()
@@ -176,9 +206,11 @@ class CollectionInputFilterTest extends TestCase
             $this->markTestSkipped('ext/intl not enabled');
         }
 
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($this->getValidCollectionData());
-        $this->assertTrue($this->filter->isValid());
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $inputFilter->setInputFilter($this->getBaseInputFilter());
+        $inputFilter->setData($this->getValidCollectionData());
+        $this->assertTrue($inputFilter->isValid());
     }
 
     public function testCanValidateValidDataWithNonConsecutiveKeys()
@@ -187,12 +219,14 @@ class CollectionInputFilterTest extends TestCase
             $this->markTestSkipped('ext/intl not enabled');
         }
 
+        $inputFilter = $this->createDefaultInputFilter();
+
         $collectionData = $this->getValidCollectionData();
         $collectionData[2] = $collectionData[0];
         unset($collectionData[0]);
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($collectionData);
-        $this->assertTrue($this->filter->isValid());
+        $inputFilter->setInputFilter($this->getBaseInputFilter());
+        $inputFilter->setData($collectionData);
+        $this->assertTrue($inputFilter->isValid());
     }
 
     public function testInvalidDataReturnsFalse()
@@ -200,6 +234,8 @@ class CollectionInputFilterTest extends TestCase
         if (!extension_loaded('intl')) {
             $this->markTestSkipped('ext/intl not enabled');
         }
+
+        $inputFilter = $this->createDefaultInputFilter();
 
         $invalidCollectionData = [
             [
@@ -214,9 +250,9 @@ class CollectionInputFilterTest extends TestCase
             ]
         ];
 
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($invalidCollectionData);
-        $this->assertFalse($this->filter->isValid());
+        $inputFilter->setInputFilter($this->getBaseInputFilter());
+        $inputFilter->setData($invalidCollectionData);
+        $this->assertFalse($inputFilter->isValid());
     }
 
     public function testDataLessThanCountIsInvalid()
@@ -224,6 +260,8 @@ class CollectionInputFilterTest extends TestCase
         if (!extension_loaded('intl')) {
             $this->markTestSkipped('ext/intl not enabled');
         }
+
+        $inputFilter = $this->createDefaultInputFilter();
 
         $invalidCollectionData = [
             [
@@ -238,10 +276,10 @@ class CollectionInputFilterTest extends TestCase
             ],
         ];
 
-        $this->filter->setCount(2);
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($invalidCollectionData);
-        $this->assertFalse($this->filter->isValid());
+        $inputFilter->setCount(2);
+        $inputFilter->setInputFilter($this->getBaseInputFilter());
+        $inputFilter->setData($invalidCollectionData);
+        $this->assertFalse($inputFilter->isValid());
     }
 
     public function testGetValues()
@@ -249,6 +287,8 @@ class CollectionInputFilterTest extends TestCase
         if (!extension_loaded('intl')) {
             $this->markTestSkipped('ext/intl not enabled');
         }
+
+        $inputFilter = $this->createDefaultInputFilter();
 
         $expectedData = [
             [
@@ -273,14 +313,14 @@ class CollectionInputFilterTest extends TestCase
             ]
         ];
 
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($this->getValidCollectionData());
+        $inputFilter->setInputFilter($this->getBaseInputFilter());
+        $inputFilter->setData($this->getValidCollectionData());
 
-        $this->assertTrue($this->filter->isValid());
-        $this->assertEquals($expectedData, $this->filter->getValues());
+        $this->assertTrue($inputFilter->isValid());
+        $this->assertEquals($expectedData, $inputFilter->getValues());
 
-        $this->assertCount(2, $this->filter->getValidInput());
-        foreach ($this->filter->getValidInput() as $validInputs) {
+        $this->assertCount(2, $inputFilter->getValidInput());
+        foreach ($inputFilter->getValidInput() as $validInputs) {
             $this->assertCount(4, $validInputs);
         }
     }
@@ -290,6 +330,8 @@ class CollectionInputFilterTest extends TestCase
         if (!extension_loaded('intl')) {
             $this->markTestSkipped('ext/intl not enabled');
         }
+
+        $inputFilter = $this->createDefaultInputFilter();
 
         $expectedData = [
             [
@@ -314,11 +356,11 @@ class CollectionInputFilterTest extends TestCase
             ]
         ];
 
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($this->getValidCollectionData());
+        $inputFilter->setInputFilter($this->getBaseInputFilter());
+        $inputFilter->setData($this->getValidCollectionData());
 
-        $this->assertTrue($this->filter->isValid());
-        $this->assertEquals($expectedData, $this->filter->getRawValues());
+        $this->assertTrue($inputFilter->isValid());
+        $this->assertEquals($expectedData, $inputFilter->getRawValues());
     }
 
     public function testGetMessagesForInvalidInputs()
@@ -326,6 +368,8 @@ class CollectionInputFilterTest extends TestCase
         if (!extension_loaded('intl')) {
             $this->markTestSkipped('ext/intl not enabled');
         }
+
+        $inputFilter = $this->createDefaultInputFilter();
 
         $invalidCollectionData = [
             [
@@ -360,17 +404,17 @@ class CollectionInputFilterTest extends TestCase
             ],
         ];
 
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($invalidCollectionData);
+        $inputFilter->setInputFilter($this->getBaseInputFilter());
+        $inputFilter->setData($invalidCollectionData);
 
-        $this->assertFalse($this->filter->isValid());
+        $this->assertFalse($inputFilter->isValid());
 
-        $this->assertCount(3, $this->filter->getInvalidInput());
-        foreach ($this->filter->getInvalidInput() as $invalidInputs) {
+        $this->assertCount(3, $inputFilter->getInvalidInput());
+        foreach ($inputFilter->getInvalidInput() as $invalidInputs) {
             $this->assertCount(1, $invalidInputs);
         }
 
-        $messages = $this->filter->getMessages();
+        $messages = $inputFilter->getMessages();
 
         $this->assertCount(3, $messages);
         $this->assertArrayHasKey('foo', $messages[0]);
@@ -387,6 +431,8 @@ class CollectionInputFilterTest extends TestCase
         if (!extension_loaded('intl')) {
             $this->markTestSkipped('ext/intl not enabled');
         }
+
+        $inputFilter = $this->createDefaultInputFilter();
 
         // forms set an array of identical validation groups for each set of data
         $formValidationGroup = [
@@ -419,11 +465,11 @@ class CollectionInputFilterTest extends TestCase
             ]
         ];
 
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($data);
-        $this->filter->setValidationGroup($formValidationGroup);
+        $inputFilter->setInputFilter($this->getBaseInputFilter());
+        $inputFilter->setData($data);
+        $inputFilter->setValidationGroup($formValidationGroup);
 
-        $this->assertTrue($this->filter->isValid());
+        $this->assertTrue($inputFilter->isValid());
     }
 
     public function testEmptyCollectionIsValidByDefault()
@@ -432,12 +478,14 @@ class CollectionInputFilterTest extends TestCase
             $this->markTestSkipped('ext/intl not enabled');
         }
 
+        $inputFilter = $this->createDefaultInputFilter();
+
         $data = [];
 
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($data);
+        $inputFilter->setInputFilter($this->getBaseInputFilter());
+        $inputFilter->setData($data);
 
-        $this->assertTrue($this->filter->isValid());
+        $this->assertTrue($inputFilter->isValid());
     }
 
     public function testEmptyCollectionIsNotValidIfRequired()
@@ -446,23 +494,29 @@ class CollectionInputFilterTest extends TestCase
             $this->markTestSkipped('ext/intl not enabled');
         }
 
+        $inputFilter = $this->createDefaultInputFilter();
+
         $data = [];
 
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($data);
-        $this->filter->setIsRequired(true);
+        $inputFilter->setInputFilter($this->getBaseInputFilter());
+        $inputFilter->setData($data);
+        $inputFilter->setIsRequired(true);
 
-        $this->assertFalse($this->filter->isValid());
+        $this->assertFalse($inputFilter->isValid());
     }
 
     public function testSetRequired()
     {
-        $this->filter->setIsRequired(true);
-        $this->assertEquals(true, $this->filter->getIsRequired());
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $inputFilter->setIsRequired(true);
+        $this->assertEquals(true, $inputFilter->getIsRequired());
     }
 
     public function testNonRequiredFieldsAreValidated()
     {
+        $inputFilter = $this->createDefaultInputFilter();
+
         $invalidCollectionData = [
             [
                 'foo' => ' bazbattoolong ',
@@ -476,12 +530,12 @@ class CollectionInputFilterTest extends TestCase
             ]
         ];
 
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($invalidCollectionData);
+        $inputFilter->setInputFilter($this->getBaseInputFilter());
+        $inputFilter->setData($invalidCollectionData);
 
-        $this->assertFalse($this->filter->isValid());
-        $this->assertCount(2, current($this->filter->getInvalidInput()));
-        $this->assertArrayHasKey('baz', current($this->filter->getMessages()));
+        $this->assertFalse($inputFilter->isValid());
+        $this->assertCount(2, current($inputFilter->getInvalidInput()));
+        $this->assertArrayHasKey('baz', current($inputFilter->getMessages()));
     }
 
     public function testNestedCollectionWithEmptyChild()
@@ -489,13 +543,13 @@ class CollectionInputFilterTest extends TestCase
         $items_inputfilter = new BaseInputFilter();
         $items_inputfilter->add(new Input(), 'id')
                           ->add(new Input(), 'type');
-        $items = new CollectionInputFilter();
+        $items = $this->createDefaultInputFilter();
         $items->setInputFilter($items_inputfilter);
 
         $groups_inputfilter = new BaseInputFilter();
         $groups_inputfilter->add(new Input(), 'group_class')
                            ->add($items, 'items');
-        $groups = new CollectionInputFilter();
+        $groups = $this->createDefaultInputFilter();
         $groups->setInputFilter($groups_inputfilter);
 
         $inputFilter = new BaseInputFilter();
@@ -581,13 +635,13 @@ class CollectionInputFilterTest extends TestCase
         $items_inputfilter = new BaseInputFilter();
         $items_inputfilter->add(new Input(), 'id')
                           ->add(new Input(), 'type');
-        $items = new CollectionInputFilter();
+        $items = $this->createDefaultInputFilter();
         $items->setInputFilter($items_inputfilter);
 
         $groups_inputfilter = new BaseInputFilter();
         $groups_inputfilter->add(new Input(), 'group_class')
                            ->add($items, 'items');
-        $groups = new CollectionInputFilter();
+        $groups = $this->createDefaultInputFilter();
         $groups->setInputFilter($groups_inputfilter);
 
         $inputFilter = new BaseInputFilter();
@@ -642,13 +696,13 @@ class CollectionInputFilterTest extends TestCase
         $items_inputfilter = new BaseInputFilter();
         $items_inputfilter->add(new Input(), 'id')
                           ->add(new Input(), 'type');
-        $items = new CollectionInputFilter();
+        $items = $this->createDefaultInputFilter();
         $items->setInputFilter($items_inputfilter);
 
         $groups_inputfilter = new BaseInputFilter();
         $groups_inputfilter->add(new Input(), 'group_class')
                            ->add($items, 'items');
-        $groups = new CollectionInputFilter();
+        $groups = $this->createDefaultInputFilter();
         $groups->setInputFilter($groups_inputfilter);
 
         $inputFilter = new BaseInputFilter();
@@ -728,14 +782,14 @@ class CollectionInputFilterTest extends TestCase
     {
         $firstInputFilter = new InputFilter();
 
-        $firstCollection = new CollectionInputFilter();
+        $firstCollection = $this->createDefaultInputFilter();
         $firstCollection->setInputFilter($firstInputFilter);
 
         $someInput = new Input('input');
         $secondInputFilter = new InputFilter();
         $secondInputFilter->add($someInput, 'input');
 
-        $secondCollection = new CollectionInputFilter();
+        $secondCollection = $this->createDefaultInputFilter();
         $secondCollection->setInputFilter($secondInputFilter);
         if (!is_null($count)) {
             $secondCollection->setCount($count);
@@ -774,11 +828,30 @@ class CollectionInputFilterTest extends TestCase
 
     public function testInvalidCollectionIsNotValid()
     {
+        $inputFilter = $this->createDefaultInputFilter();
+
         $data = 1;
 
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($data);
+        $inputFilter->setInputFilter($this->getBaseInputFilter());
+        $inputFilter->setData($data);
 
-        $this->assertFalse($this->filter->isValid());
+        $this->assertFalse($inputFilter->isValid());
+    }
+
+    protected function createDefaultInputFilter()
+    {
+        $inputFilter = new CollectionInputFilter();
+
+        return $inputFilter;
+    }
+
+    protected function createDefaultReplaceableInput()
+    {
+        return $this->createDefaultInputFilter();
+    }
+
+    protected function createDefaultUnknownInputsCapable()
+    {
+        return $this->createDefaultInputFilter();
     }
 }

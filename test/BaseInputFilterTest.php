@@ -13,65 +13,190 @@ use ArrayObject;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
-use Zend\InputFilter\Input;
-use Zend\InputFilter\InputInterface;
-use Zend\InputFilter\FileInput;
-use Zend\InputFilter\BaseInputFilter as InputFilter;
 use Zend\Filter;
+use Zend\InputFilter\ArrayInput;
+use Zend\InputFilter\BaseInputFilter as InputFilter;
+use Zend\InputFilter\Exception\InvalidArgumentException;
+use Zend\InputFilter\Exception\RuntimeException;
+use Zend\InputFilter\FileInput;
+use Zend\InputFilter\Input;
+use Zend\InputFilter\InputFilterInterface;
+use Zend\InputFilter\InputInterface;
 use Zend\Validator;
 
+/**
+ * @covers Zend\InputFilter\BaseInputFilter
+ */
 class BaseInputFilterTest extends TestCase
 {
+    use InputFilterInterfaceTestTrait;
+    use ReplaceableInputInterfaceTestTrait;
+    use UnknownInputsCapableInterfaceTestTrait;
+
     public function testInputFilterIsEmptyByDefault()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
         $this->assertEquals(0, count($filter));
     }
 
-    public function testAddingInputsIncreasesCountOfFilter()
+    public function testAddWithInvalidInputTypeThrowsInvalidArgumentException()
     {
         $filter = new InputFilter();
-        $foo    = new Input('foo');
-        $filter->add($foo);
-        $this->assertEquals(1, count($filter));
-        $bar    = new Input('bar');
-        $filter->add($bar);
-        $this->assertEquals(2, count($filter));
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'expects an instance of Zend\InputFilter\InputInterface or Zend\InputFilter\InputFilterInterface '.
+            'as its first argument; received "stdClass"'
+        );
+        /** @noinspection PhpParamsInspection */
+        $filter->add(new stdClass());
     }
 
-    public function testAddingInputWithNameDoesNotInjectNameInInput()
+    public function testGetThrowExceptionIfInputDoesNotExists()
     {
-        $filter = new InputFilter();
-        $foo    = new Input('foo');
-        $filter->add($foo, 'bar');
-        $test   = $filter->get('bar');
-        $this->assertSame($foo, $test);
-        $this->assertEquals('foo', $foo->getName());
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'no input found matching "not exists"'
+        );
+        $inputFilter->get('not exists');
     }
 
-    public function testCanAddInputFilterAsInput()
+    public function testReplaceWithInvalidInputTypeThrowsInvalidArgumentException()
     {
-        $parent = new InputFilter();
-        $child  = new InputFilter();
-        $parent->add($child, 'child');
-        $this->assertEquals(1, count($parent));
-        $this->assertSame($child, $parent->get('child'));
+        $inputFilter = $this->createDefaultInputFilter();
+        $inputFilter->add(new Input('foo'), 'replace_me');
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'expects an instance of Zend\InputFilter\InputInterface or Zend\InputFilter\InputFilterInterface '.
+            'as its first argument; received "stdClass"'
+        );
+        /** @noinspection PhpParamsInspection */
+        $inputFilter->replace(new stdClass(), 'replace_me');
     }
 
-    public function testCanRemoveInputFilter()
+    public function testReplaceThrowExceptionIfInputToReplaceDoesNotExists()
     {
-        $parent = new InputFilter();
-        $child  = new InputFilter();
-        $parent->add($child, 'child');
-        $this->assertEquals(1, count($parent));
-        $this->assertSame($child, $parent->get('child'));
-        $parent->remove('child');
-        $this->assertEquals(0, count($parent));
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'no input found matching "not exists"'
+        );
+        $inputFilter->replace(new Input('foo'), 'not exists');
+    }
+
+    public function testGetValueThrowExceptionIfInputDoesNotExists()
+    {
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            '"not exists" was not found in the filter'
+        );
+        $inputFilter->getValue('not exists');
+    }
+
+    public function testGetRawValueThrowExceptionIfInputDoesNotExists()
+    {
+        $inputFilter = $this->createDefaultInputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            '"not exists" was not found in the filter'
+        );
+        $inputFilter->getRawValue('not exists');
+    }
+
+    public function testSetDataWithInvalidDataTypeThrowsInvalidArgumentException()
+    {
+        $filter = $this->createDefaultInputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'expects an array or Traversable argument; received stdClass'
+        );
+        /** @noinspection PhpParamsInspection */
+        $filter->setData(new stdClass());
+    }
+
+    public function testIsValidThrowExceptionIfDataWasNotSetYet()
+    {
+        $filter = $this->createDefaultInputFilter();
+
+        $this->setExpectedException(
+            RuntimeException::class,
+            'no data present to validate'
+        );
+        $filter->isValid();
+    }
+
+    public function testSetValidationGroupThrowExceptionIfInputIsNotAnInputFilter()
+    {
+        $filter = $this->getInputFilter();
+
+        /** @var InputInterface|MockObject $nestedInput */
+        $nestedInput = $this->getMock(InputInterface::class);
+        $filter->add($nestedInput, 'fooInput');
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'Input "fooInput" must implement InputFilterInterface'
+        );
+        $filter->setValidationGroup(['fooInput' => 'foo']);
+    }
+
+    public function testSetValidationGroupThrowExceptionIfInputFilterNotExists()
+    {
+        $filter = $this->getInputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'expects a list of valid input names; "anotherNotExistsInputFilter" was not found'
+        );
+        $filter->setValidationGroup(['notExistInputFilter' => 'anotherNotExistsInputFilter']);
+    }
+
+    public function testSetValidationGroupThrowExceptionIfInputFilterInArgumentListNotExists()
+    {
+        $filter = $this->getInputFilter();
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'expects a list of valid input names; "notExistInputFilter" was not found'
+        );
+        $filter->setValidationGroup('notExistInputFilter');
+    }
+
+    /**
+     * @dataProvider inputProvider
+     *
+     * @param mixed $input
+     * @param string $inputName Name used to retrieve this input.
+     * @param mixed $expectedInput
+     */
+    public function testReplace($input, $inputName, $expectedInput)
+    {
+        $inputFilter = new InputFilter();
+        $nameToReplace = 'replace_me';
+        $inputToReplace = new Input($nameToReplace);
+
+        $inputFilter->add($inputToReplace);
+        $currentNumberOfFilters = count($inputFilter);
+
+        $return = $inputFilter->replace($input, $nameToReplace);
+        $this->assertSame($inputFilter, $return, 'BaseInputFilter::replace() must return it self');
+        $this->assertCount($currentNumberOfFilters, $inputFilter, "Number of filters shouldn't change");
+
+        $returnInput = $inputFilter->get($nameToReplace);
+        $this->assertEquals($expectedInput, $returnInput, 'InputFilter::get() does not match the expected input');
     }
 
     public function getInputFilter()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
 
         $foo = new Input();
         $foo->getFilterChain()->attachByName('stringtrim')
@@ -103,7 +228,7 @@ class BaseInputFilterTest extends TestCase
 
     public function getChildInputFilter()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
 
         $foo = new Input();
         $foo->getFilterChain()->attachByName('stringtrim')
@@ -235,9 +360,9 @@ class BaseInputFilterTest extends TestCase
                 'deep-input2' => 'deep-foo2',
             ]
         ];
-        $filter = new InputFilter;
+        $filter = $this->createDefaultInputFilter();
         $filter->add(new Input, 'flat');
-        $deepInputFilter = new InputFilter;
+        $deepInputFilter = $this->createDefaultInputFilter();
         $deepInputFilter->add(new Input, 'deep-input1');
         $deepInputFilter->add(new Input, 'deep-input2');
         $filter->add($deepInputFilter, 'deep');
@@ -246,19 +371,6 @@ class BaseInputFilterTest extends TestCase
         // reset validation group
         $filter->setValidationGroup(InputFilter::VALIDATE_ALL);
         $this->assertEquals($data, $filter->getValues());
-    }
-
-    public function testSetDeepValidationGroupToNonInputFilterThrowsException()
-    {
-        $filter = $this->getInputFilter();
-        $filter->add(new Input, 'flat');
-        // we expect setValidationGroup to throw an exception when flat is treated
-        // like an inputfilter which it actually isn't
-        $this->setExpectedException(
-            'Zend\InputFilter\Exception\InvalidArgumentException',
-            'Input "flat" must implement InputFilterInterface'
-        );
-        $filter->setValidationGroup(['flat' => 'foo']);
     }
 
     public function testCanRetrieveInvalidInputsOnFailedValidation()
@@ -281,12 +393,12 @@ class BaseInputFilterTest extends TestCase
         $invalidInputs = $filter->getInvalidInput();
         $this->assertArrayNotHasKey('foo', $invalidInputs);
         $this->assertArrayHasKey('bar', $invalidInputs);
-        $this->assertInstanceOf('Zend\InputFilter\Input', $invalidInputs['bar']);
+        $this->assertInstanceOf(Input::class, $invalidInputs['bar']);
         $this->assertArrayHasKey('nest', $invalidInputs/*, var_export($invalidInputs, 1)*/);
-        $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $invalidInputs['nest']);
+        $this->assertInstanceOf(InputFilterInterface::class, $invalidInputs['nest']);
         $nestInvalids = $invalidInputs['nest']->getInvalidInput();
         $this->assertArrayHasKey('foo', $nestInvalids);
-        $this->assertInstanceOf('Zend\InputFilter\Input', $nestInvalids['foo']);
+        $this->assertInstanceOf(Input::class, $nestInvalids['foo']);
         $this->assertArrayNotHasKey('bar', $nestInvalids);
     }
 
@@ -309,15 +421,15 @@ class BaseInputFilterTest extends TestCase
         $this->assertFalse($filter->isValid());
         $validInputs = $filter->getValidInput();
         $this->assertArrayHasKey('foo', $validInputs);
-        $this->assertInstanceOf('Zend\InputFilter\Input', $validInputs['foo']);
+        $this->assertInstanceOf(Input::class, $validInputs['foo']);
         $this->assertArrayNotHasKey('bar', $validInputs);
         $this->assertArrayHasKey('nest', $validInputs);
-        $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $validInputs['nest']);
+        $this->assertInstanceOf(InputFilterInterface::class, $validInputs['nest']);
         $nestValids = $validInputs['nest']->getValidInput();
         $this->assertArrayHasKey('foo', $nestValids);
-        $this->assertInstanceOf('Zend\InputFilter\Input', $nestValids['foo']);
+        $this->assertInstanceOf(Input::class, $nestValids['foo']);
         $this->assertArrayHasKey('bar', $nestValids);
-        $this->assertInstanceOf('Zend\InputFilter\Input', $nestValids['bar']);
+        $this->assertInstanceOf(Input::class, $nestValids['bar']);
     }
 
     public function testValuesRetrievedAreFiltered()
@@ -451,7 +563,7 @@ class BaseInputFilterTest extends TestCase
      */
     public function testValidationCanUseContext()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
 
         $store = new stdClass;
         $foo   = new Input();
@@ -481,7 +593,7 @@ class BaseInputFilterTest extends TestCase
      */
     public function testInputBreakOnFailureFlagIsHonoredWhenValidating()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
 
         $store = new stdClass;
         $foo   = new Input();
@@ -508,7 +620,7 @@ class BaseInputFilterTest extends TestCase
 
     public function testValidationSkipsFieldsMarkedNotRequiredWhenNoDataPresent()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
 
         $optionalInputName = 'fooOptionalInput';
         /** @var InputInterface|MockObject $optionalInput */
@@ -540,7 +652,7 @@ class BaseInputFilterTest extends TestCase
 
     public function testValidationSkipsFileInputsMarkedNotRequiredWhenNoFileDataIsPresent()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
 
         $foo   = new FileInput();
         $foo->getValidatorChain()->attach(new Validator\File\UploadFile());
@@ -568,7 +680,7 @@ class BaseInputFilterTest extends TestCase
 
     public function testValidationSkipsFileInputsMarkedNotRequiredWhenNoMultiFileDataIsPresent()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
         $foo    = new FileInput();
         $foo->setRequired(false);
         $filter->add($foo, 'foo');
@@ -593,7 +705,7 @@ class BaseInputFilterTest extends TestCase
 
     public function testValidationAllowsEmptyValuesToRequiredInputWhenAllowEmptyFlagIsTrue()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
 
         $foo   = new Input('foo');
         $foo->getValidatorChain()->attach(new Validator\StringLength(3, 5));
@@ -620,7 +732,7 @@ class BaseInputFilterTest extends TestCase
 
     public function testValidationMarksInputInvalidWhenRequiredAndAllowEmptyFlagIsFalse()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
 
         $foo   = new Input();
         $foo->getValidatorChain()->attach(new Validator\StringLength(3, 5));
@@ -659,7 +771,7 @@ class BaseInputFilterTest extends TestCase
     public function testValidationMarksInputValidWhenAllowEmptyFlagIsTrueAndContinueIfEmptyIsTrueAndContextValidatesEmptyField($allowEmpty, $blankIsValid, $valid)
     {
         // @codingStandardsIgnoreEnd
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
 
         $data = [
             'allowEmpty' => $allowEmpty,
@@ -724,7 +836,7 @@ class BaseInputFilterTest extends TestCase
 
     public function testGetRequiredNotEmptyValidationMessages()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
 
         $foo   = new Input();
         $foo->setRequired(true);
@@ -799,17 +911,17 @@ class BaseInputFilterTest extends TestCase
 
     public function testValidateUseExplodeAndInstanceOf()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
 
         $input = new Input();
         $input->setRequired(true);
 
         $input->getValidatorChain()->attach(
-            new \Zend\Validator\Explode(
+            new Validator\Explode(
                 [
-                    'validator' => new \Zend\Validator\IsInstanceOf(
+                    'validator' => new Validator\IsInstanceOf(
                         [
-                            'className' => 'Zend\InputFilter\Input'
+                            'className' => Input::class
                         ]
                     )
                 ]
@@ -830,7 +942,7 @@ class BaseInputFilterTest extends TestCase
 
     public function testGetInputs()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
 
         $foo = new Input('foo');
         $bar = new Input('bar');
@@ -850,7 +962,7 @@ class BaseInputFilterTest extends TestCase
      */
     public function testAddingExistingInputWillMergeIntoExisting()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
 
         $foo1    = new Input('foo');
         $foo1->setRequired(true);
@@ -869,7 +981,7 @@ class BaseInputFilterTest extends TestCase
      */
     public function testIsValidWhenValuesSetOnFilters()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
 
         $foo = new Input();
         $foo->getFilterChain()->attachByName('stringtrim')
@@ -902,13 +1014,14 @@ class BaseInputFilterTest extends TestCase
      */
     public function testPopulateSupportsArrayInputEvenIfDataMissing()
     {
-        $arrayInput = $this->getMock('Zend\InputFilter\ArrayInput');
+        /** @var ArrayInput|MockObject $arrayInput */
+        $arrayInput = $this->getMock(ArrayInput::class);
         $arrayInput
             ->expects($this->once())
             ->method('setValue')
             ->with([]);
 
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
         $filter->add($arrayInput, 'arrayInput');
         $filter->setData(['foo' => 'bar']);
     }
@@ -918,8 +1031,8 @@ class BaseInputFilterTest extends TestCase
      */
     public function testMerge()
     {
-        $inputFilter       = new InputFilter();
-        $originInputFilter = new InputFilter();
+        $inputFilter       = $this->createDefaultInputFilter();
+        $originInputFilter = $this->createDefaultInputFilter();
 
         $inputFilter->add(new Input(), 'foo');
         $inputFilter->add(new Input(), 'bar');
@@ -952,7 +1065,7 @@ class BaseInputFilterTest extends TestCase
             return false;
         }));
 
-        $filter = new \Zend\InputFilter\InputFilter;
+        $filter = $this->createDefaultInputFilter();
         $filter->add($input)
                ->setData(['foo' => 'nonempty']);
 
@@ -974,7 +1087,7 @@ class BaseInputFilterTest extends TestCase
             return false;
         }));
 
-        $filter = new \Zend\InputFilter\InputFilter;
+        $filter = $this->createDefaultInputFilter();
         $filter->add($input)
                ->setData(['foo' => 'nonempty']);
 
@@ -994,7 +1107,7 @@ class BaseInputFilterTest extends TestCase
         $bar->setRequired(true);
         $bar->setAllowEmpty(true);
 
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
         $filter->add($foo);
         $filter->add($bar);
 
@@ -1024,7 +1137,7 @@ class BaseInputFilterTest extends TestCase
         $bar->setRequired(true);
         $bar->setAllowEmpty(true);
 
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
         $filter->add($foo);
         $filter->add($bar);
 
@@ -1048,7 +1161,7 @@ class BaseInputFilterTest extends TestCase
         $bar->setRequired(true);
         $bar->setFallbackValue('baz');
 
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
         $filter->add($foo);
         $filter->add($bar);
 
@@ -1073,7 +1186,7 @@ class BaseInputFilterTest extends TestCase
         $bar->setAllowEmpty(true);
         $bar->setFallbackValue('baz');
 
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
         $filter->add($foo);
         $filter->add($bar);
 
@@ -1099,7 +1212,7 @@ class BaseInputFilterTest extends TestCase
         $bar->setRequired(true);
         $bar->setFallbackValue('baz');
 
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
         $filter->add($foo);
         $filter->add($bar);
 
@@ -1120,7 +1233,7 @@ class BaseInputFilterTest extends TestCase
      */
     public function testAllowsValidatingArrayAccessData()
     {
-        $filter = new InputFilter();
+        $filter = $this->createDefaultInputFilter();
         $foo = new Input();
         $foo->getFilterChain()->attachByName('stringtrim')
                               ->attachByName('alpha');
@@ -1130,5 +1243,22 @@ class BaseInputFilterTest extends TestCase
         $data = new ArrayObject(['foo' => ' valid ']);
         $filter->setData($data);
         $this->assertTrue($filter->isValid());
+    }
+
+    protected function createDefaultInputFilter()
+    {
+        $inputFilter = new InputFilter();
+
+        return $inputFilter;
+    }
+
+    protected function createDefaultReplaceableInput()
+    {
+        return $this->createDefaultInputFilter();
+    }
+
+    protected function createDefaultUnknownInputsCapable()
+    {
+        return $this->createDefaultInputFilter();
     }
 }

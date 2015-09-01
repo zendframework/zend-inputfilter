@@ -9,15 +9,31 @@
 
 namespace ZendTest\InputFilter;
 
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\Filter\FilterPluginManager;
-use Zend\InputFilter\InputFilterPluginManager;
-use Zend\ServiceManager\ServiceManager;
-use Zend\Validator\ValidatorPluginManager;
 use Zend\InputFilter\InputFilterAbstractServiceFactory;
+use Zend\InputFilter\InputFilterInterface;
+use Zend\InputFilter\InputFilterPluginManager;
+use Zend\ServiceManager\AbstractFactoryInterface;
+use Zend\ServiceManager\ServiceManager;
+use Zend\Validator\ValidatorInterface;
+use Zend\Validator\ValidatorPluginManager;
 
+/**
+ * @covers Zend\InputFilter\InputFilterAbstractServiceFactory
+ */
 class InputFilterAbstractServiceFactoryTest extends TestCase
 {
+    /** @var ServiceManager */
+    protected $services;
+
+    /** @var InputFilterPluginManager */
+    protected $filters;
+
+    /** @var InputFilterAbstractServiceFactory */
+    protected $factory;
+
     public function setUp()
     {
         $this->services = new ServiceManager();
@@ -26,6 +42,11 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
         $this->services->setService('InputFilterManager', $this->filters);
 
         $this->factory = new InputFilterAbstractServiceFactory();
+    }
+
+    public function testImplementsAbstractFactoryInterface()
+    {
+        $this->assertInstanceOf(AbstractFactoryInterface::class, $this->factory);
     }
 
     public function testCannotCreateServiceIfNoConfigServicePresent()
@@ -65,7 +86,7 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
             ],
         ]);
         $filter = $this->factory->createServiceWithName($this->filters, 'filter', 'filter');
-        $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $filter);
+        $this->assertInstanceOf(InputFilterInterface::class, $filter);
     }
 
     /**
@@ -79,7 +100,8 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
         $filters->setService('foo', $filter);
 
         $validators = new ValidatorPluginManager();
-        $validator  = $this->getMock('Zend\Validator\ValidatorInterface');
+        /** @var ValidatorInterface|MockObject $validator */
+        $validator  = $this->getMock(ValidatorInterface::class);
         $validators->setService('foo', $validator);
 
         $this->services->setService('FilterManager', $filters);
@@ -127,7 +149,8 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
         $filters->setService('foo', $filter);
 
         $validators = new ValidatorPluginManager();
-        $validator  = $this->getMock('Zend\Validator\ValidatorInterface');
+        /** @var ValidatorInterface|MockObject $validator */
+        $validator  = $this->getMock(ValidatorInterface::class);
         $validators->setService('foo', $validator);
 
         $this->services->setService('FilterManager', $filters);
@@ -148,9 +171,9 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
                 ],
             ],
         ]);
-        $this->services->get('InputFilterManager')->addAbstractFactory('Zend\InputFilter\InputFilterAbstractServiceFactory');
+        $this->services->get('InputFilterManager')->addAbstractFactory(InputFilterAbstractServiceFactory::class);
 
         $inputFilter = $this->services->get('InputFilterManager')->get('foobar');
-        $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $inputFilter);
+        $this->assertInstanceOf(InputFilterInterface::class, $inputFilter);
     }
 }

@@ -10,12 +10,11 @@
 namespace Zend\InputFilter;
 
 use Traversable;
-use Zend\Filter\Exception;
 use Zend\Filter\FilterChain;
-use Zend\Stdlib\ArrayUtils;
-use Zend\Validator\ValidatorInterface;
-use Zend\Validator\ValidatorChain;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\Stdlib\ArrayUtils;
+use Zend\Validator\ValidatorChain;
+use Zend\Validator\ValidatorInterface;
 
 class Factory
 {
@@ -167,7 +166,7 @@ class Factory
             $inputSpecification = ArrayUtils::iteratorToArray($inputSpecification);
         }
 
-        $class = 'Zend\InputFilter\Input';
+        $class = Input::class;
 
         if (isset($inputSpecification['type'])) {
             $class = $inputSpecification['type'];
@@ -193,7 +192,7 @@ class Factory
         if (!$input instanceof InputInterface) {
             throw new Exception\RuntimeException(sprintf(
                 'Input factory expects the "type" to be a class implementing %s; received "%s"',
-                'Zend\InputFilter\InputInterface',
+                InputInterface::class,
                 $class
             ));
         }
@@ -220,12 +219,26 @@ class Factory
                     }
                     break;
                 case 'continue_if_empty':
+                    if (!$input instanceof Input) {
+                        throw new Exception\RuntimeException(sprintf(
+                            '%s "continue_if_empty" can only set to inputs of type "%s"',
+                            __METHOD__,
+                            Input::class
+                        ));
+                    }
                     $input->setContinueIfEmpty($inputSpecification['continue_if_empty']);
                     break;
                 case 'error_message':
                     $input->setErrorMessage($value);
                     break;
                 case 'fallback_value':
+                    if (!$input instanceof Input) {
+                        throw new Exception\RuntimeException(sprintf(
+                            '%s "fallback_value" can only set to inputs of type "%s"',
+                            __METHOD__,
+                            Input::class
+                        ));
+                    }
                     $input->setFallbackValue($value);
                     break;
                 case 'break_on_failure':
@@ -293,7 +306,7 @@ class Factory
             $inputFilterSpecification = ArrayUtils::iteratorToArray($inputFilterSpecification);
         }
 
-        $type = 'Zend\InputFilter\InputFilter';
+        $type = InputFilter::class;
 
         if (isset($inputFilterSpecification['type']) && is_string($inputFilterSpecification['type'])) {
             $type = $inputFilterSpecification['type'];
@@ -373,7 +386,7 @@ class Factory
 
     /**
      * @param  ValidatorChain    $chain
-     * @param  array|Traversable $validators
+     * @param  string[]|ValidatorInterface[] $validators
      * @throws Exception\RuntimeException
      * @return void
      */
