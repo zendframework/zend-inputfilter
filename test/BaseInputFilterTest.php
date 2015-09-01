@@ -435,44 +435,82 @@ class BaseInputFilterTest extends TestCase
         }
     }
 
-    /**
-     * Idea for this one is that one input may only need to be validated if another input is present.
-     *
-     * Commenting out for now, as validation context may make this irrelevant, and unsure what API to expose.
-    public function testCanConditionallyInvokeValidators()
-    {
-        $this->markTestIncomplete();
-    }
-     */
-
-    /**
+    /*
      * Idea for this one is that validation may need to rely on context -- e.g., a "password confirmation"
      * field may need to know what the original password entered was in order to compare.
      */
-    public function testValidationCanUseContext()
+
+    public function contextProvider()
+    {
+        $data = ['fooInput' => 'fooValue'];
+        $arrayAccessData = new ArrayObject(['fooInput' => 'fooValue']);
+        $expectedFromData = ['fooInput' => 'fooValue'];
+
+        return [
+            // Description => [$data, $customContext, $expectedContext]
+            'by default get context from data (array)' => [$data, null, $expectedFromData],
+            'by default get context from data (ArrayAccess)' => [$arrayAccessData, null, $expectedFromData],
+            'use custom context' => [[], 'fooContext', 'fooContext'],
+        ];
+    }
+
+    /**
+     * @dataProvider contextProvider
+     */
+    public function testValidationContext($data, $customContext, $expectedContext)
     {
         $filter = new InputFilter();
 
-        $store = new stdClass;
-        $foo   = new Input();
-        $foo->getValidatorChain()->attach(new Validator\Callback(function ($value, $context) use ($store) {
-            $store->value   = $value;
-            $store->context = $context;
-            return true;
-        }));
+        $input = $this->createInputInterfaceMock(true, true, $expectedContext);
+        $filter->add($input, 'fooInput');
 
-        $bar = new Input();
-        $bar->getValidatorChain()->attach(new Validator\Digits());
-
-        $filter->add($foo, 'foo')
-               ->add($bar, 'bar');
-
-        $data = ['foo' => 'foo', 'bar' => 123];
         $filter->setData($data);
 
-        $this->assertTrue($filter->isValid());
-        $this->assertEquals('foo', $store->value);
-        $this->assertEquals($data, $store->context);
+        $this->assertTrue(
+            $filter->isValid($customContext),
+            'isValid() value not match. Detail: ' . json_encode($filter->getMessages())
+        );
+    }
+
+    public function testBuildValidationContextUsingInputGetRawValue()
+    {
+        $data = [];
+        $expectedContext = ['fooInput' => 'fooRawValue'];
+        $filter = new InputFilter();
+
+        $input = $this->createInputInterfaceMock(true, true, $expectedContext, 'fooRawValue');
+        $filter->add($input, 'fooInput');
+
+        $filter->setData($data);
+
+        $this->assertTrue(
+            $filter->isValid(),
+            'isValid() value not match. Detail: ' . json_encode($filter->getMessages())
+        );
+    }
+
+    public function testContextIsTheSameWhenARequiredInputIsGivenAndOptionalInputIsMissing()
+    {
+        $data = [
+            'inputRequired' => 'inputRequiredValue',
+        ];
+        $expectedContext = [
+            'inputRequired' => 'inputRequiredValue',
+            'inputOptional' => null,
+        ];
+        $inputRequired = $this->createInputInterfaceMock(true, true, $expectedContext);
+        $inputOptional = $this->createInputInterfaceMock(false);
+
+        $filter = new InputFilter();
+        $filter->add($inputRequired, 'inputRequired');
+        $filter->add($inputOptional, 'inputOptional');
+
+        $filter->setData($data);
+
+        $this->assertTrue(
+            $filter->isValid(),
+            'isValid() value not match. Detail: ' . json_encode($filter->getMessages())
+        );
     }
 
     /**
@@ -638,48 +676,6 @@ class BaseInputFilterTest extends TestCase
         $filter->setData($data);
 
         $this->assertFalse($filter->isValid());
-    }
-
-    public static function contextDataProvider()
-    {
-        return [
-            ['', 'y', true],
-            ['', 'n', false],
-        ];
-    }
-
-    /**
-     * Idea here is that an empty field may or may not be valid based on
-     * context.
-     */
-    /**
-     * @dataProvider contextDataProvider()
-     */
-    // @codingStandardsIgnoreStart
-    public function testValidationMarksInputValidWhenAllowEmptyFlagIsTrueAndContinueIfEmptyIsTrueAndContextValidatesEmptyField($allowEmpty, $blankIsValid, $valid)
-    {
-        // @codingStandardsIgnoreEnd
-        $filter = new InputFilter();
-
-        $data = [
-            'allowEmpty' => $allowEmpty,
-            'blankIsValid' => $blankIsValid,
-        ];
-
-        $allowEmpty = new Input();
-        $allowEmpty->setAllowEmpty(true)
-                   ->setContinueIfEmpty(true);
-
-        $blankIsValid = new Input();
-        $blankIsValid->getValidatorChain()->attach(new Validator\Callback(function ($value, $context) {
-            return ('y' === $value && empty($context['allowEmpty']));
-        }));
-
-        $filter->add($allowEmpty, 'allowEmpty')
-               ->add($blankIsValid, 'blankIsValid');
-        $filter->setData($data);
-
-        $this->assertSame($valid, $filter->isValid());
     }
 
     public function testCanRetrieveRawValuesIndividuallyWithoutValidating()
@@ -1050,5 +1046,37 @@ class BaseInputFilterTest extends TestCase
         $data = new ArrayObject(['foo' => ' valid ']);
         $filter->setData($data);
         $this->assertTrue($filter->isValid());
+    }
+
+    /**
+     * @param null|bool $isValid
+     * @param mixed $expectedContext
+     * @param mixed $getRawValue
+     *
+     * @return MockObject|InputInterface
+     */
+    protected function createInputInterfaceMock($isRequired, $isValid = null, $expectedContext = 'not-set', $getRawValue = 'not-set')
+    {
+        /** @var InputInterface|MockObject $input */
+        $input = $this->getMock(InputInterface::class);
+        $input->method('isRequired')
+            ->willReturn($isRequired)
+        ;
+        if ($getRawValue !== 'not-set') {
+            $input->method('getRawValue')
+                ->willReturn($getRawValue)
+            ;
+        }
+        if ($isValid !== null) {
+            $mockMethod = $input->expects($this->once())
+                ->method('isValid')
+                ->willReturn($isValid)
+            ;
+            if ($expectedContext !== 'not-set') {
+                $mockMethod->with($expectedContext);
+            }
+        }
+
+        return $input;
     }
 }
