@@ -328,35 +328,6 @@ class FileInputTest extends InputTest
         $this->markTestSkipped('Input::setFallbackValue is not implemented on FileInput');
     }
 
-    public function testMerge()
-    {
-        $value  = ['tmp_name' => 'bar'];
-
-        $input  = new FileInput('foo');
-        $input->setAutoPrependUploadValidator(false);
-        $input->setValue($value);
-        $filter = new Filter\StringTrim();
-        $input->getFilterChain()->attach($filter);
-        $validator = new Validator\Digits();
-        $input->getValidatorChain()->attach($validator);
-
-        $input2 = new FileInput('bar');
-        $input2->merge($input);
-        $validatorChain = $input->getValidatorChain();
-        $filterChain    = $input->getFilterChain();
-
-        $this->assertFalse($input2->getAutoPrependUploadValidator());
-        $this->assertEquals($value, $input2->getRawValue());
-        $this->assertEquals(1, $validatorChain->count());
-        $this->assertEquals(1, $filterChain->count());
-
-        $validators = $validatorChain->getValidators();
-        $this->assertInstanceOf(Validator\Digits::class, $validators[0]['instance']);
-
-        $filters = $filterChain->getFilters()->toArray();
-        $this->assertInstanceOf(Filter\StringTrim::class, $filters[0]);
-    }
-
     public function testIsEmptyFileNotArray()
     {
         $rawValue = 'file';
@@ -415,6 +386,26 @@ class FileInputTest extends InputTest
         $this->markTestSkipped('does not apply to FileInput');
     }
 
+    /**
+     * Specific FileInput::merge extras
+     */
+    public function testFileInputMerge()
+    {
+        $source = new FileInput();
+        $source->setAutoPrependUploadValidator(true);
+
+        $target = $this->input;
+        $target->setAutoPrependUploadValidator(false);
+
+        $return = $target->merge($source);
+        $this->assertSame($target, $return, 'merge() must return it self');
+
+        $this->assertEquals(
+            true,
+            $target->getAutoPrependUploadValidator(),
+            'getAutoPrependUploadValidator() value not match'
+        );
+    }
 
     public function isRequiredVsAllowEmptyVsContinueIfEmptyVsIsValidProvider()
     {
