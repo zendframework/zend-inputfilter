@@ -18,6 +18,9 @@ use Zend\InputFilter\Input;
 use Zend\Validator;
 use Zend\Validator\ValidatorChain;
 
+/**
+ * @covers Zend\InputFilter\Input
+ */
 class InputTest extends TestCase
 {
     /**
@@ -38,14 +41,14 @@ class InputTest extends TestCase
     public function testInputHasEmptyFilterChainByDefault()
     {
         $filters = $this->input->getFilterChain();
-        $this->assertInstanceOf('Zend\Filter\FilterChain', $filters);
+        $this->assertInstanceOf(Filter\FilterChain::class, $filters);
         $this->assertEquals(0, count($filters));
     }
 
     public function testInputHasEmptyValidatorChainByDefault()
     {
         $validators = $this->input->getValidatorChain();
-        $this->assertInstanceOf('Zend\Validator\ValidatorChain', $validators);
+        $this->assertInstanceOf(Validator\ValidatorChain::class, $validators);
         $this->assertEquals(0, count($validators));
     }
 
@@ -291,7 +294,8 @@ class InputTest extends TestCase
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue('');
 
-        $notEmptyMock = $this->getMock('Zend\Validator\NotEmpty', ['isValid']);
+        /** @var Validator\NotEmpty|MockObject $notEmptyMock */
+        $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
         $notEmptyMock->expects($this->exactly(1))
                      ->method('isValid')
                      ->will($this->returnValue(false));
@@ -407,10 +411,10 @@ class InputTest extends TestCase
         $this->assertEquals(1, $filterChain->count());
 
         $validators = $validatorChain->getValidators();
-        $this->assertInstanceOf('Zend\Validator\Digits', $validators[0]['instance']);
+        $this->assertInstanceOf(Validator\Digits::class, $validators[0]['instance']);
 
         $filters = $filterChain->getFilters()->toArray();
-        $this->assertInstanceOf('Zend\Filter\StringTrim', $filters[0]);
+        $this->assertInstanceOf(Filter\StringTrim::class, $filters[0]);
     }
 
     public function testDoNotInjectNotEmptyValidatorIfAnywhereInChain()
@@ -418,7 +422,8 @@ class InputTest extends TestCase
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue('');
 
-        $notEmptyMock = $this->getMock('Zend\Validator\NotEmpty', ['isValid']);
+        /** @var Validator\NotEmpty|MockObject $notEmptyMock */
+        $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
         $notEmptyMock->expects($this->exactly(1))
                      ->method('isValid')
                      ->will($this->returnValue(false));
@@ -481,7 +486,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun
      */
-    public function testWhenRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun($input, $value)
+    public function testWhenRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input, $value)
     {
         $input->setValue($value);
         $this->assertTrue($input->isValid());
@@ -527,7 +532,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun
      */
-    public function testWhenRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun($input, $value, $assertion)
+    public function testWhenRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input, $value, $assertion)
     {
         $input->setValue($value);
         $this->{$assertion}($input->isValid());
@@ -556,7 +561,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun
      */
-    public function testWhenRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun($input, $value)
+    public function testWhenRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input, $value)
     {
         $input->setValue($value);
         $this->assertFalse($input->isValid());
@@ -602,7 +607,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun
      */
-    public function testWhenRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun($input, $value, $assertion)
+    public function testWhenRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input, $value, $assertion)
     {
         $input->setValue($value);
         $this->{$assertion}($input->isValid());
@@ -631,7 +636,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenNotRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun
      */
-    public function testWhenNotRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun($input, $value)
+    public function testWhenNotRequiredAndAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input, $value)
     {
         $input->setValue($value);
         $this->assertTrue($input->isValid());
@@ -660,7 +665,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenNotRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun
      */
-    public function testWhenNotRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun($input, $value)
+    public function testWhenNotRequiredAndNotAllowEmptyAndNotContinueIfEmptyValidatorsAreNotRun(Input $input, $value)
     {
         $input->setValue($value);
         $this->assertTrue($input->isValid());
@@ -706,7 +711,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenNotRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun
      */
-    public function testWhenNotRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun($input, $value, $assertion)
+    public function testWhenNotRequiredAndAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input, $value, $assertion)
     {
         $input->setValue($value);
         $this->{$assertion}($input->isValid());
@@ -752,7 +757,7 @@ class InputTest extends TestCase
      * @group 7448
      * @dataProvider whenNotRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun
      */
-    public function testWhenNotRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun($input, $value, $assertion)
+    public function testWhenNotRequiredAndNotAllowEmptyAndContinueIfEmptyValidatorsAreRun(Input $input, $value, $assertion)
     {
         $input->setValue($value);
         $this->{$assertion}($input->isValid());

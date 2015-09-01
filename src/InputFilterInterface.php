@@ -145,7 +145,7 @@ interface InputFilterInterface extends Countable
      * Should return an associative array of named input/message list pairs.
      * Pairs should only be returned for inputs that failed validation.
      *
-     * @return array
+     * @return string[]
      */
     public function getMessages();
 }
