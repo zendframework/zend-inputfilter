@@ -311,6 +311,27 @@ class FileInputTest extends InputTest
         $this->markTestSkipped('Test is not enabled in FileInputTest');
     }
 
+    public function testFallbackValueVsIsValidRules(
+        $required = null,
+        $fallbackValue = null,
+        $originalValue = null,
+        $isValid = null,
+        $expectedValue = null
+    ) {
+        $this->markTestSkipped('Input::setFallbackValue is not implemented on FileInput');
+    }
+
+
+    public function testFallbackValueVsIsValidRulesWhenValueNotSet(
+        $required = null,
+        $fallbackValue = null,
+        $originalValue = null,
+        $isValid = null,
+        $expectedValue = null
+    ) {
+        $this->markTestSkipped('Input::setFallbackValue is not implemented on FileInput');
+    }
+
     public function testMerge()
     {
         $value  = ['tmp_name' => 'bar'];
@@ -338,11 +359,6 @@ class FileInputTest extends InputTest
 
         $filters = $filterChain->getFilters()->toArray();
         $this->assertInstanceOf('Zend\Filter\StringTrim', $filters[0]);
-    }
-
-    public function testFallbackValue($fallbackValue = null)
-    {
-        $this->markTestSkipped('Not use fallback value');
     }
 
     public function testIsEmptyFileNotArray()
