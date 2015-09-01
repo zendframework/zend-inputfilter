@@ -13,27 +13,27 @@ use Traversable;
 
 class CollectionInputFilter extends InputFilter
 {
-    /*
+    /**
      * @var bool
      */
     protected $isRequired = false;
 
-    /*
+    /**
      * @var int
      */
     protected $count = null;
 
-    /*
+    /**
      * @var array
      */
     protected $collectionValues = [];
 
-    /*
+    /**
      * @var array
      */
     protected $collectionRawValues = [];
 
-    /*
+    /**
      * @var array
      */
     protected $collectionMessages = [];
