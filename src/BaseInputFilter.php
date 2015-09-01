@@ -254,40 +254,10 @@ class BaseInputFilter implements
                 continue;
             }
 
-            $hasFallback = ($input instanceof Input && $input->hasFallback());
-
             // If input is optional (not required), and value is not set, then ignore.
             if (!array_key_exists($name, $data)
                 && !$input->isRequired()
             ) {
-                continue;
-            }
-
-            // If the value is required, not present in the data set, and
-            // has no fallback, validation fails.
-            if (!array_key_exists($name, $data)
-                && $input->isRequired()
-                && !$hasFallback
-            ) {
-                $input->setErrorMessage('Value is required');
-                $this->invalidInputs[$name] = $input;
-
-                if ($input->breakOnFailure()) {
-                    return false;
-                }
-
-                $valid = false;
-                continue;
-            }
-
-            // If the value is required, not present in the data set, and
-            // has a fallback, validation passes, and we set the input
-            // value to the fallback.
-            if (!array_key_exists($name, $data)
-                && $input->isRequired()
-                && $hasFallback
-            ) {
-                $input->setValue($input->getFallbackValue());
                 continue;
             }
 
@@ -545,7 +515,7 @@ class BaseInputFilter implements
                 $input->clearRawValues();
             }
 
-            if (!isset($this->data[$name])) {
+            if (!array_key_exists($name, $this->data)) {
                 // No value; clear value in this input
                 if ($input instanceof InputFilterInterface) {
                     $input->setData([]);
@@ -554,6 +524,11 @@ class BaseInputFilter implements
 
                 if ($input instanceof ArrayInput) {
                     $input->setValue([]);
+                    continue;
+                }
+
+                if ($input instanceof Input) {
+                    $input->resetValue();
                     continue;
                 }
 
