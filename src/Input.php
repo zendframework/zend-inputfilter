@@ -68,9 +68,7 @@ class Input implements
     protected $value;
 
     /**
-     * Flag for distinguish when $value contains a real `null` or the PHP default property value.
-     *
-     * PHP gives to all properties a default value of `null` unless other default value is set.
+     * Flag for distinguish when $value contains the value previously set or the default one.
      *
      * @var bool
      */
@@ -306,8 +304,7 @@ class Input implements
     /**
      * Flag for inform if input value was set.
      *
-     * This flag used for distinguish when {@link Input::getValue()} will return a real `null` value or the PHP default
-     * value.
+     * This flag used for distinguish when {@link Input::getValue()} will return the value previously set or the default.
      *
      * @see Input::getValue() For retrieve the input value.
      * @see Input::setValue() For set a new value.
