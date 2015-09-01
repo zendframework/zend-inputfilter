@@ -16,10 +16,13 @@ use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
 use Zend\Validator;
 
+/**
+ * @covers Zend\InputFilter\CollectionInputFilter
+ */
 class CollectionInputFilterTest extends TestCase
 {
     /**
-     * @var \Zend\InputFilter\CollectionInputFilter
+     * @var CollectionInputFilter
      */
     protected $filter;
 
@@ -107,12 +110,12 @@ class CollectionInputFilterTest extends TestCase
     public function testSetInputFilter()
     {
         $this->filter->setInputFilter(new BaseInputFilter());
-        $this->assertInstanceOf('Zend\InputFilter\BaseInputFilter', $this->filter->getInputFilter());
+        $this->assertInstanceOf(BaseInputFilter::class, $this->filter->getInputFilter());
     }
 
     public function testGetDefaultInputFilter()
     {
-        $this->assertInstanceOf('Zend\InputFilter\BaseInputFilter', $this->filter->getInputFilter());
+        $this->assertInstanceOf(BaseInputFilter::class, $this->filter->getInputFilter());
     }
 
     public function testSetCount()

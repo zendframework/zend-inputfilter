@@ -9,12 +9,19 @@
 
 namespace ZendTest\InputFilter;
 
-use Zend\InputFilter\FileInput;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Zend\Filter;
+use Zend\InputFilter\FileInput;
 use Zend\Validator;
 
+/**
+ * @covers Zend\InputFilter\FileInput
+ */
 class FileInputTest extends InputTest
 {
+    /** @var FileInput */
+    protected $input;
+
     public function setUp()
     {
         $this->input = new FileInput('foo');
@@ -40,7 +47,8 @@ class FileInputTest extends InputTest
         $this->input->setValue($value);
 
         $newValue = ['tmp_name' => 'foo'];
-        $filterMock = $this->getMockBuilder('Zend\Filter\File\Rename')
+        /** @var Filter\File\Rename|MockObject $filterMock */
+        $filterMock = $this->getMockBuilder(Filter\File\Rename::class)
             ->disableOriginalConstructor()
             ->getMock();
         $filterMock->expects($this->any())
@@ -71,7 +79,8 @@ class FileInputTest extends InputTest
         $this->input->setValue($values);
 
         $newValue = ['tmp_name' => 'new'];
-        $filterMock = $this->getMockBuilder('Zend\Filter\File\Rename')
+        /** @var Filter\File\Rename|MockObject $filterMock */
+        $filterMock = $this->getMockBuilder(Filter\File\Rename::class)
             ->disableOriginalConstructor()
             ->getMock();
         $filterMock->expects($this->any())
@@ -136,7 +145,8 @@ class FileInputTest extends InputTest
         $this->input->setValue($badValue);
 
         $filteredValue = ['tmp_name' => 'new'];
-        $filterMock = $this->getMockBuilder('Zend\Filter\File\Rename')
+        /** @var Filter\File\Rename|MockObject $filterMock */
+        $filterMock = $this->getMockBuilder(Filter\File\Rename::class)
             ->disableOriginalConstructor()
             ->getMock();
         $filterMock->expects($this->any())
@@ -244,7 +254,7 @@ class FileInputTest extends InputTest
         $this->assertFalse($this->input->isValid());
         $validators = $validatorChain->getValidators();
         $this->assertEquals(1, count($validators));
-        $this->assertInstanceOf('Zend\Validator\File\UploadFile', $validators[0]['instance']);
+        $this->assertInstanceOf(Validator\File\UploadFile::class, $validators[0]['instance']);
     }
 
     public function testUploadValidatorIsNotAddedWhenIsValidIsCalled()
@@ -266,7 +276,8 @@ class FileInputTest extends InputTest
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue(['tmp_name' => 'bar']);
 
-        $uploadMock = $this->getMock('Zend\Validator\File\UploadFile', ['isValid']);
+        /** @var Validator\File\UploadFile|MockObject $uploadMock */
+        $uploadMock = $this->getMock(Validator\File\UploadFile::class, ['isValid']);
         $uploadMock->expects($this->exactly(1))
                      ->method('isValid')
                      ->will($this->returnValue(true));
@@ -287,7 +298,8 @@ class FileInputTest extends InputTest
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue('');
 
-        $uploadMock = $this->getMock('Zend\Validator\File\UploadFile', ['isValid']);
+        /** @var Validator\File\UploadFile|MockObject $uploadMock */
+        $uploadMock = $this->getMock(Validator\File\UploadFile::class, ['isValid']);
         $uploadMock->expects($this->exactly(1))
             ->method('isValid')
             ->will($this->returnValue(false));
@@ -355,10 +367,10 @@ class FileInputTest extends InputTest
         $this->assertEquals(1, $filterChain->count());
 
         $validators = $validatorChain->getValidators();
-        $this->assertInstanceOf('Zend\Validator\Digits', $validators[0]['instance']);
+        $this->assertInstanceOf(Validator\Digits::class, $validators[0]['instance']);
 
         $filters = $filterChain->getFilters()->toArray();
-        $this->assertInstanceOf('Zend\Filter\StringTrim', $filters[0]);
+        $this->assertInstanceOf(Filter\StringTrim::class, $filters[0]);
     }
 
     public function testIsEmptyFileNotArray()

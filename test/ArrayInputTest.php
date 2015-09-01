@@ -9,10 +9,15 @@
 
 namespace ZendTest\InputFilter;
 
-use Zend\InputFilter\ArrayInput;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Zend\Filter;
+use Zend\InputFilter\ArrayInput;
+use Zend\InputFilter\Exception\InvalidArgumentException;
 use Zend\Validator;
 
+/**
+ * @covers Zend\InputFilter\ArrayInput
+ */
 class ArrayInputTest extends InputTest
 {
     public function setUp()
@@ -32,7 +37,7 @@ class ArrayInputTest extends InputTest
 
     public function testNotArrayValueCannotBeInjected()
     {
-        $this->setExpectedException('Zend\InputFilter\Exception\InvalidArgumentException');
+        $this->setExpectedException(InvalidArgumentException::class);
         $this->input->setValue('bar');
     }
 
@@ -128,7 +133,8 @@ class ArrayInputTest extends InputTest
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue(['bar', '']);
 
-        $notEmptyMock = $this->getMock('Zend\Validator\NotEmpty', ['isValid']);
+        /** @var Validator\NotEmpty|MockObject $notEmptyMock */
+        $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
         $notEmptyMock->expects($this->exactly(1))
             ->method('isValid')
             ->will($this->returnValue(false));
@@ -161,10 +167,10 @@ class ArrayInputTest extends InputTest
         $this->assertEquals(1, $filterChain->count());
 
         $validators = $validatorChain->getValidators();
-        $this->assertInstanceOf('Zend\Validator\Digits', $validators[0]['instance']);
+        $this->assertInstanceOf(Validator\Digits::class, $validators[0]['instance']);
 
         $filters = $filterChain->getFilters()->toArray();
-        $this->assertInstanceOf('Zend\Filter\StringTrim', $filters[0]);
+        $this->assertInstanceOf(Filter\StringTrim::class, $filters[0]);
     }
 
     public function testDoNotInjectNotEmptyValidatorIfAnywhereInChain()
@@ -172,7 +178,8 @@ class ArrayInputTest extends InputTest
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue(['bar', '']);
 
-        $notEmptyMock = $this->getMock('Zend\Validator\NotEmpty', ['isValid']);
+        /** @var Validator\NotEmpty|MockObject $notEmptyMock */
+        $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
         $notEmptyMock->expects($this->exactly(1))
             ->method('isValid')
             ->will($this->returnValue(false));

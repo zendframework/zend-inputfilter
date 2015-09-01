@@ -11,15 +11,17 @@ namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\InputFilter\InputFilter;
+use Zend\InputFilter\InputFilterAwareTrait;
 
 /**
  * @requires PHP 5.4
+ * @covers Zend\InputFilter\InputFilterAwareTrait
  */
 class InputFilterAwareTraitTest extends TestCase
 {
     public function testSetInputFilter()
     {
-        $object = $this->getObjectForTrait('\Zend\InputFilter\InputFilterAwareTrait');
+        $object = $this->getObjectForTrait(InputFilterAwareTrait::class);
 
         $this->assertAttributeEquals(null, 'inputFilter', $object);
 
@@ -32,7 +34,7 @@ class InputFilterAwareTraitTest extends TestCase
 
     public function testGetInputFilter()
     {
-        $object = $this->getObjectForTrait('\Zend\InputFilter\InputFilterAwareTrait');
+        $object = $this->getObjectForTrait(InputFilterAwareTrait::class);
 
         $this->assertNull($object->getInputFilter());
 

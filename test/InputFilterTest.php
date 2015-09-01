@@ -9,13 +9,17 @@
 
 namespace ZendTest\InputFilter;
 
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
-use Zend\Filter;
 use Zend\InputFilter\CollectionInputFilter;
 use Zend\InputFilter\Factory;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
+use Zend\InputFilter\InputInterface;
 
+/**
+ * @covers Zend\InputFilter\InputFilter
+ */
 class InputFilterTest extends TestCase
 {
     /**
@@ -31,7 +35,7 @@ class InputFilterTest extends TestCase
     public function testLazilyComposesAFactoryByDefault()
     {
         $factory = $this->filter->getFactory();
-        $this->assertInstanceOf('Zend\InputFilter\Factory', $factory);
+        $this->assertInstanceOf(Factory::class, $factory);
     }
 
     public function testCanComposeAFactory()
@@ -48,7 +52,7 @@ class InputFilterTest extends TestCase
         ]);
         $this->assertTrue($this->filter->has('foo'));
         $foo = $this->filter->get('foo');
-        $this->assertInstanceOf('Zend\InputFilter\InputInterface', $foo);
+        $this->assertInstanceOf(InputInterface::class, $foo);
     }
 
     /**
@@ -106,7 +110,8 @@ class InputFilterTest extends TestCase
     {
         $context = new \stdClass();
 
-        $input = $this->getMock('Zend\InputFilter\InputInterface');
+        /** @var InputInterface|MockObject $input */
+        $input = $this->getMock(InputInterface::class);
         $input->expects($this->once())->method('isValid')->with($context)->will($this->returnValue(true));
         $input->expects($this->any())->method('getRawValue')->will($this->returnValue('Mwop'));
 
