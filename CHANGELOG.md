@@ -121,6 +121,32 @@ All notable changes to this project will be documented in this file, in reverse 
   (previously, it would consider the data set valid, and auto-initialize the
   missing input to `null`).
 
+## 2.4.8 - TBD
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- [#26](https://github.com/zendframework/zend-inputfilter/pull/26) Deprecate magic logic for auto attach a NonEmpty
+ validator with breakChainOnFailure = true. Instead append NonEmpty validator when desired.
+
+  ```php
+  $input = new Zend\InputFilter\Input();
+  $input->setContinueIfEmpty(true);
+  $input->setAllowEmpty(true);
+  $input->getValidatorChain()->attach(new Zend\Validator\NotEmpty(), /* break chain on failure */ true);
+  ```
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 2.4.7 - 2015-08-11
 
 ### Added
