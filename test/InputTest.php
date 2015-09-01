@@ -13,7 +13,9 @@ use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
 use Zend\Filter;
+use Zend\Filter\FilterChain;
 use Zend\InputFilter\Input;
+use Zend\InputFilter\InputInterface;
 use Zend\Validator;
 use Zend\Validator\ValidatorChain;
 
@@ -300,31 +302,6 @@ class InputTest extends TestCase
         $this->assertTrue($this->input->isValid());
     }
 
-    public function testMerge()
-    {
-        $input = new Input('foo');
-        $input->setValue(' 123 ');
-        $filter = new Filter\StringTrim();
-        $input->getFilterChain()->attach($filter);
-        $validator = new Validator\Digits();
-        $input->getValidatorChain()->attach($validator);
-
-        $input2 = new Input('bar');
-        $input2->merge($input);
-        $validatorChain = $input->getValidatorChain();
-        $filterChain    = $input->getFilterChain();
-
-        $this->assertEquals(' 123 ', $input2->getRawValue());
-        $this->assertEquals(1, $validatorChain->count());
-        $this->assertEquals(1, $filterChain->count());
-
-        $validators = $validatorChain->getValidators();
-        $this->assertInstanceOf(Validator\Digits::class, $validators[0]['instance']);
-
-        $filters = $filterChain->getFilters()->toArray();
-        $this->assertInstanceOf(Filter\StringTrim::class, $filters[0]);
-    }
-
     public function testDoNotInjectNotEmptyValidatorIfAnywhereInChain()
     {
         $this->assertTrue($this->input->isRequired());
@@ -344,31 +321,6 @@ class InputTest extends TestCase
         $validators = $validatorChain->getValidators();
         $this->assertEquals(2, count($validators));
         $this->assertEquals($notEmptyMock, $validators[1]['instance']);
-    }
-
-    public function testMergeRetainsContinueIfEmptyFlag()
-    {
-        $input = new Input('foo');
-        $input->setContinueIfEmpty(true);
-
-        $input2 = new Input('bar');
-        $input2->merge($input);
-        $this->assertTrue($input2->continueIfEmpty());
-    }
-
-    public function testMergeRetainsAllowEmptyFlag()
-    {
-        $input = new Input('foo');
-        $input->setRequired(true);
-        $input->setAllowEmpty(true);
-
-        $input2 = new Input('bar');
-        $input2->setRequired(true);
-        $input2->setAllowEmpty(false);
-        $input2->merge($input);
-
-        $this->assertTrue($input2->isRequired());
-        $this->assertTrue($input2->allowEmpty());
     }
 
     /**
@@ -427,6 +379,64 @@ class InputTest extends TestCase
         $return = $input->resetValue();
         $this->assertSame($input, $return, 'resetValue() must return itself');
         $this->assertEquals($originalInput, $input, 'Input was not reset to the default value state');
+    }
+
+    public function testMerge($sourceRawValue = 'bazRawValue')
+    {
+        $source = $this->createInputInterfaceMock();
+        $source->method('getName')->willReturn('bazInput');
+        $source->method('getErrorMessage')->willReturn('bazErrorMessage');
+        $source->method('breakOnFailure')->willReturn(true);
+        $source->method('isRequired')->willReturn(true);
+        $source->method('getRawValue')->willReturn($sourceRawValue);
+        $source->method('getFilterChain')->willReturn($this->createFilterChainMock());
+        $source->method('getValidatorChain')->willReturn($this->createValidatorChainMock());
+
+        $targetFilterChain = $this->createFilterChainMock();
+        $targetFilterChain->expects(TestCase::once())
+            ->method('merge')
+            ->with($source->getFilterChain())
+        ;
+
+        $targetValidatorChain = $this->createValidatorChainMock();
+        $targetValidatorChain->expects(TestCase::once())
+            ->method('merge')
+            ->with($source->getValidatorChain())
+        ;
+
+        $target = $this->input;
+        $target->setName('fooInput');
+        $target->setErrorMessage('fooErrorMessage');
+        $target->setBreakOnFailure(false);
+        $target->setRequired(false);
+        $target->setFilterChain($targetFilterChain);
+        $target->setValidatorChain($targetValidatorChain);
+
+        $return = $target->merge($source);
+        $this->assertSame($target, $return, 'merge() must return it self');
+
+        $this->assertEquals('bazInput', $target->getName(), 'getName() value not match');
+        $this->assertEquals('bazErrorMessage', $target->getErrorMessage(), 'getErrorMessage() value not match');
+        $this->assertEquals(true, $target->breakOnFailure(), 'breakOnFailure() value not match');
+        $this->assertEquals(true, $target->isRequired(), 'isRequired() value not match');
+        $this->assertEquals($sourceRawValue, $target->getRawValue(), 'getRawValue() value not match');
+    }
+
+    /**
+     * Specific Input::merge extras
+     */
+    public function testInputMerge()
+    {
+        $source = new Input();
+        $source->setContinueIfEmpty(true);
+
+        $target = $this->input;
+        $target->setContinueIfEmpty(false);
+
+        $return = $target->merge($source);
+        $this->assertSame($target, $return, 'merge() must return it self');
+
+        $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
     }
 
     public function fallbackValueVsIsValidProvider()
@@ -556,6 +566,28 @@ class InputTest extends TestCase
             'callable' => [function () {}],
             // @codingStandardsIgnoreEnd
         ];
+    }
+
+    /**
+     * @return InputInterface|MockObject|
+     */
+    protected function createInputInterfaceMock()
+    {
+        /** @var InputInterface|MockObject $source */
+        $source = $this->getMock(InputInterface::class);
+
+        return $source;
+    }
+
+    /**
+     * @return FilterChain|MockObject
+     */
+    protected function createFilterChainMock()
+    {
+        /** @var FilterChain|MockObject $filterChain */
+        $filterChain = $this->getMock(FilterChain::class);
+
+        return $filterChain;
     }
 
     /**

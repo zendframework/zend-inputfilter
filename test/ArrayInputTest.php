@@ -13,6 +13,7 @@ use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Zend\Filter;
 use Zend\InputFilter\ArrayInput;
 use Zend\InputFilter\Exception\InvalidArgumentException;
+use Zend\InputFilter\Input;
 use Zend\Validator;
 
 /**
@@ -122,31 +123,6 @@ class ArrayInputTest extends InputTest
         $this->assertEquals($notEmptyMock, $validators[0]['instance']);
     }
 
-    public function testMerge()
-    {
-        $input = new ArrayInput('foo');
-        $input->setValue([' 123 ']);
-        $filter = new Filter\StringTrim();
-        $input->getFilterChain()->attach($filter);
-        $validator = new Validator\Digits();
-        $input->getValidatorChain()->attach($validator);
-
-        $input2 = new ArrayInput('bar');
-        $input2->merge($input);
-        $validatorChain = $input->getValidatorChain();
-        $filterChain    = $input->getFilterChain();
-
-        $this->assertEquals([' 123 '], $input2->getRawValue());
-        $this->assertEquals(1, $validatorChain->count());
-        $this->assertEquals(1, $filterChain->count());
-
-        $validators = $validatorChain->getValidators();
-        $this->assertInstanceOf(Validator\Digits::class, $validators[0]['instance']);
-
-        $filters = $filterChain->getFilters()->toArray();
-        $this->assertInstanceOf(Filter\StringTrim::class, $filters[0]);
-    }
-
     public function testDoNotInjectNotEmptyValidatorIfAnywhereInChain()
     {
         $this->assertTrue($this->input->isRequired());
@@ -184,6 +160,26 @@ class ArrayInputTest extends InputTest
                         return 'nonempty';
                     }));
         $this->assertTrue($this->input->isValid());
+    }
+
+    public function testMerge($sourceRawValue = 'bazRawValue')
+    {
+        parent::testMerge([$sourceRawValue]);
+    }
+
+    public function testInputMerge()
+    {
+        $source = new Input();
+        $source->setValue([]);
+        $source->setContinueIfEmpty(true);
+
+        $target = $this->input;
+        $target->setContinueIfEmpty(false);
+
+        $return = $target->merge($source);
+        $this->assertSame($target, $return, 'merge() must return it self');
+
+        $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
     }
 
     public function fallbackValueVsIsValidProvider()
