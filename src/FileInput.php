@@ -187,6 +187,8 @@ class FileInput extends Input
     }
 
     /**
+     * @deprecated 2.4.8 See note on parent class. Removal does not affect this class.
+     *
      * No-op, NotEmpty validator does not apply for FileInputs.
      * See also: BaseInputFilter::isValid()
      *
