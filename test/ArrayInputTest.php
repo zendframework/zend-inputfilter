@@ -232,4 +232,24 @@ class ArrayInputTest extends InputTest
 
         return $dataSets;
     }
+
+    public function emptyValueProvider()
+    {
+        $dataSets = parent::emptyValueProvider();
+        array_walk($dataSets, function (&$set) {
+            $set[0] = [$set[0]]; // Wrap value into an array.
+        });
+
+        return $dataSets;
+    }
+
+    public function mixedValueProvider()
+    {
+        $dataSets = parent::mixedValueProvider();
+        array_walk($dataSets, function (&$set) {
+            $set[0] = [$set[0]]; // Wrap value into an array.
+        });
+
+        return $dataSets;
+    }
 }

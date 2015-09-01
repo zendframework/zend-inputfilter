@@ -764,7 +764,7 @@ class InputTest extends TestCase
     }
 
     /**
-     * @dataProvider emptyValuesProvider
+     * @dataProvider setValueProvider
      */
     public function testSetValuePutInputInTheDesiredState($value)
     {
@@ -776,7 +776,7 @@ class InputTest extends TestCase
     }
 
     /**
-     * @dataProvider emptyValuesProvider
+     * @dataProvider setValueProvider
      */
     public function testResetValueReturnsInputValueToDefaultValue($value)
     {
