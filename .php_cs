@@ -30,6 +30,7 @@ $config->fixers(
         'multiple_use',
         'method_argument_space',
         'object_operator',
+        'ordered_use',
         'php_closing_tag',
         'remove_lines_between_uses',
         'short_array_syntax',

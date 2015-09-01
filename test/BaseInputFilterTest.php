@@ -13,13 +13,19 @@ use ArrayObject;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
-use Zend\InputFilter\Input;
-use Zend\InputFilter\InputInterface;
-use Zend\InputFilter\FileInput;
-use Zend\InputFilter\BaseInputFilter as InputFilter;
 use Zend\Filter;
+use Zend\InputFilter\ArrayInput;
+use Zend\InputFilter\BaseInputFilter as InputFilter;
+use Zend\InputFilter\Exception\InvalidArgumentException;
+use Zend\InputFilter\FileInput;
+use Zend\InputFilter\Input;
+use Zend\InputFilter\InputFilterInterface;
+use Zend\InputFilter\InputInterface;
 use Zend\Validator;
 
+/**
+ * @covers Zend\InputFilter\BaseInputFilter
+ */
 class BaseInputFilterTest extends TestCase
 {
     public function testInputFilterIsEmptyByDefault()
@@ -255,7 +261,7 @@ class BaseInputFilterTest extends TestCase
         // we expect setValidationGroup to throw an exception when flat is treated
         // like an inputfilter which it actually isn't
         $this->setExpectedException(
-            'Zend\InputFilter\Exception\InvalidArgumentException',
+            InvalidArgumentException::class,
             'Input "flat" must implement InputFilterInterface'
         );
         $filter->setValidationGroup(['flat' => 'foo']);
@@ -281,12 +287,12 @@ class BaseInputFilterTest extends TestCase
         $invalidInputs = $filter->getInvalidInput();
         $this->assertArrayNotHasKey('foo', $invalidInputs);
         $this->assertArrayHasKey('bar', $invalidInputs);
-        $this->assertInstanceOf('Zend\InputFilter\Input', $invalidInputs['bar']);
+        $this->assertInstanceOf(Input::class, $invalidInputs['bar']);
         $this->assertArrayHasKey('nest', $invalidInputs/*, var_export($invalidInputs, 1)*/);
-        $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $invalidInputs['nest']);
+        $this->assertInstanceOf(InputFilterInterface::class, $invalidInputs['nest']);
         $nestInvalids = $invalidInputs['nest']->getInvalidInput();
         $this->assertArrayHasKey('foo', $nestInvalids);
-        $this->assertInstanceOf('Zend\InputFilter\Input', $nestInvalids['foo']);
+        $this->assertInstanceOf(Input::class, $nestInvalids['foo']);
         $this->assertArrayNotHasKey('bar', $nestInvalids);
     }
 
@@ -309,15 +315,15 @@ class BaseInputFilterTest extends TestCase
         $this->assertFalse($filter->isValid());
         $validInputs = $filter->getValidInput();
         $this->assertArrayHasKey('foo', $validInputs);
-        $this->assertInstanceOf('Zend\InputFilter\Input', $validInputs['foo']);
+        $this->assertInstanceOf(Input::class, $validInputs['foo']);
         $this->assertArrayNotHasKey('bar', $validInputs);
         $this->assertArrayHasKey('nest', $validInputs);
-        $this->assertInstanceOf('Zend\InputFilter\InputFilterInterface', $validInputs['nest']);
+        $this->assertInstanceOf(InputFilterInterface::class, $validInputs['nest']);
         $nestValids = $validInputs['nest']->getValidInput();
         $this->assertArrayHasKey('foo', $nestValids);
-        $this->assertInstanceOf('Zend\InputFilter\Input', $nestValids['foo']);
+        $this->assertInstanceOf(Input::class, $nestValids['foo']);
         $this->assertArrayHasKey('bar', $nestValids);
-        $this->assertInstanceOf('Zend\InputFilter\Input', $nestValids['bar']);
+        $this->assertInstanceOf(Input::class, $nestValids['bar']);
     }
 
     public function testValuesRetrievedAreFiltered()
@@ -801,11 +807,11 @@ class BaseInputFilterTest extends TestCase
         $input->setRequired(true);
 
         $input->getValidatorChain()->attach(
-            new \Zend\Validator\Explode(
+            new Validator\Explode(
                 [
-                    'validator' => new \Zend\Validator\IsInstanceOf(
+                    'validator' => new Validator\IsInstanceOf(
                         [
-                            'className' => 'Zend\InputFilter\Input'
+                            'className' => Input::class
                         ]
                     )
                 ]
@@ -898,7 +904,8 @@ class BaseInputFilterTest extends TestCase
      */
     public function testPopulateSupportsArrayInputEvenIfDataMissing()
     {
-        $arrayInput = $this->getMock('Zend\InputFilter\ArrayInput');
+        /** @var ArrayInput|MockObject $arrayInput */
+        $arrayInput = $this->getMock(ArrayInput::class);
         $arrayInput
             ->expects($this->once())
             ->method('setValue')
@@ -948,7 +955,7 @@ class BaseInputFilterTest extends TestCase
             return false;
         }));
 
-        $filter = new \Zend\InputFilter\InputFilter;
+        $filter = new InputFilter();
         $filter->add($input)
                ->setData(['foo' => 'nonempty']);
 
@@ -970,7 +977,7 @@ class BaseInputFilterTest extends TestCase
             return false;
         }));
 
-        $filter = new \Zend\InputFilter\InputFilter;
+        $filter = new InputFilter();
         $filter->add($input)
                ->setData(['foo' => 'nonempty']);
 

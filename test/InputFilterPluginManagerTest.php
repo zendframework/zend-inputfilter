@@ -9,12 +9,16 @@
 
 namespace ZendTest\InputFilter;
 
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use Zend\InputFilter\Exception\RuntimeException;
+use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputFilterPluginManager;
+use Zend\InputFilter\InputInterface;
 
 /**
- * @group Zend_Stdlib
+ * @covers Zend\InputFilter\InputFilterPluginManager
  */
-class InputFilterManagerTest extends \PHPUnit_Framework_TestCase
+class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var InputFilterPluginManager
@@ -28,14 +32,14 @@ class InputFilterManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testRegisteringInvalidElementRaisesException()
     {
-        $this->setExpectedException('Zend\InputFilter\Exception\RuntimeException');
+        $this->setExpectedException(RuntimeException::class);
         $this->manager->setService('test', $this);
     }
 
     public function testLoadingInvalidElementRaisesException()
     {
         $this->manager->setInvokableClass('test', get_class($this));
-        $this->setExpectedException('Zend\InputFilter\Exception\RuntimeException');
+        $this->setExpectedException(RuntimeException::class);
         $this->manager->get('test');
     }
 
@@ -44,7 +48,8 @@ class InputFilterManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testAllowLoadingInstancesOfInputFilterInterface()
     {
-        $inputFilter = $this->getMock('Zend\InputFilter\InputFilterInterface');
+        /** @var InputFilterInterface|MockObject $inputFilter */
+        $inputFilter = $this->getMock(InputFilterInterface::class);
 
         $this->assertNull($this->manager->validatePlugin($inputFilter));
     }
@@ -54,7 +59,8 @@ class InputFilterManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testAllowLoadingInstancesOfInputInterface()
     {
-        $input = $this->getMock('Zend\InputFilter\InputInterface');
+        /** @var InputInterface|MockObject $input */
+        $input = $this->getMock(InputInterface::class);
 
         $this->assertNull($this->manager->validatePlugin($input));
     }
