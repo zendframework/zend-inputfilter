@@ -231,6 +231,8 @@ class BaseInputFilter implements
      */
     protected function validateInputs(array $inputs, $data = [], $context = null)
     {
+        $inputContext = $context ?: (array_merge($this->getRawValues(), (array) $data));
+
         $this->validInputs   = [];
         $this->invalidInputs = [];
         $valid               = true;
@@ -261,14 +263,7 @@ class BaseInputFilter implements
                 continue;
             }
 
-            // Make sure we have a value (empty) for validation of context
-            if (!array_key_exists($name, $data)) {
-                $data[$name] = null;
-            }
-
             // Validate an input
-            $inputContext = $context ?: $data;
-
             if (!$input->isValid($inputContext)) {
                 // Validation failure
                 $this->invalidInputs[$name] = $input;
