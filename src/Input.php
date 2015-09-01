@@ -361,7 +361,9 @@ class Input implements
     public function merge(InputInterface $input)
     {
         $this->setBreakOnFailure($input->breakOnFailure());
-        $this->setContinueIfEmpty($input->continueIfEmpty());
+        if ($input instanceof Input) {
+            $this->setContinueIfEmpty($input->continueIfEmpty());
+        }
         $this->setErrorMessage($input->getErrorMessage());
         $this->setName($input->getName());
         $this->setRequired($input->isRequired());
