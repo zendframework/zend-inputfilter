@@ -63,22 +63,6 @@ class ArrayInputTest extends InputTest
         $this->assertEquals(['bar'], $this->input->getRawValue());
     }
 
-    public function testIsValidReturnsFalseIfValidationChainFails()
-    {
-        $this->input->setValue(['123', 'bar']);
-        $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertFalse($this->input->isValid());
-    }
-
-    public function testIsValidReturnsTrueIfValidationChainSucceeds()
-    {
-        $this->input->setValue(['123', '123']);
-        $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertTrue($this->input->isValid());
-    }
-
     public function testValidationOperatesOnFilteredValue()
     {
         $this->input->setValue([' 123 ', '  123']);
@@ -87,16 +71,6 @@ class ArrayInputTest extends InputTest
         $validator = new Validator\Digits();
         $this->input->getValidatorChain()->attach($validator);
         $this->assertTrue($this->input->isValid());
-    }
-
-    public function testGetMessagesReturnsValidationMessages()
-    {
-        $this->input->setValue(['bar']);
-        $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertFalse($this->input->isValid());
-        $messages = $this->input->getMessages();
-        $this->assertArrayHasKey(Validator\Digits::NOT_DIGITS, $messages);
     }
 
     public function testSpecifyingMessagesToInputReturnsThoseOnFailedValidation()
@@ -194,15 +168,6 @@ class ArrayInputTest extends InputTest
         $this->assertEquals($notEmptyMock, $validators[1]['instance']);
     }
 
-    public function emptyValuesProvider()
-    {
-        return [
-            [[null]],
-            [['']],
-            [[[]]],
-        ];
-    }
-
     public function testNotAllowEmptyWithFilterConvertsNonemptyToEmptyIsNotValid()
     {
         $this->input->setValue(['nonempty'])
@@ -228,6 +193,26 @@ class ArrayInputTest extends InputTest
             $set[1] = [$set[1]]; // Wrap fallback value into an array.
             $set[2] = [$set[2]]; // Wrap value into an array.
             $set[4] = [$set[4]]; // Wrap expected value into an array.
+        });
+
+        return $dataSets;
+    }
+
+    public function emptyValueProvider()
+    {
+        $dataSets = parent::emptyValueProvider();
+        array_walk($dataSets, function (&$set) {
+            $set['raw'] = [$set['raw']]; // Wrap value into an array.
+        });
+
+        return $dataSets;
+    }
+
+    public function mixedValueProvider()
+    {
+        $dataSets = parent::mixedValueProvider();
+        array_walk($dataSets, function (&$set) {
+            $set[0] = [$set[0]]; // Wrap value into an array.
         });
 
         return $dataSets;
