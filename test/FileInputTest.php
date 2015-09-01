@@ -113,22 +113,6 @@ class FileInputTest extends InputTest
         $this->assertEquals($value, $this->input->getRawValue());
     }
 
-    public function testIsValidReturnsFalseIfValidationChainFails()
-    {
-        $this->input->setValue(['tmp_name' => 'bar']);
-        $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertFalse($this->input->isValid());
-    }
-
-    public function testIsValidReturnsTrueIfValidationChainSucceeds()
-    {
-        $this->input->setValue(['tmp_name' => 'bar']);
-        $validator = new Validator\NotEmpty();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->assertTrue($this->input->isValid());
-    }
-
     public function testValidationOperatesOnFilteredValue()
     {
         $this->markTestSkipped('Test is not enabled in FileInputTest');
@@ -421,51 +405,6 @@ class FileInputTest extends InputTest
         $this->assertFalse($this->input->isEmptyFile($rawValue));
     }
 
-    public function emptyValuesProvider()
-    {
-        // Provide empty values specific for file input
-        return [
-            ['file'],
-            [[
-                'tmp_name' => '',
-                'error' => \UPLOAD_ERR_NO_FILE,
-            ]],
-            [[[
-                'tmp_name' => 'foo',
-                'error'    => \UPLOAD_ERR_NO_FILE
-            ]]],
-        ];
-    }
-
-    /**
-     * @dataProvider emptyValuesProvider
-     */
-    public function testAllowEmptyOptionSet($emptyValue)
-    {
-        // UploadFile validator is disabled, pretend one
-        $validator = new Validator\Callback(function () {
-            return false; // This should never be called
-        });
-        $this->input->getValidatorChain()->attach($validator);
-        parent::testAllowEmptyOptionSet($emptyValue);
-    }
-
-    /**
-     * @dataProvider emptyValuesProvider
-     */
-    public function testAllowEmptyOptionNotSet($emptyValue)
-    {
-        // UploadFile validator is disabled, pretend one
-        $message = 'pretend failing UploadFile validator';
-        $validator = new Validator\Callback(function () {
-            return false;
-        });
-        $validator->setMessage($message);
-        $this->input->getValidatorChain()->attach($validator);
-        parent::testAllowEmptyOptionNotSet($emptyValue);
-        $this->assertEquals(['callbackValue' => $message], $this->input->getMessages());
-    }
-
     public function testNotAllowEmptyWithFilterConvertsNonemptyToEmptyIsNotValid()
     {
         $this->markTestSkipped('does not apply to FileInput');
@@ -474,5 +413,56 @@ class FileInputTest extends InputTest
     public function testNotAllowEmptyWithFilterConvertsEmptyToNonEmptyIsValid()
     {
         $this->markTestSkipped('does not apply to FileInput');
+    }
+
+
+    public function isRequiredVsAllowEmptyVsContinueIfEmptyVsIsValidProvider()
+    {
+        $dataSets = parent::isRequiredVsAllowEmptyVsContinueIfEmptyVsIsValidProvider();
+
+        // FileInput do not use NotEmpty validator so the only validator present in the chain is the custom one.
+        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X / tmp_name']);
+        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X / single']);
+        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X / multi']);
+
+        return $dataSets;
+    }
+
+    public function emptyValueProvider()
+    {
+        return [
+            'tmp_name' => [
+                'raw' => 'file',
+                'filtered' => [
+                    'tmp_name' => 'file',
+                    'name' => 'file',
+                    'size' => 0,
+                    'type' => '',
+                    'error' => UPLOAD_ERR_NO_FILE,
+                ],
+            ],
+            'single' => [
+                'raw' => [
+                    'tmp_name' => '',
+                    'error' => UPLOAD_ERR_NO_FILE,
+                ],
+                'filtered' => [
+                    'tmp_name' => '',
+                    'error' => UPLOAD_ERR_NO_FILE,
+                ],
+            ],
+            'multi' => [
+                'raw' => [
+                    [
+                        'tmp_name' => 'foo',
+                        'error' => UPLOAD_ERR_NO_FILE,
+                    ],
+                ],
+                'filtered' => [
+                    'tmp_name' => 'foo',
+                    'error' => UPLOAD_ERR_NO_FILE,
+                ],
+            ],
+        ];
     }
 }
