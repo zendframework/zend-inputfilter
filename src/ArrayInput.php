@@ -32,6 +32,16 @@ class ArrayInput extends Input
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function resetValue()
+    {
+        $this->value = [];
+        $this->hasValue = false;
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function getValue()

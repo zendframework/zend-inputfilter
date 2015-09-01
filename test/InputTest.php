@@ -854,4 +854,33 @@ class InputTest extends TestCase
         $input->setValue($value);
         $this->{$assertion}($input->isValid());
     }
+
+    /**
+     * @dataProvider emptyValuesProvider
+     */
+    public function testSetValuePutInputInTheDesiredState($value)
+    {
+        $input = $this->input;
+        $this->assertFalse($input->hasValue(), 'Input should not have value by default');
+
+        $input->setValue($value);
+        $this->assertTrue($input->hasValue(), "hasValue() didn't return true when value was set");
+    }
+
+    /**
+     * @dataProvider emptyValuesProvider
+     */
+    public function testResetValueReturnsInputValueToDefaultValue($value)
+    {
+        $input = $this->input;
+        $originalInput = clone $input;
+        $this->assertFalse($input->hasValue(), 'Input should not have value by default');
+
+        $input->setValue($value);
+        $this->assertTrue($input->hasValue(), "hasValue() didn't return true when value was set");
+
+        $return = $input->resetValue();
+        $this->assertSame($input, $return, 'resetValue() must return itself');
+        $this->assertEquals($originalInput, $input, 'Input was not reset to the default value state');
+    }
 }
