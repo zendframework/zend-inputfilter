@@ -312,6 +312,7 @@ class FileInputTest extends InputTest
     }
 
     public function testFallbackValueVsIsValidRules(
+        $required = null,
         $fallbackValue = null,
         $originalValue = null,
         $isValid = null,
@@ -322,6 +323,7 @@ class FileInputTest extends InputTest
 
 
     public function testFallbackValueVsIsValidRulesWhenValueNotSet(
+        $required = null,
         $fallbackValue = null,
         $originalValue = null,
         $isValid = null,

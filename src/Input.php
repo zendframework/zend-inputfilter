@@ -377,14 +377,14 @@ class Input implements
         $allowEmpty      = $this->allowEmpty();
         $continueIfEmpty = $this->continueIfEmpty();
 
-        if (! $hasValue && $required && ! $this->hasFallback()) {
-            $this->setErrorMessage('Value is required');
-            return false;
-        }
-
-        if (! $hasValue && $required && $this->hasFallback()) {
+        if (! $hasValue && $this->hasFallback()) {
             $this->setValue($this->getFallbackValue());
             return true;
+        }
+
+        if (! $hasValue && $required) {
+            $this->setErrorMessage('Value is required');
+            return false;
         }
 
         if ($empty && ! $required && ! $continueIfEmpty) {

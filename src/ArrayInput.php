@@ -64,14 +64,14 @@ class ArrayInput extends Input
         $required = $this->isRequired();
         $hasFallback = $this->hasFallback();
 
-        if (! $hasValue && $required && !$hasFallback) {
-            $this->setErrorMessage('Value is required');
-            return false;
-        }
-
-        if (! $hasValue && $required && $hasFallback) {
+        if (! $hasValue && $hasFallback) {
             $this->setValue($this->getFallbackValue());
             return true;
+        }
+
+        if (! $hasValue && $required) {
+            $this->setErrorMessage('Value is required');
+            return false;
         }
 
         if (!$this->continueIfEmpty() && !$this->allowEmpty()) {
@@ -90,7 +90,7 @@ class ArrayInput extends Input
             if (!$result) {
                 if ($hasFallback) {
                     $this->setValue($this->getFallbackValue());
-                    $result = true;
+                    return true;
                 }
                 break;
             }

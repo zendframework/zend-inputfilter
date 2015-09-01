@@ -115,11 +115,12 @@ class InputTest extends TestCase
     /**
      * @dataProvider fallbackValueVsIsValidProvider
      */
-    public function testFallbackValueVsIsValidRules($fallbackValue, $originalValue, $isValid, $expectedValue)
+    public function testFallbackValueVsIsValidRules($required, $fallbackValue, $originalValue, $isValid, $expectedValue)
     {
         $input = $this->input;
         $input->setContinueIfEmpty(true);
 
+        $input->setRequired($required);
         $input->setValidatorChain($this->createValidatorChainMock($isValid));
         $input->setFallbackValue($fallbackValue);
         $input->setValue($originalValue);
@@ -137,13 +138,14 @@ class InputTest extends TestCase
     /**
      * @dataProvider fallbackValueVsIsValidProvider
      */
-    public function testFallbackValueVsIsValidRulesWhenValueNotSet($fallbackValue, $originalValue, $isValid)
+    public function testFallbackValueVsIsValidRulesWhenValueNotSet($required, $fallbackValue, $originalValue, $isValid)
     {
         $expectedValue = $fallbackValue; // Should always return the fallback value
 
         $input = $this->input;
         $input->setContinueIfEmpty(true);
 
+        $input->setRequired($required);
         $input->setValidatorChain($this->createValidatorChainMock($isValid));
         $input->setFallbackValue($fallbackValue);
 
@@ -931,6 +933,7 @@ class InputTest extends TestCase
 
     public function fallbackValueVsIsValidProvider()
     {
+        $required = true;
         $isValid = true;
 
         $originalValue = 'fooValue';
@@ -939,8 +942,10 @@ class InputTest extends TestCase
         // @codingStandardsIgnoreStart
         return [
             // Description => [$inputIsRequired, $fallbackValue, $originalValue, $isValid, $expectedValue]
-            'Input: Invalid. getValue: fallback' => [$fallbackValue, $originalValue, !$isValid, $fallbackValue],
-            'Input: Valid. getValue: original' =>   [$fallbackValue, $originalValue,  $isValid, $originalValue],
+            'Required: T, Input: Invalid. getValue: fallback' => [ $required, $fallbackValue, $originalValue, !$isValid, $fallbackValue],
+            'Required: T, Input: Valid. getValue: original' =>   [ $required, $fallbackValue, $originalValue,  $isValid, $originalValue],
+            'Required: F, Input: Invalid. getValue: fallback' => [!$required, $fallbackValue, $originalValue, !$isValid, $fallbackValue],
+            'Required: F, Input: Valid. getValue: original' =>   [!$required, $fallbackValue, $originalValue,  $isValid, $originalValue],
         ];
         // @codingStandardsIgnoreEnd
     }
