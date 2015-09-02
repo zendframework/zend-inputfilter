@@ -132,7 +132,7 @@ class FileInput extends Input
             return true;
         }
 
-        if ($empty && $required && $allowEmpty && ! $continueIfEmpty) {
+        if ($empty && $allowEmpty && ! $continueIfEmpty) {
             return true;
         }
 
