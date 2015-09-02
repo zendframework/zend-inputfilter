@@ -456,4 +456,25 @@ class FileInputTest extends InputTest
             ],
         ];
     }
+
+    public function mixedValueProvider()
+    {
+        $fooUploadErrOk = [
+            'tmp_name' => 'foo',
+            'error' => UPLOAD_ERR_OK,
+        ];
+
+        return [
+            'single' => [
+                'raw' => $fooUploadErrOk,
+                'filtered' => $fooUploadErrOk,
+            ],
+            'multi' => [
+                'raw' => [
+                    $fooUploadErrOk,
+                ],
+                'filtered' => $fooUploadErrOk,
+            ],
+        ];
+    }
 }

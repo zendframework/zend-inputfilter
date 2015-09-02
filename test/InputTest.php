@@ -350,6 +350,8 @@ class InputTest extends TestCase
             'isValid() value not match. Detail: ' . json_encode($this->input->getMessages())
         );
         $this->assertEquals($expectedMessages, $this->input->getMessages(), 'getMessages() value not match');
+        $this->assertEquals($value, $this->input->getRawValue(), 'getRawValue() must return the value always');
+        $this->assertEquals($value, $this->input->getValue(), 'getValue() must return the filtered value always');
     }
 
     /**
@@ -551,19 +553,55 @@ class InputTest extends TestCase
     {
         return [
             // Description => [$value]
-            '"0"' => ['0'],
-            '0' => [0],
-            '0.0' => [0.0],
-            'false' => [false],
-            'php' => ['php'],
-            'whitespace' => [' '],
-            '1' => [1],
-            '1.0' => [1.0],
-            'true' => [true],
-            '["php"]' => [['php']],
-            'object' => [new stdClass()],
+            '"0"' => [
+                'raw' => '0',
+                'filtered' => '0',
+            ],
+            '0' => [
+                'raw' => 0,
+                'filtered' => 0,
+            ],
+            '0.0' => [
+                'raw' => 0.0,
+                'filtered' => 0.0,
+            ],
+            'false' => [
+                'raw' => false,
+                'filtered' => false,
+            ],
+            'php' => [
+                'raw' => 'php',
+                'filtered' => 'php',
+            ],
+            'whitespace' => [
+                'raw' => ' ',
+                'filtered' => ' ',
+            ],
+            '1' => [
+                'raw' => 1,
+                'filtered' => 1,
+            ],
+            '1.0' => [
+                'raw' => 1.0,
+                'filtered' => 1.0,
+            ],
+            'true' => [
+                'raw' => true,
+                'filtered' => true,
+            ],
+            '["php"]' => [
+                'raw' => ['php'],
+                'filtered' => ['php'],
+            ],
+            'object' => [
+                'raw' => new stdClass(),
+                'filtered' => new stdClass(),
+            ],
             // @codingStandardsIgnoreStart
-            'callable' => [function () {}],
+            'callable' => [
+                'raw' => function () {},
+                'filtered' => function () {},
+            ],
             // @codingStandardsIgnoreEnd
         ];
     }
