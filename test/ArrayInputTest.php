@@ -36,9 +36,12 @@ class ArrayInputTest extends InputTest
         $this->assertCount(0, $this->input->getValue());
     }
 
-    public function testNotArrayValueCannotBeInjected()
+    public function testSetValueWithInvalidInputTypeThrowsInvalidArgumentException()
     {
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'Value must be an array, string given'
+        );
         $this->input->setValue('bar');
     }
 
