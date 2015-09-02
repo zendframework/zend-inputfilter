@@ -119,6 +119,10 @@ class FileInput extends Input
         $allowEmpty      = $this->allowEmpty();
         $continueIfEmpty = $this->continueIfEmpty();
 
+        if (! $hasValue && ! $required) {
+            return true;
+        }
+
         if (! $hasValue && $required && ! $this->hasFallback()) {
             $this->setErrorMessage('Value is required');
             return false;

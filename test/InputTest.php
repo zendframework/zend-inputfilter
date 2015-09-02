@@ -175,6 +175,25 @@ class InputTest extends TestCase
         $this->assertEquals(['Value is required'], $input->getMessages(), 'getMessages() value not match');
     }
 
+    public function testNotRequiredWithoutFallbackAndValueNotSetThenIsValid()
+    {
+        $input = $this->input;
+        $input->setRequired(false);
+        $input->setAllowEmpty(false);
+        $input->setContinueIfEmpty(true);
+
+        // Validator should not to be called
+        $input->getValidatorChain()
+            ->attach($this->createValidatorMock(null, null))
+        ;
+        $this->assertTrue(
+            $input->isValid(),
+            'isValid() should be return always true when is not required, and no data is set. Detail: ' .
+            json_encode($input->getMessages())
+        );
+        $this->assertEquals([], $input->getMessages(), 'getMessages() should be empty because the input is valid');
+    }
+
     public function testNotEmptyValidatorNotInjectedIfContinueIfEmptyIsTrue()
     {
         $input = new Input('foo');

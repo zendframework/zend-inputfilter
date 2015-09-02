@@ -396,6 +396,10 @@ class Input implements
             return true;
         }
 
+        if (! $hasValue && ! $required) {
+            return true;
+        }
+
         if (! $hasValue && $required) {
             $this->setErrorMessage('Value is required');
             return false;
