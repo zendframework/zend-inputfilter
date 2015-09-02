@@ -472,13 +472,21 @@ class Input implements
         }
 
         $this->notEmptyValidator = true;
+        $options = [
+            'type' => [
+                NotEmpty::NULL |
+                NotEmpty::STRING |
+                NotEmpty::EMPTY_ARRAY |
+                NotEmpty::OBJECT
+            ],
+        ];
 
         if (class_exists(AbstractPluginManager::class)) {
-            $chain->prependByName('NotEmpty', [], true);
+            $chain->prependByName('NotEmpty', $options, true);
 
             return;
         }
 
-        $chain->prependValidator(new NotEmpty(), true);
+        $chain->prependValidator(new NotEmpty($options), true);
     }
 }
