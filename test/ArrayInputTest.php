@@ -36,9 +36,12 @@ class ArrayInputTest extends InputTest
         $this->assertCount(0, $this->input->getValue());
     }
 
-    public function testNotArrayValueCannotBeInjected()
+    public function testSetValueWithInvalidInputTypeThrowsInvalidArgumentException()
     {
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'Value must be an array, string given'
+        );
         $this->input->setValue('bar');
     }
 
@@ -208,7 +211,7 @@ class ArrayInputTest extends InputTest
     {
         $dataSets = parent::mixedValueProvider();
         array_walk($dataSets, function (&$set) {
-            $set[0] = [$set[0]]; // Wrap value into an array.
+            $set['raw'] = [$set['raw']]; // Wrap value into an array.
         });
 
         return $dataSets;
