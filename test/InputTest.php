@@ -628,10 +628,17 @@ class InputTest extends TestCase
 //            '"0"' => ['0'],
 //            '0' => [0],
 //            '0.0' => [0.0],
-//            'false' => [false],
+            'false' => [
+                'raw' => false,
+                'filtered' => false,
+            ],
             '[]' => [
                 'raw' => [],
                 'filtered' => [],
+            ],
+            'whitespace' => [
+                'raw' => ' ',
+                'filtered' => ' ',
             ],
         ];
     }
@@ -652,17 +659,9 @@ class InputTest extends TestCase
                 'raw' => 0.0,
                 'filtered' => 0.0,
             ],
-            'false' => [
-                'raw' => false,
-                'filtered' => false,
-            ],
             'php' => [
                 'raw' => 'php',
                 'filtered' => 'php',
-            ],
-            'whitespace' => [
-                'raw' => ' ',
-                'filtered' => ' ',
             ],
             '1' => [
                 'raw' => 1,
