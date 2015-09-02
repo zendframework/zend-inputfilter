@@ -405,7 +405,7 @@ class Input implements
             return true;
         }
 
-        if ($empty && $required && $allowEmpty && ! $continueIfEmpty) {
+        if ($empty && $allowEmpty && ! $continueIfEmpty) {
             return true;
         }
 
