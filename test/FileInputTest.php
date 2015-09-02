@@ -433,6 +433,9 @@ class FileInputTest extends InputTest
         unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty / tmp_name']);
         unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty / single']);
         unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty / multi']);
+        unset($dataSets['Required: F; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty / tmp_name']);
+        unset($dataSets['Required: F; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty / single']);
+        unset($dataSets['Required: F; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty / multi']);
 
         return $dataSets;
     }

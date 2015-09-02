@@ -655,7 +655,7 @@ class InputTest extends TestCase
             'Required: F; AEmpty: F; CIEmpty: T; Validator: T'                   => [!$isRequired, !$aEmpty,  $cIEmpty, $validatorValid  , $allValues     ,  $isValid, []],
             'Required: F; AEmpty: F; CIEmpty: T; Validator: F'                   => [!$isRequired, !$aEmpty,  $cIEmpty, $validatorInvalid, $allValues     , !$isValid, $validatorMsg],
 
-            'Required: F; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty'     => [!$isRequired, !$aEmpty, !$cIEmpty, $validatorNotCall, $emptyValues   ,  $isValid, []],
+            'Required: F; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty'     => [!$isRequired, !$aEmpty, !$cIEmpty, $validatorNotCall, $emptyValues   , !$isValid, $notEmptyMsg],
             'Required: F; AEmpty: F; CIEmpty: F; Validator: T, Value: Not Empty' => [!$isRequired, !$aEmpty, !$cIEmpty, $validatorValid  , $nonEmptyValues,  $isValid, []],
             'Required: F; AEmpty: F; CIEmpty: F; Validator: F, Value: Not Empty' => [!$isRequired, !$aEmpty, !$cIEmpty, $validatorInvalid, $nonEmptyValues, !$isValid, $validatorMsg],
         ];
