@@ -208,7 +208,7 @@ class ArrayInputTest extends InputTest
     {
         $dataSets = parent::mixedValueProvider();
         array_walk($dataSets, function (&$set) {
-            $set[0] = [$set[0]]; // Wrap value into an array.
+            $set['raw'] = [$set['raw']]; // Wrap value into an array.
         });
 
         return $dataSets;
