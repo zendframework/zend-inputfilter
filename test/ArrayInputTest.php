@@ -170,21 +170,6 @@ class ArrayInputTest extends InputTest
         parent::testMerge([$sourceRawValue]);
     }
 
-    public function testInputMerge()
-    {
-        $source = new Input();
-        $source->setValue([]);
-        $source->setContinueIfEmpty(true);
-
-        $target = $this->input;
-        $target->setContinueIfEmpty(false);
-
-        $return = $target->merge($source);
-        $this->assertSame($target, $return, 'merge() must return it self');
-
-        $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
-    }
-
     public function fallbackValueVsIsValidProvider()
     {
         $dataSets = parent::fallbackValueVsIsValidProvider();

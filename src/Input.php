@@ -368,7 +368,9 @@ class Input implements
         $this->setName($input->getName());
         $this->setRequired($input->isRequired());
         $this->setAllowEmpty($input->allowEmpty());
-        $this->setValue($input->getRawValue());
+        if (!($input instanceof Input) || $input->hasValue()) {
+            $this->setValue($input->getRawValue());
+        }
 
         $filterChain = $input->getFilterChain();
         $this->getFilterChain()->merge($filterChain);

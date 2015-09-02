@@ -422,23 +422,69 @@ class InputTest extends TestCase
         $this->assertEquals(true, $target->breakOnFailure(), 'breakOnFailure() value not match');
         $this->assertEquals(true, $target->isRequired(), 'isRequired() value not match');
         $this->assertEquals($sourceRawValue, $target->getRawValue(), 'getRawValue() value not match');
+        $this->assertTrue($target->hasValue(), 'hasValue() value not match');
     }
 
     /**
      * Specific Input::merge extras
      */
-    public function testInputMerge()
+    public function testInputMergeWithoutValues()
     {
         $source = new Input();
         $source->setContinueIfEmpty(true);
+        $this->assertFalse($source->hasValue(), 'Source should not have a value');
 
         $target = $this->input;
         $target->setContinueIfEmpty(false);
+        $this->assertFalse($target->hasValue(), 'Target should not have a value');
 
         $return = $target->merge($source);
         $this->assertSame($target, $return, 'merge() must return it self');
 
         $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
+        $this->assertFalse($target->hasValue(), 'hasValue() value not match');
+    }
+
+    /**
+     * Specific Input::merge extras
+     */
+    public function testInputMergeWithSourceValue()
+    {
+        $source = new Input();
+        $source->setContinueIfEmpty(true);
+        $source->setValue(['foo']);
+
+        $target = $this->input;
+        $target->setContinueIfEmpty(false);
+        $this->assertFalse($target->hasValue(), 'Target should not have a value');
+
+        $return = $target->merge($source);
+        $this->assertSame($target, $return, 'merge() must return it self');
+
+        $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
+        $this->assertEquals(['foo'], $target->getRawValue(), 'getRawValue() value not match');
+        $this->assertTrue($target->hasValue(), 'hasValue() value not match');
+    }
+
+    /**
+     * Specific Input::merge extras
+     */
+    public function testInputMergeWithTargetValue()
+    {
+        $source = new Input();
+        $source->setContinueIfEmpty(true);
+        $this->assertFalse($source->hasValue(), 'Source should not have a value');
+
+        $target = $this->input;
+        $target->setContinueIfEmpty(false);
+        $target->setValue(['foo']);
+
+        $return = $target->merge($source);
+        $this->assertSame($target, $return, 'merge() must return it self');
+
+        $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
+        $this->assertEquals(['foo'], $target->getRawValue(), 'getRawValue() value not match');
+        $this->assertTrue($target->hasValue(), 'hasValue() value not match');
     }
 
     public function fallbackValueVsIsValidProvider()
