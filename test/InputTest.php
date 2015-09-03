@@ -11,12 +11,14 @@ namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
+use ReflectionProperty;
 use stdClass;
 use Zend\Filter;
 use Zend\Filter\FilterChain;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputInterface;
 use Zend\Validator;
+use Zend\Validator\NotEmpty;
 use Zend\Validator\ValidatorChain;
 
 /**
@@ -175,17 +177,33 @@ class InputTest extends TestCase
         $this->assertEquals(['Value is required'], $input->getMessages(), 'getMessages() value not match');
     }
 
-    public function testRequiredWithoutFallbackAndValueNotSetThenFailWithCustomErrorMessage()
+    /**
+     * @group 28
+     * @group 60
+     */
+    public function testRequiredWithoutFallbackAndValueNotSetProvidesNotEmptyValidatorIsEmptyErrorMessage()
     {
         $input = $this->input;
         $input->setRequired(true);
-        $input->setErrorMessage('fooErrorMessage');
 
         $this->assertFalse(
             $input->isValid(),
-            'isValid() should be return always false when no fallback value, is required, and not data is set.'
+            'isValid() should always return false when no fallback value is present, '
+            . 'the input is required, and no data is set.'
         );
-        $this->assertEquals(['fooErrorMessage'], $input->getMessages(), 'getMessages() value not match');
+        $messages = $input->getMessages();
+        $this->assertInternalType('array', $messages);
+        $this->assertArrayHasKey(NotEmpty::IS_EMPTY, $messages);
+
+        $notEmpty = new NotEmpty();
+        $r = new ReflectionProperty($notEmpty, 'messageTemplates');
+        $r->setAccessible(true);
+        $messageTemplates = $r->getValue($notEmpty);
+        $this->assertEquals(
+            $messageTemplates[NotEmpty::IS_EMPTY],
+            $messages[NotEmpty::IS_EMPTY],
+            'getMessages() values do not match'
+        );
     }
 
     public function testNotRequiredWithoutFallbackAndValueNotSetThenIsValid()
