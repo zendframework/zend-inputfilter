@@ -776,9 +776,9 @@ class BaseInputFilterTest extends TestCase
         $iBri  = [$iBName => $input($iBName, $required, !$bOnFail, !$valid, ['Invalid ' . $iBName])];
         $iBriX = [$iBName => $input($iBName, $required,  $bOnFail, !$valid, ['Invalid ' . $iBName])];
         $iBrvX = [$iBName => $input($iBName, $required,  $bOnFail,  $valid, [])];
-        $iAriBri   = array_merge($iAri , $iBri);
+        $iAriBri   = array_merge($iAri,  $iBri);
         $iArvXBrvX = array_merge($iArvX, $iBrvX);
-        $iAriBrvX  = array_merge($iAri , $iBrvX);
+        $iAriBrvX  = array_merge($iAri,  $iBrvX);
         $iArvXBir  = array_merge($iArvX, $iBri);
         $iAriXBrvX = array_merge($iAriX, $iBrvX);
         $iArvXBriX = array_merge($iArvX, $iBriX);
