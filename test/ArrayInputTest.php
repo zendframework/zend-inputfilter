@@ -13,7 +13,6 @@ use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Zend\Filter;
 use Zend\InputFilter\ArrayInput;
 use Zend\InputFilter\Exception\InvalidArgumentException;
-use Zend\InputFilter\Input;
 use Zend\Validator;
 
 /**
