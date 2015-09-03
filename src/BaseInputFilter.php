@@ -21,7 +21,7 @@ class BaseInputFilter implements
     ReplaceableInputInterface
 {
     /**
-     * @var null|array|ArrayAccess
+     * @var null|array
      */
     protected $data;
 
@@ -106,23 +106,13 @@ class BaseInputFilter implements
     /**
      * Replace a named input
      *
-     * @param  InputInterface|InputFilterInterface $input
+     * @param  mixed $input Any of the input types allowed on add() method.
      * @param  string                              $name Name of the input to replace
-     * @throws Exception\InvalidArgumentException
+     * @throws Exception\InvalidArgumentException If input to replace not exists.
      * @return self
      */
     public function replace($input, $name)
     {
-        if (!$input instanceof InputInterface && !$input instanceof InputFilterInterface) {
-            throw new Exception\InvalidArgumentException(sprintf(
-                '%s expects an instance of %s or %s as its first argument; received "%s"',
-                __METHOD__,
-                InputInterface::class,
-                InputFilterInterface::class,
-                (is_object($input) ? get_class($input) : gettype($input))
-            ));
-        }
-
         if (!array_key_exists($name, $this->inputs)) {
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s: no input found matching "%s"',
@@ -131,7 +121,9 @@ class BaseInputFilter implements
             ));
         }
 
-        $this->inputs[$name] = $input;
+        $this->remove($name);
+        $this->add($input, $name);
+
         return $this;
     }
 
@@ -186,15 +178,15 @@ class BaseInputFilter implements
      */
     public function setData($data)
     {
-        if (!is_array($data) && !$data instanceof Traversable) {
+        if ($data instanceof Traversable) {
+            $data = ArrayUtils::iteratorToArray($data);
+        }
+        if (!is_array($data)) {
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects an array or Traversable argument; received %s',
                 __METHOD__,
                 (is_object($data) ? get_class($data) : gettype($data))
             ));
-        }
-        if (is_object($data) && !$data instanceof ArrayAccess) {
-            $data = ArrayUtils::iteratorToArray($data);
         }
         $this->data = $data;
         $this->populate();
@@ -433,6 +425,9 @@ class BaseInputFilter implements
             ));
         }
         $input = $this->inputs[$name];
+        if ($input instanceof InputFilterInterface) {
+            return $input->getRawValues();
+        }
         return $input->getRawValue();
     }
 

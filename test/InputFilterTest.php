@@ -9,50 +9,38 @@
 
 namespace ZendTest\InputFilter;
 
+use ArrayIterator;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
-use PHPUnit_Framework_TestCase as TestCase;
-use Zend\InputFilter\CollectionInputFilter;
 use Zend\InputFilter\Factory;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
-use Zend\InputFilter\InputInterface;
 
 /**
  * @covers Zend\InputFilter\InputFilter
  */
-class InputFilterTest extends TestCase
+class InputFilterTest extends BaseInputFilterTest
 {
     /**
      * @var InputFilter
      */
-    protected $filter;
+    protected $inputFilter;
 
     public function setUp()
     {
-        $this->filter = new InputFilter();
+        $this->inputFilter = new InputFilter();
     }
 
     public function testLazilyComposesAFactoryByDefault()
     {
-        $factory = $this->filter->getFactory();
+        $factory = $this->inputFilter->getFactory();
         $this->assertInstanceOf(Factory::class, $factory);
     }
 
     public function testCanComposeAFactory()
     {
-        $factory = new Factory();
-        $this->filter->setFactory($factory);
-        $this->assertSame($factory, $this->filter->getFactory());
-    }
-
-    public function testCanAddUsingSpecification()
-    {
-        $this->filter->add([
-            'name' => 'foo',
-        ]);
-        $this->assertTrue($this->filter->has('foo'));
-        $foo = $this->filter->get('foo');
-        $this->assertInstanceOf(InputInterface::class, $foo);
+        $factory = $this->createFactoryMock();
+        $this->inputFilter->setFactory($factory);
+        $this->assertSame($factory, $this->inputFilter->getFactory());
     }
 
     /**
@@ -65,7 +53,7 @@ class InputFilterTest extends TestCase
         $inputFilter = new InputFilter();
         $inputFilter->add(new Input(), 'name');
 
-        $this->filter->add($inputFilter, 'people');
+        $this->inputFilter->add($inputFilter, 'people');
 
         $data = [
             'people' => [
@@ -73,51 +61,48 @@ class InputFilterTest extends TestCase
             ]
         ];
 
-        $this->filter->setData($data);
-        $this->assertTrue($this->filter->isValid());
+        $this->inputFilter->setData($data);
+        $this->assertTrue(
+            $this->inputFilter->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->inputFilter->getMessages())
+        );
 
-        $this->assertInternalType('array', $this->filter->getValue('people'));
+        $this->assertInternalType('array', $this->inputFilter->getValue('people'));
+    }
+
+    public function inputProvider()
+    {
+        $dataSets = parent::inputProvider();
+
+        $inputSpecificationAsArray = [
+            'name' => 'inputFoo',
+        ];
+        $inputSpecificationAsTraversable = new ArrayIterator($inputSpecificationAsArray);
+
+        $inputSpecificationResult = new Input('inputFoo');
+        $inputSpecificationResult->getFilterChain(); // Fill input with a default chain just for make the test pass
+        $inputSpecificationResult->getValidatorChain(); // Fill input with a default chain just for make the test pass
+
+        // @codingStandardsIgnoreStart
+        $inputFilterDataSets = [
+            // Description => [input, expected name, $expectedReturnInput]
+            'array' =>       [$inputSpecificationAsArray      , 'inputFoo', $inputSpecificationResult],
+            'Traversable' => [$inputSpecificationAsTraversable, 'inputFoo', $inputSpecificationResult],
+        ];
+        // @codingStandardsIgnoreEnd
+        $dataSets = array_merge($dataSets, $inputFilterDataSets);
+
+        return $dataSets;
     }
 
     /**
-     * @group ZF2-5648
+     * @return Factory|MockObject
      */
-    public function testCountZeroValidateInternalInputWithCollectionInputFilter()
+    protected function createFactoryMock()
     {
-        $inputFilter = new InputFilter();
-        $inputFilter->add(new Input(), 'name');
+        /** @var Factory|MockObject $factory */
+        $factory = $this->getMock(Factory::class);
 
-        $collection = new CollectionInputFilter();
-        $collection->setInputFilter($inputFilter);
-        $collection->setCount(0);
-
-        $this->filter->add($collection, 'people');
-
-        $data = [
-            'people' => [
-                [
-                    'name' => 'Wanderson',
-                ],
-            ],
-        ];
-        $this->filter->setData($data);
-
-        $this->assertTrue($this->filter->isvalid());
-        $this->assertSame($data, $this->filter->getValues());
-    }
-
-    public function testCanUseContextPassedToInputFilter()
-    {
-        $context = new \stdClass();
-
-        /** @var InputInterface|MockObject $input */
-        $input = $this->getMock(InputInterface::class);
-        $input->expects($this->once())->method('isValid')->with($context)->will($this->returnValue(true));
-        $input->expects($this->any())->method('getRawValue')->will($this->returnValue('Mwop'));
-
-        $this->filter->add($input, 'username');
-        $this->filter->setData(['username' => 'Mwop']);
-
-        $this->filter->isValid($context);
+        return $factory;
     }
 }

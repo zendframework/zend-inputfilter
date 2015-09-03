@@ -73,7 +73,10 @@ class ArrayInputTest extends InputTest
         $this->input->getFilterChain()->attach($filter);
         $validator = new Validator\Digits();
         $this->input->getValidatorChain()->attach($validator);
-        $this->assertTrue($this->input->isValid());
+        $this->assertTrue(
+            $this->input->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
+        );
     }
 
     public function testSpecifyingMessagesToInputReturnsThoseOnFailedValidation()
@@ -161,7 +164,10 @@ class ArrayInputTest extends InputTest
                     ->getFilterChain()->attach(new Filter\Callback(function () {
                         return 'nonempty';
                     }));
-        $this->assertTrue($this->input->isValid());
+        $this->assertTrue(
+            $this->input->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
+        );
     }
 
     public function testMerge($sourceRawValue = 'bazRawValue')
