@@ -1283,11 +1283,13 @@ class BaseInputFilterTest extends TestCase
         $input = $this->createInputInterfaceMock('fooInput', null);
         $inputFilter = $this->createInputFilterInterfaceMock();
 
+        // @codingStandardsIgnoreStart
         return [
             // Description => [input, expected name, $expectedReturnInput]
-            'InputInterface' => [$input, 'fooInput', $input],
-            'InputFilterInterface' => [$inputFilter, null, $inputFilter],
+            'InputInterface' =>       [$input      , 'fooInput', $input],
+            'InputFilterInterface' => [$inputFilter, null      , $inputFilter],
         ];
+        // @codingStandardsIgnoreEnd
     }
 
     /**
