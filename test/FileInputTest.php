@@ -430,9 +430,9 @@ class FileInputTest extends InputTest
         $dataSets = parent::isRequiredVsAllowEmptyVsContinueIfEmptyVsIsValidProvider();
 
         // FileInput do not use NotEmpty validator so the only validator present in the chain is the custom one.
-        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X / tmp_name']);
-        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X / single']);
-        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X / multi']);
+        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty / tmp_name']);
+        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty / single']);
+        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty / multi']);
 
         return $dataSets;
     }
