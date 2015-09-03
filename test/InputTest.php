@@ -42,15 +42,12 @@ class InputTest extends TestCase
 
         $messages = $input->getMessages();
         $this->assertInternalType('array', $messages, $message . ' non-array messages array');
-        $this->assertArrayHasKey(NotEmpty::IS_EMPTY, $messages, $message . ' missing NotEmpty::IS_EMPTY key');
 
         $notEmpty         = new NotEmpty();
         $messageTemplates = $notEmpty->getOption('messageTemplates');
-        $this->assertEquals(
-            $messageTemplates[NotEmpty::IS_EMPTY],
-            $messages[NotEmpty::IS_EMPTY],
-            $message . ' NotEmpty::IS_EMPTY message differs'
-        );
+        $this->assertSame([
+            NotEmpty::IS_EMPTY => $messageTemplates[NotEmpty::IS_EMPTY],
+        ], $messages, $message . ' missing NotEmpty::IS_EMPTY key and/or contains additional messages');
     }
 
     public function testConstructorRequiresAName()
