@@ -191,6 +191,19 @@ class InputTest extends TestCase
         $this->assertRequiredValidationErrorMessage($input);
     }
 
+    public function testRequiredWithoutFallbackAndValueNotSetThenFailReturnsCustomErrorMessageWhenSet()
+    {
+        $input = $this->input;
+        $input->setRequired(true);
+        $input->setErrorMessage('FAILED TO VALIDATE');
+
+        $this->assertFalse(
+            $input->isValid(),
+            'isValid() should be return always false when no fallback value, is required, and not data is set.'
+        );
+        $this->assertSame(['FAILED TO VALIDATE'], $input->getMessages());
+    }
+
     /**
      * @group 28
      * @group 60
@@ -206,6 +219,24 @@ class InputTest extends TestCase
             . 'the input is required, and no data is set.'
         );
         $this->assertRequiredValidationErrorMessage($input);
+    }
+
+    /**
+     * @group 28
+     * @group 60
+     */
+    public function testRequiredWithoutFallbackAndValueNotSetProvidesCustomErrorMessageWhenSet()
+    {
+        $input = $this->input;
+        $input->setRequired(true);
+        $input->setErrorMessage('FAILED TO VALIDATE');
+
+        $this->assertFalse(
+            $input->isValid(),
+            'isValid() should always return false when no fallback value is present, '
+            . 'the input is required, and no data is set.'
+        );
+        $this->assertSame(['FAILED TO VALIDATE'], $input->getMessages());
     }
 
     public function testNotRequiredWithoutFallbackAndValueNotSetThenIsValid()
