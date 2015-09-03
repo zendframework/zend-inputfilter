@@ -74,22 +74,27 @@ class ArrayInput extends Input
             return false;
         }
 
-        if (!$this->continueIfEmpty() && !$this->allowEmpty()) {
-            $this->injectNotEmptyValidator();
-        }
+        $allowEmpty = $this->allowEmpty();
+        $continueIfEmpty = $this->continueIfEmpty();
+
         $validator = $this->getValidatorChain();
         $values    = $this->getValue();
         $result    = true;
         foreach ($values as $value) {
             $empty = ($value === null || $value === '' || $value === []);
-            if ($empty && !$this->isRequired() && !$this->continueIfEmpty()) {
+            if ($empty && $allowEmpty && !$continueIfEmpty) {
                 $result = true;
                 continue;
             }
-            if ($empty && $this->allowEmpty() && !$this->continueIfEmpty()) {
-                $result = true;
-                continue;
+
+            // At this point, we need to run validators.
+            // If we do not allow empty and the "continue if empty" flag are
+            // BOTH false, we inject the "not empty" validator into the chain,
+            // which adds that logic into the validation routine.
+            if ($empty && !$allowEmpty) {
+                $this->injectNotEmptyValidator();
             }
+
             $result = $validator->isValid($value, $context);
             if (!$result) {
                 if ($hasFallback) {
