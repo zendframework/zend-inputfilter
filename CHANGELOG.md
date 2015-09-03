@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.5.5 - TBD
+## 2.5.5 - 2015-09-03
 
 ### Added
 
@@ -33,11 +33,11 @@ All notable changes to this project will be documented in this file, in reverse 
   ```php
   $input = new Input();
   $input->setAllowEmpty(true);         // Disable BC Break logic related to treat `null` values as valid empty value instead *not set*.
-  $input->setContinueIfEmpty(true);    // Disable BC Break logic related to treat `null` values as valid empty value instead *not set*.  
+  $input->setContinueIfEmpty(true);    // Disable BC Break logic related to treat `null` values as valid empty value instead *not set*.
   $input->getValidatorChain()->attach(
       new Zend\Validator\NotEmpty(),
       true                             // break chain on failure
-      
+
   );
   ```
 
@@ -53,6 +53,9 @@ All notable changes to this project will be documented in this file, in reverse 
     ],
   ];
   ```
+- [Numerous fixes](https://github.com/zendframework/zend-inputfilter/milestones/2.4.8)
+  aimed at bringing the functionality back to the pre-2.4 code, and improving
+  quality overall of the component via increased testing and test coverage.
 
 ## 2.5.4 - 2015-08-11
 
