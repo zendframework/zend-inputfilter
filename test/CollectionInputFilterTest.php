@@ -723,6 +723,10 @@ class CollectionInputFilterTest extends TestCase
                 'count' => null,
                 'isValid' => true
             ],
+            'count=0' => [
+                'count' => 0,
+                'isValid' => true
+            ],
             'count = 1' =>  [
                 'count' => 1,
                 'isValid' => true

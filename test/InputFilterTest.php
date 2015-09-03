@@ -11,7 +11,6 @@ namespace ZendTest\InputFilter;
 
 use ArrayIterator;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
-use Zend\InputFilter\CollectionInputFilter;
 use Zend\InputFilter\Factory;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
@@ -66,33 +65,6 @@ class InputFilterTest extends BaseInputFilterTest
         $this->assertTrue($this->inputFilter->isValid());
 
         $this->assertInternalType('array', $this->inputFilter->getValue('people'));
-    }
-
-    /**
-     * @group ZF2-5648
-     */
-    public function testCountZeroValidateInternalInputWithCollectionInputFilter()
-    {
-        $inputFilter = new InputFilter();
-        $inputFilter->add(new Input(), 'name');
-
-        $collection = new CollectionInputFilter();
-        $collection->setInputFilter($inputFilter);
-        $collection->setCount(0);
-
-        $this->inputFilter->add($collection, 'people');
-
-        $data = [
-            'people' => [
-                [
-                    'name' => 'Wanderson',
-                ],
-            ],
-        ];
-        $this->inputFilter->setData($data);
-
-        $this->assertTrue($this->inputFilter->isvalid());
-        $this->assertSame($data, $this->inputFilter->getValues());
     }
 
     public function inputProvider()
