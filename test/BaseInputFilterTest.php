@@ -230,17 +230,6 @@ class BaseInputFilterTest extends TestCase
         $this->assertCount($currentNumberOfFilters - 1, $inputFilter, 'Number of filters must be decreased by 1');
     }
 
-    public function testAddingInputsIncreasesCountOfFilter()
-    {
-        $filter = new InputFilter();
-        $foo    = new Input('foo');
-        $filter->add($foo);
-        $this->assertEquals(1, count($filter));
-        $bar    = new Input('bar');
-        $filter->add($bar);
-        $this->assertEquals(2, count($filter));
-    }
-
     public function testAddingInputWithNameDoesNotInjectNameInInput()
     {
         $inputFilter = $this->getInputFilter();
@@ -251,26 +240,6 @@ class BaseInputFilterTest extends TestCase
         $test = $inputFilter->get('bas');
         $this->assertSame($foo, $test, 'get() does not match the input added');
         $this->assertEquals('foo', $foo->getName(), 'Input name should not change');
-    }
-
-    public function testCanAddInputFilterAsInput()
-    {
-        $parent = new InputFilter();
-        $child  = new InputFilter();
-        $parent->add($child, 'child');
-        $this->assertEquals(1, count($parent));
-        $this->assertSame($child, $parent->get('child'));
-    }
-
-    public function testCanRemoveInputFilter()
-    {
-        $parent = new InputFilter();
-        $child  = new InputFilter();
-        $parent->add($child, 'child');
-        $this->assertEquals(1, count($parent));
-        $this->assertSame($child, $parent->get('child'));
-        $parent->remove('child');
-        $this->assertEquals(0, count($parent));
     }
 
     public function getInputFilter()
