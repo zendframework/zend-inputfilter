@@ -60,6 +60,11 @@ class Input implements
     protected $notEmptyValidator = false;
 
     /**
+     * @var bool If required validator is in the validator chain.
+     */
+    protected $requiredValidator = false;
+
+    /**
      * @var bool
      */
     protected $required = true;
@@ -403,10 +408,8 @@ class Input implements
         }
 
         if (! $hasValue && $required) {
-            if ($this->errorMessage === null) {
-                $this->errorMessage = $this->prepareRequiredValidationFailureMessage();
-            }
-            return false;
+            $this->injectRequiredValidator();
+            $value = $this;
         }
 
         if ($empty && ! $required && ! $continueIfEmpty) {
@@ -485,16 +488,27 @@ class Input implements
     }
 
     /**
-     * Create and return the validation failure message for required input.
-     *
-     * @return string[]
+     * @return void
      */
-    protected function prepareRequiredValidationFailureMessage()
+    protected function injectRequiredValidator()
     {
-        $notEmpty = new NotEmpty();
-        $templates = $notEmpty->getOption('messageTemplates');
-        return [
-            NotEmpty::IS_EMPTY => $templates[NotEmpty::IS_EMPTY],
-        ];
+        if ($this->requiredValidator) {
+            return;
+        }
+
+        $chain = $this->getValidatorChain();
+
+        // Check if Required validator is already in chain
+        $validators = $chain->getValidators();
+        foreach ($validators as $validator) {
+            if ($validator['instance'] instanceof Validator\Required) {
+                $this->requiredValidator = true;
+                return;
+            }
+        }
+
+        $this->requiredValidator = true;
+
+        $chain->prependValidator(new Validator\Required(), true);
     }
 }
