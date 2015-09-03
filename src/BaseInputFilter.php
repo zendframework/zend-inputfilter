@@ -9,7 +9,6 @@
 
 namespace Zend\InputFilter;
 
-use ArrayAccess;
 use Traversable;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Stdlib\InitializableInterface;
@@ -21,7 +20,7 @@ class BaseInputFilter implements
     ReplaceableInputInterface
 {
     /**
-     * @var null|array|ArrayAccess
+     * @var null|array
      */
     protected $data;
 
@@ -178,15 +177,15 @@ class BaseInputFilter implements
      */
     public function setData($data)
     {
-        if (!is_array($data) && !$data instanceof Traversable) {
+        if ($data instanceof Traversable) {
+            $data = ArrayUtils::iteratorToArray($data);
+        }
+        if (!is_array($data)) {
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects an array or Traversable argument; received %s',
                 __METHOD__,
                 (is_object($data) ? get_class($data) : gettype($data))
             ));
-        }
-        if (is_object($data) && !$data instanceof ArrayAccess) {
-            $data = ArrayUtils::iteratorToArray($data);
         }
         $this->data = $data;
         $this->populate();

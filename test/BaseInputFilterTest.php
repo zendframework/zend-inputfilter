@@ -326,32 +326,6 @@ class BaseInputFilterTest extends TestCase
     /**
      * @dataProvider setDataArgumentsProvider
      */
-    public function testSetArrayAccessDataAndGetRawValueGetValue(
-        $inputs,
-        $data,
-        $expectedRawValues,
-        $expectedValues,
-        $expectedIsValid,
-        $expectedInvalidInputs,
-        $expectedValidInputs,
-        $expectedMessages
-    ) {
-        $dataTypes = $this->dataTypes();
-        $this->testSetDataAndGetRawValueGetValue(
-            $inputs,
-            $dataTypes['ArrayAccess']($data),
-            $expectedRawValues,
-            $expectedValues,
-            $expectedIsValid,
-            $expectedInvalidInputs,
-            $expectedValidInputs,
-            $expectedMessages
-        );
-    }
-
-    /**
-     * @dataProvider setDataArgumentsProvider
-     */
     public function testSetTraversableDataAndGetRawValueGetValue(
         $inputs,
         $data,
@@ -461,13 +435,13 @@ class BaseInputFilterTest extends TestCase
     public function contextProvider()
     {
         $data = ['fooInput' => 'fooValue'];
-        $arrayAccessData = new ArrayObject(['fooInput' => 'fooValue']);
+        $traversableData = new ArrayObject(['fooInput' => 'fooValue']);
         $expectedFromData = ['fooInput' => 'fooValue'];
 
         return [
             // Description => [$data, $customContext, $expectedContext]
             'by default get context from data (array)' => [$data, null, $expectedFromData],
-            'by default get context from data (ArrayAccess)' => [$arrayAccessData, null, $expectedFromData],
+            'by default get context from data (Traversable)' => [$traversableData, null, $expectedFromData],
             'use custom context' => [[], 'fooContext', 'fooContext'],
         ];
     }
@@ -941,9 +915,6 @@ class BaseInputFilterTest extends TestCase
             // Description => callable
             'array' => function ($data) {
                 return $data;
-            },
-            'ArrayAccess' => function ($data) {
-                return new ArrayIterator($data);
             },
             'Traversable' => function ($data) {
                 return $this->getMockBuilder(FilterIterator::class)
