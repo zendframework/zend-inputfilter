@@ -752,10 +752,14 @@ class BaseInputFilterTest extends TestCase
 
         $dARaw = [$iAName => $vRaw];
         $dBRaw = [$iBName => $vRaw];
+        $dAfRaw = [$iAName => ['fooInput' => $vRaw]];
         $d2Raw = array_merge($dARaw, $dBRaw);
+        $dAfBRaw = array_merge($dAfRaw, $dBRaw);
         $dAFiltered = [$iAName => $vFiltered];
         $dBFiltered = [$iBName => $vFiltered];
+        $dAfFiltered = [$iAName => ['fooInput' => $vFiltered]];
         $d2Filtered = array_merge($dAFiltered, $dBFiltered);
+        $dAfBFiltered = array_merge($dAfFiltered, $dBFiltered);
 
         $required = true;
         $valid = true;
@@ -769,6 +773,16 @@ class BaseInputFilterTest extends TestCase
             // @codingStandardsIgnoreEnd
         };
 
+        $inputFilter = function ($isValid, $msg = []) use ($vRaw, $vFiltered) {
+            // @codingStandardsIgnoreStart
+            return function ($context) use ($isValid, $vRaw, $vFiltered, $msg) {
+                $vRaw = ['fooInput' => $vRaw];
+                $vFiltered = ['fooInput' => $vFiltered];
+                return $this->createInputFilterInterfaceMock($isValid, $context, $vRaw, $vFiltered, $msg);
+            };
+            // @codingStandardsIgnoreEnd
+        };
+
         // @codingStandardsIgnoreStart
         $iAri  = [$iAName => $input($iAName, $required, !$bOnFail, !$valid, ['Invalid ' . $iAName])];
         $iAriX = [$iAName => $input($iAName, $required,  $bOnFail, !$valid, ['Invalid ' . $iAName])];
@@ -776,6 +790,8 @@ class BaseInputFilterTest extends TestCase
         $iBri  = [$iBName => $input($iBName, $required, !$bOnFail, !$valid, ['Invalid ' . $iBName])];
         $iBriX = [$iBName => $input($iBName, $required,  $bOnFail, !$valid, ['Invalid ' . $iBName])];
         $iBrvX = [$iBName => $input($iBName, $required,  $bOnFail,  $valid, [])];
+        $ifAi  = [$iAName => $inputFilter(!$valid, ['fooInput' => ['Invalid ' . $iAName]])];
+        $ifAv  = [$iAName => $inputFilter($valid)];
         $iAriBri   = array_merge($iAri,  $iBri);
         $iArvXBrvX = array_merge($iArvX, $iBrvX);
         $iAriBrvX  = array_merge($iAri,  $iBrvX);
@@ -783,22 +799,32 @@ class BaseInputFilterTest extends TestCase
         $iAriXBrvX = array_merge($iAriX, $iBrvX);
         $iArvXBriX = array_merge($iArvX, $iBriX);
         $iAriXBriX = array_merge($iAriX, $iBriX);
+        $ifAiBri   = array_merge($ifAi, $iBri);
+        $ifAiBrvX  = array_merge($ifAi, $iBrvX);
+        $ifAvBri   = array_merge($ifAv, $iBri);
+        $ifAvBrv   = array_merge($ifAv, $iBrvX);
 
         $msgAInv = [$iAName => ['Invalid InputA']];
         $msgBInv = [$iBName => ['Invalid InputB']];
+        $msgAfInv = [$iAName => ['fooInput' => ['Invalid InputA']]];
         $msg2Inv = array_merge($msgAInv, $msgBInv);
+        $msgAfBInv = array_merge($msgAfInv, $msgBInv);
 
         $dataSets = [
             // Description => [$inputs, $data argument, $expectedRawValues, $expectedValues, $expectedIsValid,
             //                 $expectedInvalidInputs, $expectedValidInputs, $expectedMessages]
-            'invalid Break invalid' => [$iAriXBriX, $d2Raw, $d2Raw, $d2Filtered, false, $iAri    , []        , $msgAInv],
-            'invalid Break valid'   => [$iAriXBrvX, $d2Raw, $d2Raw, $d2Filtered, false, $iAri    , []        , $msgAInv],
-            'valid   Break invalid' => [$iArvXBriX, $d2Raw, $d2Raw, $d2Filtered, false, $iBri    , $iAri     , $msgBInv],
-            'valid   Break valid'   => [$iArvXBrvX, $d2Raw, $d2Raw, $d2Filtered, true , []       , $iArvXBrvX, []],
-            'valid   invalid'       => [$iArvXBir , $d2Raw, $d2Raw, $d2Filtered, false, $iBri    , $iArvX    , $msgBInv],
-            'invalid valid'         => [$iAriBrvX , $d2Raw, $d2Raw, $d2Filtered, false, $iAri    , $iBrvX    , $msgAInv],
-            'invalid invalid'       => [$iAriBri  , $d2Raw, $d2Raw, $d2Filtered, false, $iAriBri , []        , $msg2Inv],
-            'invalid valid/NotSet'  => [$iAriBri  , $dARaw, $d2Raw, $d2Filtered, false, $iAriBrvX, []        , $msg2Inv],
+            'invalid Break invalid'     => [$iAriXBriX, $d2Raw, $d2Raw, $d2Filtered, false, $iAri    , []        , $msgAInv],
+            'invalid Break valid'       => [$iAriXBrvX, $d2Raw, $d2Raw, $d2Filtered, false, $iAri    , []        , $msgAInv],
+            'valid   Break invalid'     => [$iArvXBriX, $d2Raw, $d2Raw, $d2Filtered, false, $iBri    , $iAri     , $msgBInv],
+            'valid   Break valid'       => [$iArvXBrvX, $d2Raw, $d2Raw, $d2Filtered, true , []       , $iArvXBrvX, []],
+            'valid   invalid'           => [$iArvXBir , $d2Raw, $d2Raw, $d2Filtered, false, $iBri    , $iArvX    , $msgBInv],
+            'IInvalid IValid'           => [$iAriBrvX , $d2Raw, $d2Raw, $d2Filtered, false, $iAri    , $iBrvX    , $msgAInv],
+            'IInvalid IInvalid'         => [$iAriBri  , $d2Raw, $d2Raw, $d2Filtered, false, $iAriBri , []        , $msg2Inv],
+            'IInvalid IValid / Partial' => [$iAriBri  , $dARaw, $d2Raw, $d2Filtered, false, $iAriBrvX, []        , $msg2Inv],
+            'IFInvalid IValid'          => [$ifAiBrvX , $dAfBRaw, $dAfBRaw, $dAfBFiltered, false, $ifAi   , $iBrvX  , $msgAfInv],
+            'IFInvalid IInvalid'        => [$ifAiBri  , $dAfBRaw, $dAfBRaw, $dAfBFiltered, false, $ifAiBri, []      , $msgAfBInv],
+            'IFValid IInvalid'          => [$ifAvBri  , $dAfBRaw, $dAfBRaw, $dAfBFiltered, false, $iBri   , $ifAv   , $msgBInv],
+            'IFValid IValid'            => [$ifAvBrv  , $dAfBRaw, $dAfBRaw, $dAfBFiltered, true , []      , $ifAvBrv, []],
         ];
         // @codingStandardsIgnoreEnd
 
@@ -838,12 +864,42 @@ class BaseInputFilterTest extends TestCase
     }
 
     /**
+     * @param null|bool $isValid
+     * @param mixed $context
+     * @param mixed[] $getRawValues
+     * @param mixed[] $getValues
+     * @param string[] $getMessages
+     *
      * @return MockObject|InputFilterInterface
      */
-    protected function createInputFilterInterfaceMock()
-    {
+    protected function createInputFilterInterfaceMock(
+        $isValid = null,
+        $context = null,
+        $getRawValues = [],
+        $getValues = [],
+        $getMessages = []
+    ) {
         /** @var InputFilterInterface|MockObject $inputFilter */
         $inputFilter = $this->getMock(InputFilterInterface::class);
+        $inputFilter->method('getRawValues')
+            ->willReturn($getRawValues)
+        ;
+        $inputFilter->method('getValues')
+            ->willReturn($getValues)
+        ;
+        if (($isValid === false) || ($isValid === true)) {
+            $inputFilter->expects($this->once())
+                ->method('isValid')
+                ->willReturn($isValid)
+            ;
+        } else {
+            $inputFilter->expects($this->never())
+                ->method('isValid')
+            ;
+        }
+        $inputFilter->method('getMessages')
+            ->willReturn($getMessages)
+        ;
 
         return $inputFilter;
     }
