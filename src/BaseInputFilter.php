@@ -108,7 +108,7 @@ class BaseInputFilter implements
      *
      * @param  mixed $input Any of the input types allowed on add() method.
      * @param  string                              $name Name of the input to replace
-     * @throws Exception\InvalidArgumentException
+     * @throws Exception\InvalidArgumentException If input to replace not exists.
      * @return self
      */
     public function replace($input, $name)
