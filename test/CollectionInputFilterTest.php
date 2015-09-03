@@ -195,7 +195,10 @@ class CollectionInputFilterTest extends TestCase
 
         $this->filter->setInputFilter($this->getBaseInputFilter());
         $this->filter->setData($this->getValidCollectionData());
-        $this->assertTrue($this->filter->isValid());
+        $this->assertTrue(
+            $this->filter->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->filter->getMessages())
+        );
     }
 
     public function testCanValidateValidDataWithNonConsecutiveKeys()
@@ -209,7 +212,10 @@ class CollectionInputFilterTest extends TestCase
         unset($collectionData[0]);
         $this->filter->setInputFilter($this->getBaseInputFilter());
         $this->filter->setData($collectionData);
-        $this->assertTrue($this->filter->isValid());
+        $this->assertTrue(
+            $this->filter->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->filter->getMessages())
+        );
     }
 
     public function testInvalidDataReturnsFalse()
@@ -293,7 +299,10 @@ class CollectionInputFilterTest extends TestCase
         $this->filter->setInputFilter($this->getBaseInputFilter());
         $this->filter->setData($this->getValidCollectionData());
 
-        $this->assertTrue($this->filter->isValid());
+        $this->assertTrue(
+            $this->filter->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->filter->getMessages())
+        );
         $this->assertEquals($expectedData, $this->filter->getValues());
 
         $this->assertCount(2, $this->filter->getValidInput());
@@ -334,7 +343,10 @@ class CollectionInputFilterTest extends TestCase
         $this->filter->setInputFilter($this->getBaseInputFilter());
         $this->filter->setData($this->getValidCollectionData());
 
-        $this->assertTrue($this->filter->isValid());
+        $this->assertTrue(
+            $this->filter->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->filter->getMessages())
+        );
         $this->assertEquals($expectedData, $this->filter->getRawValues());
     }
 
@@ -440,7 +452,10 @@ class CollectionInputFilterTest extends TestCase
         $this->filter->setData($data);
         $this->filter->setValidationGroup($formValidationGroup);
 
-        $this->assertTrue($this->filter->isValid());
+        $this->assertTrue(
+            $this->filter->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->filter->getMessages())
+        );
     }
 
     public function testEmptyCollectionIsValidByDefault()
@@ -454,7 +469,10 @@ class CollectionInputFilterTest extends TestCase
         $this->filter->setInputFilter($this->getBaseInputFilter());
         $this->filter->setData($data);
 
-        $this->assertTrue($this->filter->isValid());
+        $this->assertTrue(
+            $this->filter->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->filter->getMessages())
+        );
     }
 
     public function testEmptyCollectionIsNotValidIfRequired()
@@ -721,6 +739,10 @@ class CollectionInputFilterTest extends TestCase
         return [
             'count not specified' => [
                 'count' => null,
+                'isValid' => true
+            ],
+            'count=0' => [
+                'count' => 0,
                 'isValid' => true
             ],
             'count = 1' =>  [
