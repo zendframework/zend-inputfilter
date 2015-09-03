@@ -11,7 +11,6 @@ namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
-use ReflectionProperty;
 use stdClass;
 use Zend\Filter;
 use Zend\Filter\FilterChain;
@@ -34,6 +33,24 @@ class InputTest extends TestCase
     public function setUp()
     {
         $this->input = new Input('foo');
+    }
+
+    public function assertRequiredValidationErrorMessage($input, $message = '')
+    {
+        $message  = $message ?: 'Expected failure message for required input';
+        $message .= ';';
+
+        $messages = $input->getMessages();
+        $this->assertInternalType('array', $messages, $message . ' non-array messages array');
+        $this->assertArrayHasKey(NotEmpty::IS_EMPTY, $messages, $message . ' missing NotEmpty::IS_EMPTY key');
+
+        $notEmpty         = new NotEmpty();
+        $messageTemplates = $notEmpty->getOption('messageTemplates');
+        $this->assertEquals(
+            $messageTemplates[NotEmpty::IS_EMPTY],
+            $messages[NotEmpty::IS_EMPTY],
+            $message . ' NotEmpty::IS_EMPTY message differs'
+        );
     }
 
     public function testConstructorRequiresAName()
@@ -174,7 +191,7 @@ class InputTest extends TestCase
             $input->isValid(),
             'isValid() should be return always false when no fallback value, is required, and not data is set.'
         );
-        $this->assertEquals(['Value is required'], $input->getMessages(), 'getMessages() value not match');
+        $this->assertRequiredValidationErrorMessage($input);
     }
 
     /**
@@ -191,19 +208,7 @@ class InputTest extends TestCase
             'isValid() should always return false when no fallback value is present, '
             . 'the input is required, and no data is set.'
         );
-        $messages = $input->getMessages();
-        $this->assertInternalType('array', $messages);
-        $this->assertArrayHasKey(NotEmpty::IS_EMPTY, $messages);
-
-        $notEmpty = new NotEmpty();
-        $r = new ReflectionProperty($notEmpty, 'messageTemplates');
-        $r->setAccessible(true);
-        $messageTemplates = $r->getValue($notEmpty);
-        $this->assertEquals(
-            $messageTemplates[NotEmpty::IS_EMPTY],
-            $messages[NotEmpty::IS_EMPTY],
-            'getMessages() values do not match'
-        );
+        $this->assertRequiredValidationErrorMessage($input);
     }
 
     public function testNotRequiredWithoutFallbackAndValueNotSetThenIsValid()

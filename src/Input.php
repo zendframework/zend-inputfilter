@@ -404,7 +404,7 @@ class Input implements
 
         if (! $hasValue && $required) {
             if ($this->errorMessage === null) {
-                $this->setErrorMessage('Value is required');
+                $this->errorMessage = $this->prepareRequiredValidationFailureMessage();
             }
             return false;
         }
@@ -482,5 +482,19 @@ class Input implements
         }
 
         $chain->prependValidator(new NotEmpty(), true);
+    }
+
+    /**
+     * Create and return the validation failure message for required input.
+     *
+     * @return string[]
+     */
+    protected function prepareRequiredValidationFailureMessage()
+    {
+        $notEmpty = new NotEmpty();
+        $templates = $notEmpty->getOption('messageTemplates');
+        return [
+            NotEmpty::IS_EMPTY => $templates[NotEmpty::IS_EMPTY],
+        ];
     }
 }

@@ -125,7 +125,7 @@ class FileInput extends Input
 
         if (! $hasValue && $required && ! $this->hasFallback()) {
             if ($this->errorMessage === null) {
-                $this->setErrorMessage('Value is required');
+                $this->errorMessage = $this->prepareRequiredValidationFailureMessage();
             }
             return false;
         }
