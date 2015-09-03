@@ -17,6 +17,7 @@ use Zend\Filter\FilterChain;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputInterface;
 use Zend\Validator;
+use Zend\Validator\NotEmpty;
 use Zend\Validator\ValidatorChain;
 
 /**
@@ -32,6 +33,21 @@ class InputTest extends TestCase
     public function setUp()
     {
         $this->input = new Input('foo');
+    }
+
+    public function assertRequiredValidationErrorMessage($input, $message = '')
+    {
+        $message  = $message ?: 'Expected failure message for required input';
+        $message .= ';';
+
+        $messages = $input->getMessages();
+        $this->assertInternalType('array', $messages, $message . ' non-array messages array');
+
+        $notEmpty         = new NotEmpty();
+        $messageTemplates = $notEmpty->getOption('messageTemplates');
+        $this->assertSame([
+            NotEmpty::IS_EMPTY => $messageTemplates[NotEmpty::IS_EMPTY],
+        ], $messages, $message . ' missing NotEmpty::IS_EMPTY key and/or contains additional messages');
     }
 
     public function testConstructorRequiresAName()
@@ -172,7 +188,24 @@ class InputTest extends TestCase
             $input->isValid(),
             'isValid() should be return always false when no fallback value, is required, and not data is set.'
         );
-        $this->assertEquals(['Value is required'], $input->getMessages(), 'getMessages() value not match');
+        $this->assertRequiredValidationErrorMessage($input);
+    }
+
+    /**
+     * @group 28
+     * @group 60
+     */
+    public function testRequiredWithoutFallbackAndValueNotSetProvidesNotEmptyValidatorIsEmptyErrorMessage()
+    {
+        $input = $this->input;
+        $input->setRequired(true);
+
+        $this->assertFalse(
+            $input->isValid(),
+            'isValid() should always return false when no fallback value is present, '
+            . 'the input is required, and no data is set.'
+        );
+        $this->assertRequiredValidationErrorMessage($input);
     }
 
     public function testNotRequiredWithoutFallbackAndValueNotSetThenIsValid()
