@@ -671,7 +671,7 @@ class InputTest extends TestCase
     }
 
     /**
-     * @return InputInterface|MockObject|
+     * @return InputInterface|MockObject
      */
     protected function createInputInterfaceMock()
     {
@@ -695,7 +695,7 @@ class InputTest extends TestCase
     /**
      * @param null|bool $isValid If set stub isValid method for return the argument value.
      *
-     * @return MockObject|ValidatorChain
+     * @return ValidatorChain|MockObject
      */
     protected function createValidatorChainMock($isValid = null)
     {
