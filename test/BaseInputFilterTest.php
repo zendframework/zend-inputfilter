@@ -524,7 +524,10 @@ class BaseInputFilterTest extends TestCase
 
         $filter->setData($data);
 
-        $this->assertTrue($filter->isValid(), json_encode($filter->getMessages()));
+        $this->assertTrue(
+            $filter->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($filter->getMessages())
+        );
         $this->assertArrayNotHasKey(
             $optionalInputName,
             $filter->getValidInput(),
@@ -649,7 +652,10 @@ class BaseInputFilterTest extends TestCase
 
         //test invalid with setData
         $filter->setData(['foo' => 'thisisavalidstring']);
-        $this->assertTrue($filter->isValid());
+        $this->assertTrue(
+            $filter->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($filter->getMessages())
+        );
 
         //test invalid when setting data on actual filter
         $filter->get('foo')->setValue('invalid');
@@ -658,8 +664,18 @@ class BaseInputFilterTest extends TestCase
 
         //test valid when setting data on actual filter
         $filter->get('foo')->setValue('thisisavalidstring');
-        $this->assertTrue($filter->get('foo')->isValid(), 'Filtered value is not valid');
-        $this->assertTrue($filter->isValid(), 'Input filter did return value from filter');
+        $this->assertTrue(
+            $filter->get('foo')
+                ->isValid(),
+            'Filtered value is not valid. Detail . ' . json_encode(
+                $filter->get('foo')
+                    ->getMessages()
+            )
+        );
+        $this->assertTrue(
+            $filter->isValid(),
+            'Input filter did return value from filter. Detail . ' . json_encode($filter->getMessages())
+        );
     }
 
     /**

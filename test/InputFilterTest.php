@@ -62,7 +62,10 @@ class InputFilterTest extends BaseInputFilterTest
         ];
 
         $this->inputFilter->setData($data);
-        $this->assertTrue($this->inputFilter->isValid());
+        $this->assertTrue(
+            $this->inputFilter->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->inputFilter->getMessages())
+        );
 
         $this->assertInternalType('array', $this->inputFilter->getValue('people'));
     }

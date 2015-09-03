@@ -65,7 +65,10 @@ class FileInputTest extends InputTest
         );
 
         $this->assertEquals($value, $this->input->getValue());
-        $this->assertTrue($this->input->isValid());
+        $this->assertTrue(
+            $this->input->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
+        );
         $this->assertEquals($newValue, $this->input->getValue());
     }
 
@@ -97,7 +100,10 @@ class FileInputTest extends InputTest
         );
 
         $this->assertEquals($values, $this->input->getValue());
-        $this->assertTrue($this->input->isValid());
+        $this->assertTrue(
+            $this->input->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
+        );
         $this->assertEquals(
             [$newValue, $newValue, $newValue],
             $this->input->getValue()
@@ -158,7 +164,10 @@ class FileInputTest extends InputTest
             'error'    => 0,
         ];
         $this->input->setValue($goodValue);
-        $this->assertTrue($this->input->isValid());
+        $this->assertTrue(
+            $this->input->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
+        );
         $this->assertEquals($filteredValue, $this->input->getValue());
     }
 
@@ -195,7 +204,10 @@ class FileInputTest extends InputTest
         $this->input->setValue($values);
         $validator = new Validator\File\Exists();
         $this->input->getValidatorChain()->attach($validator);
-        $this->assertTrue($this->input->isValid());
+        $this->assertTrue(
+            $this->input->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
+        );
 
         // Negative test
         $values[1]['tmp_name'] = 'file-not-found';
@@ -249,7 +261,10 @@ class FileInputTest extends InputTest
         $validatorChain = $this->input->getValidatorChain();
         $this->assertEquals(0, count($validatorChain->getValidators()));
 
-        $this->assertTrue($this->input->isValid());
+        $this->assertTrue(
+            $this->input->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
+        );
         $this->assertEquals(0, count($validatorChain->getValidators()));
     }
 
@@ -268,7 +283,10 @@ class FileInputTest extends InputTest
 
         $validatorChain = $this->input->getValidatorChain();
         $validatorChain->prependValidator($uploadMock);
-        $this->assertTrue($this->input->isValid());
+        $this->assertTrue(
+            $this->input->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
+        );
 
         $validators = $validatorChain->getValidators();
         $this->assertEquals(1, count($validators));
