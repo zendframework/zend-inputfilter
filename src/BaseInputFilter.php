@@ -106,23 +106,13 @@ class BaseInputFilter implements
     /**
      * Replace a named input
      *
-     * @param  InputInterface|InputFilterInterface $input
+     * @param  mixed $input Any of the input types allowed on add() method.
      * @param  string                              $name Name of the input to replace
      * @throws Exception\InvalidArgumentException
      * @return self
      */
     public function replace($input, $name)
     {
-        if (!$input instanceof InputInterface && !$input instanceof InputFilterInterface) {
-            throw new Exception\InvalidArgumentException(sprintf(
-                '%s expects an instance of %s or %s as its first argument; received "%s"',
-                __METHOD__,
-                InputInterface::class,
-                InputFilterInterface::class,
-                (is_object($input) ? get_class($input) : gettype($input))
-            ));
-        }
-
         if (!array_key_exists($name, $this->inputs)) {
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s: no input found matching "%s"',
@@ -131,7 +121,9 @@ class BaseInputFilter implements
             ));
         }
 
-        $this->inputs[$name] = $input;
+        $this->remove($name);
+        $this->add($input, $name);
+
         return $this;
     }
 
