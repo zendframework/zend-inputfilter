@@ -109,12 +109,13 @@ class InputFilterTest extends BaseInputFilterTest
         $inputSpecificationResult->getValidatorChain(); // Fill input with a default chain just for make the test pass
 
         // @codingStandardsIgnoreStart
-        $dataSets = array_merge($dataSets, [
+        $inputFilterDataSets = [
             // Description => [input, expected name, $expectedReturnInput]
             'array' =>                  [$inputSpecificationAsArray        , 'inputFoo', $inputSpecificationResult],
             'Traversable' =>            [$inputSpecificationAsTraversable  , 'inputFoo', $inputSpecificationResult],
-        ]);
+        ];
         // @codingStandardsIgnoreEnd
+        $dataSets = array_merge($dataSets, $inputFilterDataSets);
 
         return $dataSets;
     }
