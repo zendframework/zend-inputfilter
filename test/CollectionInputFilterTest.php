@@ -101,21 +101,17 @@ class CollectionInputFilterTest extends TestCase
             [
                 'foo' => ' bazbat ',
                 'bar' => '12345',
-                'baz' => '',
                 'nest' => [
                     'foo' => ' bazbat ',
                     'bar' => '12345',
-                    'baz' => '',
                 ],
             ],
             [
                 'foo' => ' batbaz ',
                 'bar' => '54321',
-                'baz' => '',
                 'nest' => [
                     'foo' => ' batbaz ',
                     'bar' => '54321',
-                    'baz' => '',
                 ],
             ]
         ];
@@ -307,7 +303,7 @@ class CollectionInputFilterTest extends TestCase
 
         $this->assertCount(2, $this->filter->getValidInput());
         foreach ($this->filter->getValidInput() as $validInputs) {
-            $this->assertCount(4, $validInputs);
+            $this->assertCount(3, $validInputs);
         }
     }
 
@@ -360,31 +356,25 @@ class CollectionInputFilterTest extends TestCase
             [
                 'foo' => ' bazbattoolong ',
                 'bar' => '12345',
-                'baz' => '',
                 'nest' => [
                     'foo' => ' bazbat ',
                     'bar' => '12345',
-                    'baz' => '',
                 ],
             ],
             [
                 'foo' => ' bazbat ',
                 'bar' => 'notstring',
-                'baz' => '',
                 'nest' => [
                     'foo' => ' bazbat ',
                     'bar' => '12345',
-                    'baz' => '',
                 ],
             ],
             [
                 'foo' => ' bazbat ',
                 'bar' => '12345',
-                'baz' => '',
                 'nest' => [
                     // missing 'foo' here
                     'bar' => '12345',
-                    'baz' => '',
                 ],
             ],
         ];
@@ -506,7 +496,6 @@ class CollectionInputFilterTest extends TestCase
                 'nest' => [
                     'foo' => ' bazbat ',
                     'bar' => '12345',
-                    'baz' => '',
                 ],
             ]
         ];
