@@ -1231,27 +1231,41 @@ class BaseInputFilterTest extends TestCase
 
     public function addMethodArgumentsProvider()
     {
-        // Description => [$input argument, $name argument, $expectedName, $expectedInput]
-        $tests = [];
         $inputTypes = $this->inputProvider();
 
-        // Default $name argument (null)
-        foreach ($inputTypes as $inputTypeDescription => $inputTypeData) {
-            $description = $inputTypeDescription . ' - null';
+        $inputName = function ($inputTypeData) {
+            return $inputTypeData[1];
+        };
 
-            $tests[$description] = [$inputTypeData[0], null, $inputTypeData[1], $inputTypeData[2]];
+        $sameInput = function ($inputTypeData) {
+            return $inputTypeData[2];
+        };
+
+        // @codingStandardsIgnoreStart
+        $dataTemplates=[
+            // Description => [[$input argument], $name argument, $expectedName, $expectedInput]
+            'null' =>        [$inputTypes, null         , $inputName   , $sameInput],
+            'custom_name' => [$inputTypes, 'custom_name', 'custom_name', $sameInput],
+        ];
+        // @codingStandardsIgnoreEnd
+
+        // Expand data template matrix for each possible input type.
+        // Description => [$input argument, $name argument, $expectedName, $expectedInput]
+        $dataSets = [];
+        foreach ($dataTemplates as $dataTemplateDescription => $dataTemplate) {
+            foreach ($dataTemplate[0] as $inputTypeDescription => $inputTypeData) {
+                $tmpTemplate = $dataTemplate;
+                $tmpTemplate[0] = $inputTypeData[0]; // expand input
+                if (is_callable($dataTemplate[2])) {
+                    $tmpTemplate[2] = $dataTemplate[2]($inputTypeData);
+                }
+                $tmpTemplate[3] = $dataTemplate[3]($inputTypeData);
+
+                $dataSets[$inputTypeDescription . ' / ' . $dataTemplateDescription] = $tmpTemplate;
+            }
         }
 
-        // Custom $name argument
-        foreach ($inputTypes as $inputTypeDescription => $inputTypeData) {
-            static $customInputName = 'custom_name';
-
-            $description = $inputTypeDescription . ' - ' . $customInputName;
-
-            $tests[$description] = [$inputTypeData[0], $customInputName, $customInputName, $inputTypeData[2]];
-        }
-
-        return $tests;
+        return $dataSets;
     }
 
     public function inputProvider()
@@ -1260,7 +1274,7 @@ class BaseInputFilterTest extends TestCase
         $inputFilter = $this->createInputFilterInterfaceMock();
 
         return [
-            // Description => [input, name, expected name, $expectedReturnInput]
+            // Description => [input, expected name, $expectedReturnInput]
             'InputInterface' => [$input, 'fooInput', $input],
             'InputFilterInterface' => [$inputFilter, null, $inputFilter],
         ];
