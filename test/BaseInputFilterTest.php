@@ -317,6 +317,10 @@ class BaseInputFilterTest extends TestCase
         $this->assertEquals($expectedInvalidInputs, $inputFilter->getInvalidInput(), 'getInvalidInput() value not match');
         $this->assertEquals($expectedValidInputs, $inputFilter->getValidInput(), 'getValidInput() value not match');
         $this->assertEquals($expectedMessages, $inputFilter->getMessages(), 'getMessages() value not match');
+
+        // ** Check unknown fields **
+        $this->assertFalse($inputFilter->hasUnknown(), 'hasUnknown() value not match');
+        $this->assertEmpty($inputFilter->getUnknown(), 'getUnknown() value not match');
     }
 
     /**
