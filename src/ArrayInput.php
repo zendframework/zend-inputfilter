@@ -70,7 +70,9 @@ class ArrayInput extends Input
         }
 
         if (! $hasValue && $required) {
-            $this->setErrorMessage('Value is required');
+            if ($this->errorMessage === null) {
+                $this->setErrorMessage('Value is required');
+            }
             return false;
         }
 

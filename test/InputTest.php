@@ -175,6 +175,19 @@ class InputTest extends TestCase
         $this->assertEquals(['Value is required'], $input->getMessages(), 'getMessages() value not match');
     }
 
+    public function testRequiredWithoutFallbackAndValueNotSetThenFailWithCustomErrorMessage()
+    {
+        $input = $this->input;
+        $input->setRequired(true);
+        $input->setErrorMessage('fooErrorMessage');
+
+        $this->assertFalse(
+            $input->isValid(),
+            'isValid() should be return always false when no fallback value, is required, and not data is set.'
+        );
+        $this->assertEquals(['fooErrorMessage'], $input->getMessages(), 'getMessages() value not match');
+    }
+
     public function testNotRequiredWithoutFallbackAndValueNotSetThenIsValid()
     {
         $input = $this->input;
