@@ -9,6 +9,7 @@
 
 namespace Zend\InputFilter;
 
+use ArrayAccess;
 use Traversable;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Stdlib\InitializableInterface;
