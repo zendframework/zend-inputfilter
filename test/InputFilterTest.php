@@ -111,8 +111,8 @@ class InputFilterTest extends BaseInputFilterTest
         // @codingStandardsIgnoreStart
         $inputFilterDataSets = [
             // Description => [input, expected name, $expectedReturnInput]
-            'array' =>                  [$inputSpecificationAsArray        , 'inputFoo', $inputSpecificationResult],
-            'Traversable' =>            [$inputSpecificationAsTraversable  , 'inputFoo', $inputSpecificationResult],
+            'array' =>       [$inputSpecificationAsArray      , 'inputFoo', $inputSpecificationResult],
+            'Traversable' => [$inputSpecificationAsTraversable, 'inputFoo', $inputSpecificationResult],
         ];
         // @codingStandardsIgnoreEnd
         $dataSets = array_merge($dataSets, $inputFilterDataSets);
