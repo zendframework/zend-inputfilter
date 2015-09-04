@@ -10,6 +10,7 @@ branches:
 cache:
   directories:
     - $HOME/.composer/cache
+    - vendor
 
 matrix:
   fast_finish: true
@@ -36,6 +37,7 @@ before_install:
 
 install:
   - travis_retry composer install --no-interaction --ignore-platform-reqs
+  - composer info -i
 
 script:
   - if [[ $EXECUTE_TEST_COVERALLS == 'true' ]]; then ./vendor/bin/phpunit --coverage-clover clover.xml ; fi
