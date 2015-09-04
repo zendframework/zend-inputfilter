@@ -356,8 +356,31 @@ class BaseInputFilterTest extends TestCase
                 'deep-input2' => 'deep-foo2',
             ]
         ];
+        $expectedData = array_merge($data, ['notSet' => null]);
+        /** @var Input|MockObject $resetInput */
+        $flatInput = $this->getMockBuilder(Input::class)
+            ->enableProxyingToOriginalMethods()
+            ->setConstructorArgs(['flat'])
+            ->getMock()
+        ;
+        $flatInput->expects($this->once())
+            ->method('setValue')
+            ->with('foo')
+        ;
+        // Inputs without value must be reset for to have clean states when use different setData arguments
+        /** @var Input|MockObject $flatInput */
+        $resetInput = $this->getMockBuilder(Input::class)
+            ->enableProxyingToOriginalMethods()
+            ->setConstructorArgs(['notSet'])
+            ->getMock()
+        ;
+        $resetInput->expects($this->once())
+            ->method('resetValue')
+        ;
+
         $filter = $this->inputFilter;
-        $filter->add(new Input, 'flat');
+        $filter->add($flatInput);
+        $filter->add($resetInput);
         $deepInputFilter = new BaseInputFilter;
         $deepInputFilter->add(new Input, 'deep-input1');
         $deepInputFilter->add(new Input, 'deep-input2');
@@ -366,7 +389,7 @@ class BaseInputFilterTest extends TestCase
         $filter->setValidationGroup(['deep' => 'deep-input1']);
         // reset validation group
         $filter->setValidationGroup(InputFilterInterface::VALIDATE_ALL);
-        $this->assertEquals($data, $filter->getValues());
+        $this->assertEquals($expectedData, $filter->getValues());
     }
 
     /*
