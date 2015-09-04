@@ -43,33 +43,6 @@ class InputFilterTest extends BaseInputFilterTest
         $this->assertSame($factory, $this->inputFilter->getFactory());
     }
 
-    /**
-     * @covers \Zend\InputFilter\BaseInputFilter::getValue
-     *
-     * @group 6028
-     */
-    public function testGetValueReturnsArrayIfNestedInputFilters()
-    {
-        $inputFilter = new InputFilter();
-        $inputFilter->add(new Input(), 'name');
-
-        $this->inputFilter->add($inputFilter, 'people');
-
-        $data = [
-            'people' => [
-                 'name' => 'Wanderson'
-            ]
-        ];
-
-        $this->inputFilter->setData($data);
-        $this->assertTrue(
-            $this->inputFilter->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($this->inputFilter->getMessages())
-        );
-
-        $this->assertInternalType('array', $this->inputFilter->getValue('people'));
-    }
-
     public function inputProvider()
     {
         $dataSets = parent::inputProvider();
