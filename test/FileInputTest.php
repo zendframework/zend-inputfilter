@@ -394,16 +394,6 @@ class FileInputTest extends InputTest
         $this->assertFalse($this->input->isEmptyFile($rawValue));
     }
 
-    public function testNotAllowEmptyWithFilterConvertsNonemptyToEmptyIsNotValid()
-    {
-        $this->markTestSkipped('does not apply to FileInput');
-    }
-
-    public function testNotAllowEmptyWithFilterConvertsEmptyToNonEmptyIsValid()
-    {
-        $this->markTestSkipped('does not apply to FileInput');
-    }
-
     /**
      * Specific FileInput::merge extras
      */

@@ -149,27 +149,6 @@ class ArrayInputTest extends InputTest
         $this->assertEquals($notEmptyMock, $validators[1]['instance']);
     }
 
-    public function testNotAllowEmptyWithFilterConvertsNonemptyToEmptyIsNotValid()
-    {
-        $this->input->setValue(['nonempty'])
-                    ->getFilterChain()->attach(new Filter\Callback(function () {
-                        return '';
-                    }));
-        $this->assertFalse($this->input->isValid());
-    }
-
-    public function testNotAllowEmptyWithFilterConvertsEmptyToNonEmptyIsValid()
-    {
-        $this->input->setValue([''])
-                    ->getFilterChain()->attach(new Filter\Callback(function () {
-                        return 'nonempty';
-                    }));
-        $this->assertTrue(
-            $this->input->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
-        );
-    }
-
     public function testMerge($sourceRawValue = 'bazRawValue')
     {
         parent::testMerge([$sourceRawValue]);

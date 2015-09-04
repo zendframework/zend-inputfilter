@@ -369,27 +369,6 @@ class InputTest extends TestCase
         $this->assertEquals($notEmptyMock, $validators[0]['instance']);
     }
 
-    public function testNotAllowEmptyWithFilterConvertsNonemptyToEmptyIsNotValid()
-    {
-        $this->input->setValue('nonempty')
-                    ->getFilterChain()->attach(new Filter\Callback(function () {
-                        return '';
-                    }));
-        $this->assertFalse($this->input->isValid());
-    }
-
-    public function testNotAllowEmptyWithFilterConvertsEmptyToNonEmptyIsValid()
-    {
-        $this->input->setValue('')
-                    ->getFilterChain()->attach(new Filter\Callback(function () {
-                        return 'nonempty';
-                    }));
-        $this->assertTrue(
-            $this->input->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
-        );
-    }
-
     public function testDoNotInjectNotEmptyValidatorIfAnywhereInChain()
     {
         $this->assertTrue($this->input->isRequired());
