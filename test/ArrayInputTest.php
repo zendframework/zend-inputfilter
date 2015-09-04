@@ -25,6 +25,11 @@ class ArrayInputTest extends InputTest
         $this->input = new ArrayInput('foo');
     }
 
+    public function testNotEmptyValidatorNotInjectedIfContinueIfEmptyIsTrue($value = '')
+    {
+        parent::testNotEmptyValidatorNotInjectedIfContinueIfEmptyIsTrue([$value]);
+    }
+
     public function testValueIsNullByDefault()
     {
         $this->markTestSkipped('Test is not enabled in ArrayInputTest');

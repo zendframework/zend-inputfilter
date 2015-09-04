@@ -107,13 +107,13 @@ class InputTest extends TestCase
 
     public function testContinueIfEmptyFlagIsFalseByDefault()
     {
-        $input = new Input('foo');
+        $input = $this->input;
         $this->assertFalse($input->continueIfEmpty());
     }
 
     public function testContinueIfEmptyFlagIsMutable()
     {
-        $input = new Input('foo');
+        $input = $this->input;
         $input->setContinueIfEmpty(true);
         $this->assertTrue($input->continueIfEmpty());
     }
@@ -258,11 +258,11 @@ class InputTest extends TestCase
         $this->assertEquals([], $input->getMessages(), 'getMessages() should be empty because the input is valid');
     }
 
-    public function testNotEmptyValidatorNotInjectedIfContinueIfEmptyIsTrue()
+    public function testNotEmptyValidatorNotInjectedIfContinueIfEmptyIsTrue($value = '')
     {
-        $input = new Input('foo');
+        $input = $this->input;
         $input->setContinueIfEmpty(true);
-        $input->setValue('');
+        $input->setValue($value);
         $input->isValid();
         $validators = $input->getValidatorChain()
                                 ->getValidators();
