@@ -50,8 +50,7 @@ class CollectionInputFilterTest extends TestCase
         $filter = new BaseInputFilter();
 
         $foo = new Input();
-        $foo->getFilterChain()->attachByName('stringtrim')
-                              ->attachByName('alpha');
+        $foo->getFilterChain()->attachByName('stringtrim');
         $foo->getValidatorChain()->attach(new Validator\StringLength(3, 6));
 
         $bar = new Input();
@@ -76,8 +75,7 @@ class CollectionInputFilterTest extends TestCase
         $filter = new BaseInputFilter();
 
         $foo = new Input();
-        $foo->getFilterChain()->attachByName('stringtrim')
-                              ->attachByName('alpha');
+        $foo->getFilterChain()->attachByName('stringtrim');
         $foo->getValidatorChain()->attach(new Validator\StringLength(3, 6));
 
         $bar = new Input();
