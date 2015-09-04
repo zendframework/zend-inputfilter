@@ -27,16 +27,16 @@ class CollectionInputFilterTest extends TestCase
     /**
      * @var CollectionInputFilter
      */
-    protected $filter;
+    protected $inputFilter;
 
     public function setUp()
     {
-        $this->filter = new CollectionInputFilter();
+        $this->inputFilter = new CollectionInputFilter();
     }
 
     public function testSetDataWithInvalidDataTypeThrowsInvalidArgumentException()
     {
-        $inputFilter = $this->filter;
+        $inputFilter = $this->inputFilter;
 
         $this->setExpectedException(
             RuntimeException::class,
@@ -51,14 +51,14 @@ class CollectionInputFilterTest extends TestCase
      */
     public function testSetInputFilter($inputFilter, $expectedType)
     {
-        $this->filter->setInputFilter($inputFilter);
+        $this->inputFilter->setInputFilter($inputFilter);
 
-        $this->assertInstanceOf($expectedType, $this->filter->getInputFilter(), 'getInputFilter() type not match');
+        $this->assertInstanceOf($expectedType, $this->inputFilter->getInputFilter(), 'getInputFilter() type not match');
     }
 
     public function testGetDefaultInputFilter()
     {
-        $this->assertInstanceOf(BaseInputFilter::class, $this->filter->getInputFilter());
+        $this->assertInstanceOf(BaseInputFilter::class, $this->inputFilter->getInputFilter());
     }
 
     /**
@@ -66,8 +66,8 @@ class CollectionInputFilterTest extends TestCase
      */
     public function testSetRequired($value)
     {
-        $this->filter->setIsRequired($value);
-        $this->assertEquals($value, $this->filter->getIsRequired());
+        $this->inputFilter->setIsRequired($value);
+        $this->assertEquals($value, $this->inputFilter->getIsRequired());
     }
 
     /**
@@ -76,13 +76,13 @@ class CollectionInputFilterTest extends TestCase
     public function testSetCount($count, $data, $expectedCount)
     {
         if ($count !== null) {
-            $this->filter->setCount($count);
+            $this->inputFilter->setCount($count);
         }
         if ($data !== null) {
-            $this->filter->setData($data);
+            $this->inputFilter->setData($data);
         }
 
-        $this->assertEquals($expectedCount, $this->filter->getCount(), 'getCount() value not match');
+        $this->assertEquals($expectedCount, $this->inputFilter->getCount(), 'getCount() value not match');
     }
 
     /**
@@ -99,19 +99,19 @@ class CollectionInputFilterTest extends TestCase
             ['foo' => 'bar'],
         ];
 
-        $this->filter->setData($collectionData1);
-        $this->assertEquals(2, $this->filter->getCount());
-        $this->filter->setData($collectionData2);
-        $this->assertEquals(1, $this->filter->getCount());
+        $this->inputFilter->setData($collectionData1);
+        $this->assertEquals(2, $this->inputFilter->getCount());
+        $this->inputFilter->setData($collectionData2);
+        $this->assertEquals(1, $this->inputFilter->getCount());
     }
 
     public function testInvalidCollectionIsNotValid()
     {
         $data = 1;
 
-        $this->filter->setData($data);
+        $this->inputFilter->setData($data);
 
-        $this->assertFalse($this->filter->isValid());
+        $this->assertFalse($this->inputFilter->isValid());
     }
 
     /**
@@ -127,21 +127,21 @@ class CollectionInputFilterTest extends TestCase
         $expectedValid,
         $expectedMessages
     ) {
-        $this->filter->setInputFilter($inputFilter);
-        $this->filter->setData($data);
+        $this->inputFilter->setInputFilter($inputFilter);
+        $this->inputFilter->setData($data);
         if ($count !== null) {
-            $this->filter->setCount($count);
+            $this->inputFilter->setCount($count);
         }
-        $this->filter->setIsRequired($required);
+        $this->inputFilter->setIsRequired($required);
 
         $this->assertEquals(
             $expectedValid,
-            $this->filter->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($this->filter->getMessages())
+            $this->inputFilter->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->inputFilter->getMessages())
         );
-        $this->assertEquals($expectedRaw, $this->filter->getRawValues(), 'getRawValues() value not match');
-        $this->assertEquals($expecteValues, $this->filter->getValues(), 'getValues() value not match');
-        $this->assertEquals($expectedMessages, $this->filter->getMessages(), 'getMessages() value not match');
+        $this->assertEquals($expectedRaw, $this->inputFilter->getRawValues(), 'getRawValues() value not match');
+        $this->assertEquals($expecteValues, $this->inputFilter->getValues(), 'getValues() value not match');
+        $this->assertEquals($expectedMessages, $this->inputFilter->getMessages(), 'getMessages() value not match');
     }
 
     public function dataVsValidProvider()
@@ -215,17 +215,17 @@ class CollectionInputFilterTest extends TestCase
             ->with($validationGroup)
         ;
 
-        $this->filter->setInputFilter($baseInputFilter);
-        $this->filter->setData($colRaw);
-        $this->filter->setValidationGroup($colValidationGroup);
+        $this->inputFilter->setInputFilter($baseInputFilter);
+        $this->inputFilter->setData($colRaw);
+        $this->inputFilter->setValidationGroup($colValidationGroup);
 
         $this->assertTrue(
-            $this->filter->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($this->filter->getMessages())
+            $this->inputFilter->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->inputFilter->getMessages())
         );
-        $this->assertEquals($colRaw, $this->filter->getRawValues(), 'getRawValues() value not match');
-        $this->assertEquals($colFiltered, $this->filter->getValues(), 'getValues() value not match');
-        $this->assertEquals([], $this->filter->getMessages(), 'getMessages() value not match');
+        $this->assertEquals($colRaw, $this->inputFilter->getRawValues(), 'getRawValues() value not match');
+        $this->assertEquals($colFiltered, $this->inputFilter->getValues(), 'getValues() value not match');
+        $this->assertEquals([], $this->inputFilter->getMessages(), 'getMessages() value not match');
     }
 
     public function dataNestingCollection()
