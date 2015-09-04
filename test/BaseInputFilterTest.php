@@ -15,7 +15,6 @@ use FilterIterator;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
-use Zend\Filter;
 use Zend\InputFilter\ArrayInput;
 use Zend\InputFilter\BaseInputFilter;
 use Zend\InputFilter\Exception\InvalidArgumentException;
@@ -23,7 +22,6 @@ use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputInterface;
-use Zend\Validator;
 
 /**
  * @covers Zend\InputFilter\BaseInputFilter
@@ -533,50 +531,6 @@ class BaseInputFilterTest extends TestCase
         $filter->add($foo2);
 
         $this->assertFalse($filter->get('foo')->isRequired());
-    }
-
-    /**
-     * @group 5270
-     */
-    public function testIsValidWhenValuesSetOnFilters()
-    {
-        $filter = $this->inputFilter;
-
-        $foo = new Input();
-        $foo->getValidatorChain()->attach(new Validator\StringLength(15, 18));
-
-        $filter->add($foo, 'foo');
-
-        //test valid with setData
-        $filter->setData(['foo' => 'invalid']);
-        $this->assertFalse($filter->isValid());
-
-        //test invalid with setData
-        $filter->setData(['foo' => 'thisisavalidstring']);
-        $this->assertTrue(
-            $filter->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($filter->getMessages())
-        );
-
-        //test invalid when setting data on actual filter
-        $filter->get('foo')->setValue('invalid');
-        $this->assertFalse($filter->get('foo')->isValid(), 'Filtered value is valid, should be invalid');
-        $this->assertFalse($filter->isValid(), 'Input filter did not return value from filter');
-
-        //test valid when setting data on actual filter
-        $filter->get('foo')->setValue('thisisavalidstring');
-        $this->assertTrue(
-            $filter->get('foo')
-                ->isValid(),
-            'Filtered value is not valid. Detail . ' . json_encode(
-                $filter->get('foo')
-                    ->getMessages()
-            )
-        );
-        $this->assertTrue(
-            $filter->isValid(),
-            'Input filter did return value from filter. Detail . ' . json_encode($filter->getMessages())
-        );
     }
 
     /**
