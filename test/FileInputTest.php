@@ -29,13 +29,6 @@ class FileInputTest extends InputTest
         $this->input->setAutoPrependUploadValidator(false);
     }
 
-    public function testValueMayBeInjected()
-    {
-        $value = ['tmp_name' => 'bar'];
-        $this->input->setValue($value);
-        $this->assertEquals($value, $this->input->getValue());
-    }
-
     public function testRetrievingValueFiltersTheValue()
     {
         $this->markTestSkipped('Test are not enabled in FileInputTest');
@@ -215,18 +208,6 @@ class FileInputTest extends InputTest
         $this->assertFalse($this->input->isValid());
     }
 
-    public function testSpecifyingMessagesToInputReturnsThoseOnFailedValidation()
-    {
-        $this->input->setValue(['tmp_name' => 'bar']);
-        $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->input->setErrorMessage('Please enter only digits');
-        $this->assertFalse($this->input->isValid());
-        $messages = $this->input->getMessages();
-        $this->assertArrayNotHasKey(Validator\Digits::NOT_DIGITS, $messages);
-        $this->assertContains('Please enter only digits', $messages);
-    }
-
     public function testAutoPrependUploadValidatorIsOnByDefault()
     {
         $input = new FileInput('foo');
@@ -315,12 +296,12 @@ class FileInputTest extends InputTest
         $this->assertEquals($uploadMock, $validators[0]['instance']);
     }
 
-    public function testNotEmptyValidatorAddedWhenIsValidIsCalled()
+    public function testNotEmptyValidatorAddedWhenIsValidIsCalled($value = null)
     {
         $this->markTestSkipped('Test is not enabled in FileInputTest');
     }
 
-    public function testRequiredNotEmptyValidatorNotAddedWhenOneExists()
+    public function testRequiredNotEmptyValidatorNotAddedWhenOneExists($value = null)
     {
         $this->markTestSkipped('Test is not enabled in FileInputTest');
     }
@@ -338,10 +319,7 @@ class FileInputTest extends InputTest
 
     public function testFallbackValueVsIsValidRulesWhenValueNotSet(
         $required = null,
-        $fallbackValue = null,
-        $originalValue = null,
-        $isValid = null,
-        $expectedValue = null
+        $fallbackValue = null
     ) {
         $this->markTestSkipped('Input::setFallbackValue is not implemented on FileInput');
     }
@@ -392,16 +370,6 @@ class FileInputTest extends InputTest
             ],
         ];
         $this->assertFalse($this->input->isEmptyFile($rawValue));
-    }
-
-    public function testNotAllowEmptyWithFilterConvertsNonemptyToEmptyIsNotValid()
-    {
-        $this->markTestSkipped('does not apply to FileInput');
-    }
-
-    public function testNotAllowEmptyWithFilterConvertsEmptyToNonEmptyIsValid()
-    {
-        $this->markTestSkipped('does not apply to FileInput');
     }
 
     /**
@@ -494,5 +462,10 @@ class FileInputTest extends InputTest
                 'filtered' => $fooUploadErrOk,
             ],
         ];
+    }
+
+    protected function getDummyValue($raw = true)
+    {
+        return ['tmp_name' => 'bar'];
     }
 }

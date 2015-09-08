@@ -15,7 +15,6 @@ use FilterIterator;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
-use Zend\Filter;
 use Zend\InputFilter\ArrayInput;
 use Zend\InputFilter\BaseInputFilter;
 use Zend\InputFilter\Exception\InvalidArgumentException;
@@ -23,7 +22,6 @@ use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputInterface;
-use Zend\Validator;
 
 /**
  * @covers Zend\InputFilter\BaseInputFilter
@@ -349,62 +347,6 @@ class BaseInputFilterTest extends TestCase
         );
     }
 
-    public function getInputFilter()
-    {
-        $filter = $this->inputFilter;
-
-        $foo = new Input();
-        $foo->getFilterChain()->attachByName('stringtrim')
-                              ->attachByName('alpha');
-        $foo->getValidatorChain()->attach(new Validator\StringLength(3, 6));
-
-        $bar = new Input();
-        $bar->getFilterChain()->attachByName('stringtrim');
-        $bar->getValidatorChain()->attach(new Validator\Digits());
-
-        $baz = new Input();
-        $baz->setRequired(false);
-        $baz->getFilterChain()->attachByName('stringtrim');
-        $baz->getValidatorChain()->attach(new Validator\StringLength(1, 6));
-
-        $qux = new Input();
-        $qux->setAllowEmpty(true);
-        $qux->getFilterChain()->attachByName('stringtrim');
-        $qux->getValidatorChain()->attach(new Validator\StringLength(5, 6));
-
-        $filter->add($foo, 'foo')
-               ->add($bar, 'bar')
-               ->add($baz, 'baz')
-               ->add($qux, 'qux')
-               ->add($this->getChildInputFilter(), 'nest');
-
-        return $filter;
-    }
-
-    public function getChildInputFilter()
-    {
-        $filter = new BaseInputFilter();
-
-        $foo = new Input();
-        $foo->getFilterChain()->attachByName('stringtrim')
-                              ->attachByName('alpha');
-        $foo->getValidatorChain()->attach(new Validator\StringLength(3, 6));
-
-        $bar = new Input();
-        $bar->getFilterChain()->attachByName('stringtrim');
-        $bar->getValidatorChain()->attach(new Validator\Digits());
-
-        $baz = new Input();
-        $baz->setRequired(false);
-        $baz->getFilterChain()->attachByName('stringtrim');
-        $baz->getValidatorChain()->attach(new Validator\StringLength(1, 6));
-
-        $filter->add($foo, 'foo')
-               ->add($bar, 'bar')
-               ->add($baz, 'baz');
-        return $filter;
-    }
-
     public function testResetEmptyValidationGroupRecursively()
     {
         $data = [
@@ -414,8 +356,31 @@ class BaseInputFilterTest extends TestCase
                 'deep-input2' => 'deep-foo2',
             ]
         ];
+        $expectedData = array_merge($data, ['notSet' => null]);
+        /** @var Input|MockObject $resetInput */
+        $flatInput = $this->getMockBuilder(Input::class)
+            ->enableProxyingToOriginalMethods()
+            ->setConstructorArgs(['flat'])
+            ->getMock()
+        ;
+        $flatInput->expects($this->once())
+            ->method('setValue')
+            ->with('foo')
+        ;
+        // Inputs without value must be reset for to have clean states when use different setData arguments
+        /** @var Input|MockObject $flatInput */
+        $resetInput = $this->getMockBuilder(Input::class)
+            ->enableProxyingToOriginalMethods()
+            ->setConstructorArgs(['notSet'])
+            ->getMock()
+        ;
+        $resetInput->expects($this->once())
+            ->method('resetValue')
+        ;
+
         $filter = $this->inputFilter;
-        $filter->add(new Input, 'flat');
+        $filter->add($flatInput);
+        $filter->add($resetInput);
         $deepInputFilter = new BaseInputFilter;
         $deepInputFilter->add(new Input, 'deep-input1');
         $deepInputFilter->add(new Input, 'deep-input2');
@@ -424,7 +389,7 @@ class BaseInputFilterTest extends TestCase
         $filter->setValidationGroup(['deep' => 'deep-input1']);
         // reset validation group
         $filter->setValidationGroup(InputFilterInterface::VALIDATE_ALL);
-        $this->assertEquals($data, $filter->getValues());
+        $this->assertEquals($expectedData, $filter->getValues());
     }
 
     /*
@@ -540,60 +505,20 @@ class BaseInputFilterTest extends TestCase
         );
     }
 
-    public function testHasUnknown()
+    /**
+     * @dataProvider unknownScenariosProvider
+     */
+    public function testUnknown($inputs, $data, $hasUnknown, $getUnknown)
     {
-        if (!extension_loaded('intl')) {
-            $this->markTestSkipped('ext/intl not enabled');
+        $inputFilter = $this->inputFilter;
+        foreach ($inputs as $name => $input) {
+            $inputFilter->add($input, $name);
         }
 
-        $filter = $this->getInputFilter();
-        $validData = [
-            'foo' => ' bazbat ',
-            'bar' => '12345',
-            'baz' => ''
-        ];
-        $filter->setData($validData);
-        $this->assertFalse($filter->hasUnknown());
+        $inputFilter->setData($data);
 
-        $filter = $this->getInputFilter();
-        $invalidData = [
-            'bar' => '12345',
-            'baz' => '',
-            'gru' => '',
-        ];
-        $filter->setData($invalidData);
-        $this->assertTrue($filter->hasUnknown());
-    }
-    public function testGetUknown()
-    {
-        if (!extension_loaded('intl')) {
-            $this->markTestSkipped('ext/intl not enabled');
-        }
-
-        $filter = $this->getInputFilter();
-        $unknown = [
-            'bar' => '12345',
-            'baz' => '',
-            'gru' => 10,
-            'test' => 'ok',
-        ];
-        $filter->setData($unknown);
-        $unknown = $filter->getUnknown();
-        $this->assertEquals(2, count($unknown));
-        $this->assertArrayHasKey('gru', $unknown);
-        $this->assertEquals(10, $unknown['gru']);
-        $this->assertArrayHasKey('test', $unknown);
-        $this->assertEquals('ok', $unknown['test']);
-
-        $filter = $this->getInputFilter();
-        $validData = [
-            'foo' => ' bazbat ',
-            'bar' => '12345',
-            'baz' => ''
-        ];
-        $filter->setData($validData);
-        $unknown = $filter->getUnknown();
-        $this->assertEquals(0, count($unknown));
+        $this->assertEquals($getUnknown, $inputFilter->getUnknown(), 'getUnknown() value not match');
+        $this->assertEquals($hasUnknown, $inputFilter->hasUnknown(), 'hasUnknown() value not match');
     }
 
     public function testGetInputs()
@@ -632,53 +557,6 @@ class BaseInputFilterTest extends TestCase
     }
 
     /**
-     * @group 5270
-     * @requires extension intl
-     */
-    public function testIsValidWhenValuesSetOnFilters()
-    {
-        $filter = $this->inputFilter;
-
-        $foo = new Input();
-        $foo->getFilterChain()->attachByName('stringtrim')
-                              ->attachByName('alpha');
-        $foo->getValidatorChain()->attach(new Validator\StringLength(15, 18));
-
-        $filter->add($foo, 'foo');
-
-        //test valid with setData
-        $filter->setData(['foo' => 'invalid']);
-        $this->assertFalse($filter->isValid());
-
-        //test invalid with setData
-        $filter->setData(['foo' => 'thisisavalidstring']);
-        $this->assertTrue(
-            $filter->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($filter->getMessages())
-        );
-
-        //test invalid when setting data on actual filter
-        $filter->get('foo')->setValue('invalid');
-        $this->assertFalse($filter->get('foo')->isValid(), 'Filtered value is valid, should be invalid');
-        $this->assertFalse($filter->isValid(), 'Input filter did not return value from filter');
-
-        //test valid when setting data on actual filter
-        $filter->get('foo')->setValue('thisisavalidstring');
-        $this->assertTrue(
-            $filter->get('foo')
-                ->isValid(),
-            'Filtered value is not valid. Detail . ' . json_encode(
-                $filter->get('foo')
-                    ->getMessages()
-            )
-        );
-        $this->assertTrue(
-            $filter->isValid(),
-            'Input filter did return value from filter. Detail . ' . json_encode($filter->getMessages())
-        );
-    }
-
-    /**
      * @group 5638
      */
     public function testPopulateSupportsArrayInputEvenIfDataMissing()
@@ -714,7 +592,7 @@ class BaseInputFilterTest extends TestCase
             [
                 'foo',
                 'bar',
-                'baz'
+                'baz',
             ],
             array_keys($inputFilter->getInputs())
         );
@@ -863,6 +741,26 @@ class BaseInputFilterTest extends TestCase
         );
 
         return $dataSets;
+    }
+
+    public function unknownScenariosProvider()
+    {
+        $inputA = $this->createInputInterfaceMock('inputA', true);
+        $dataA = ['inputA' => 'foo'];
+        $dataUnknown = ['inputUnknown' => 'unknownValue'];
+        $dataAAndUnknown = array_merge($dataA, $dataUnknown);
+
+        // @codingStandardsIgnoreStart
+        return [
+            // Description => [$inputs, $data, $hasUnknown, $getUnknown]
+            'empty data and inputs'  => [[]       , []              , false, []],
+            'empty data'             => [[$inputA], []              , false, []],
+            'data and fields match'  => [[$inputA], $dataA          , false, []],
+            'data known and unknown' => [[$inputA], $dataAAndUnknown, true , $dataUnknown],
+            'data unknown'           => [[$inputA], $dataUnknown    , true , $dataUnknown],
+            'data unknown, no input' => [[]       , $dataUnknown    , true , $dataUnknown],
+        ];
+        // @codingStandardsIgnoreEnd
     }
 
     public function inputProvider()
