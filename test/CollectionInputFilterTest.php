@@ -9,6 +9,8 @@
 
 namespace ZendTest\InputFilter;
 
+use ArrayIterator;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
 use Zend\InputFilter\BaseInputFilter;
@@ -16,7 +18,6 @@ use Zend\InputFilter\CollectionInputFilter;
 use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
-use Zend\Validator;
 
 /**
  * @covers Zend\InputFilter\CollectionInputFilter
@@ -26,16 +27,16 @@ class CollectionInputFilterTest extends TestCase
     /**
      * @var CollectionInputFilter
      */
-    protected $filter;
+    protected $inputFilter;
 
     public function setUp()
     {
-        $this->filter = new CollectionInputFilter();
+        $this->inputFilter = new CollectionInputFilter();
     }
 
-    public function testSetDataWithInvalidDataTypeThrowsInvalidArgumentException()
+    public function testSetInputFilterWithInvalidTypeThrowsInvalidArgumentException()
     {
-        $inputFilter = $this->filter;
+        $inputFilter = $this->inputFilter;
 
         $this->setExpectedException(
             RuntimeException::class,
@@ -45,126 +46,43 @@ class CollectionInputFilterTest extends TestCase
         $inputFilter->setInputFilter(new stdClass());
     }
 
-    public function getBaseInputFilter()
+    /**
+     * @dataProvider inputFilterProvider
+     */
+    public function testSetInputFilter($inputFilter, $expectedType)
     {
-        $filter = new BaseInputFilter();
+        $this->inputFilter->setInputFilter($inputFilter);
 
-        $foo = new Input();
-        $foo->getFilterChain()->attachByName('stringtrim')
-                              ->attachByName('alpha');
-        $foo->getValidatorChain()->attach(new Validator\StringLength(3, 6));
-
-        $bar = new Input();
-        $bar->getFilterChain()->attachByName('stringtrim');
-        $bar->getValidatorChain()->attach(new Validator\Digits());
-
-        $baz = new Input();
-        $baz->setRequired(false);
-        $baz->getFilterChain()->attachByName('stringtrim');
-        $baz->getValidatorChain()->attach(new Validator\StringLength(1, 6));
-
-        $filter->add($foo, 'foo')
-               ->add($bar, 'bar')
-               ->add($baz, 'baz')
-               ->add($this->getChildInputFilter(), 'nest');
-
-        return $filter;
-    }
-
-    public function getChildInputFilter()
-    {
-        $filter = new BaseInputFilter();
-
-        $foo = new Input();
-        $foo->getFilterChain()->attachByName('stringtrim')
-                              ->attachByName('alpha');
-        $foo->getValidatorChain()->attach(new Validator\StringLength(3, 6));
-
-        $bar = new Input();
-        $bar->getFilterChain()->attachByName('stringtrim');
-        $bar->getValidatorChain()->attach(new Validator\Digits());
-
-        $baz = new Input();
-        $baz->setRequired(false);
-        $baz->getFilterChain()->attachByName('stringtrim');
-        $baz->getValidatorChain()->attach(new Validator\StringLength(1, 6));
-
-        $filter->add($foo, 'foo')
-               ->add($bar, 'bar')
-               ->add($baz, 'baz');
-        return $filter;
-    }
-
-    public function getValidCollectionData()
-    {
-        return [
-            [
-                'foo' => ' bazbat ',
-                'bar' => '12345',
-                'baz' => '',
-                'nest' => [
-                    'foo' => ' bazbat ',
-                    'bar' => '12345',
-                    'baz' => '',
-                ],
-            ],
-            [
-                'foo' => ' batbaz ',
-                'bar' => '54321',
-                'baz' => '',
-                'nest' => [
-                    'foo' => ' batbaz ',
-                    'bar' => '54321',
-                    'baz' => '',
-                ],
-            ]
-        ];
-    }
-
-    public function testSetInputFilter()
-    {
-        $this->filter->setInputFilter(new BaseInputFilter());
-        $this->assertInstanceOf(BaseInputFilter::class, $this->filter->getInputFilter());
+        $this->assertInstanceOf($expectedType, $this->inputFilter->getInputFilter(), 'getInputFilter() type not match');
     }
 
     public function testGetDefaultInputFilter()
     {
-        $this->assertInstanceOf(BaseInputFilter::class, $this->filter->getInputFilter());
+        $this->assertInstanceOf(BaseInputFilter::class, $this->inputFilter->getInputFilter());
     }
 
-    public function testSetCount()
+    /**
+     * @dataProvider isRequiredProvider
+     */
+    public function testSetRequired($value)
     {
-        $this->filter->setCount(5);
-        $this->assertEquals(5, $this->filter->getCount());
+        $this->inputFilter->setIsRequired($value);
+        $this->assertEquals($value, $this->inputFilter->getIsRequired());
     }
 
-    public function testSetCountBelowZero()
+    /**
+     * @dataProvider countVsDataProvider
+     */
+    public function testSetCount($count, $data, $expectedCount)
     {
-        $this->filter->setCount(-1);
-        $this->assertEquals(0, $this->filter->getCount());
-    }
+        if ($count !== null) {
+            $this->inputFilter->setCount($count);
+        }
+        if ($data !== null) {
+            $this->inputFilter->setData($data);
+        }
 
-    public function testGetCountUsesCountOfCollectionDataWhenNotSet()
-    {
-        $collectionData = [
-            ['foo' => 'bar'],
-            ['foo' => 'baz']
-        ];
-
-        $this->filter->setData($collectionData);
-        $this->assertEquals(2, $this->filter->getCount());
-    }
-
-    public function testGetCountUsesSpecifiedCount()
-    {
-        $collectionData = [
-            ['foo' => 'bar'],
-            ['foo' => 'baz']
-        ];
-
-        $this->filter->setCount(3);
-        $this->filter->setData($collectionData);
-        $this->assertEquals(3, $this->filter->getCount());
+        $this->assertEquals($expectedCount, $this->inputFilter->getCount(), 'getCount() value not match');
     }
 
     /**
@@ -174,564 +92,140 @@ class CollectionInputFilterTest extends TestCase
     {
         $collectionData1 = [
             ['foo' => 'bar'],
-            ['foo' => 'baz']
+            ['foo' => 'baz'],
         ];
 
         $collectionData2 = [
-            ['foo' => 'bar']
+            ['foo' => 'bar'],
         ];
 
-        $this->filter->setData($collectionData1);
-        $this->assertEquals(2, $this->filter->getCount());
-        $this->filter->setData($collectionData2);
-        $this->assertEquals(1, $this->filter->getCount());
+        $this->inputFilter->setData($collectionData1);
+        $this->assertEquals(2, $this->inputFilter->getCount());
+        $this->inputFilter->setData($collectionData2);
+        $this->assertEquals(1, $this->inputFilter->getCount());
     }
 
-    public function testCanValidateValidData()
+    public function testInvalidCollectionIsNotValid()
     {
-        if (!extension_loaded('intl')) {
-            $this->markTestSkipped('ext/intl not enabled');
-        }
+        $data = 1;
 
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($this->getValidCollectionData());
-        $this->assertTrue(
-            $this->filter->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($this->filter->getMessages())
+        $this->inputFilter->setData($data);
+
+        $this->assertFalse($this->inputFilter->isValid());
+    }
+
+    /**
+     * @dataProvider dataVsValidProvider
+     */
+    public function testDataVsValid(
+        $required,
+        $count,
+        $data,
+        $inputFilter,
+        $expectedRaw,
+        $expecteValues,
+        $expectedValid,
+        $expectedMessages
+    ) {
+        $this->inputFilter->setInputFilter($inputFilter);
+        $this->inputFilter->setData($data);
+        if ($count !== null) {
+            $this->inputFilter->setCount($count);
+        }
+        $this->inputFilter->setIsRequired($required);
+
+        $this->assertEquals(
+            $expectedValid,
+            $this->inputFilter->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->inputFilter->getMessages())
         );
+        $this->assertEquals($expectedRaw, $this->inputFilter->getRawValues(), 'getRawValues() value not match');
+        $this->assertEquals($expecteValues, $this->inputFilter->getValues(), 'getValues() value not match');
+        $this->assertEquals($expectedMessages, $this->inputFilter->getMessages(), 'getMessages() value not match');
     }
 
-    public function testCanValidateValidDataWithNonConsecutiveKeys()
+    public function dataVsValidProvider()
     {
-        if (!extension_loaded('intl')) {
-            $this->markTestSkipped('ext/intl not enabled');
-        }
+        $dataRaw = [
+            'fooInput' => 'fooRaw',
+        ];
+        $dataFiltered = [
+            'fooInput' => 'fooFiltered',
+        ];
+        $colRaw = [$dataRaw];
+        $colFiltered = [$dataFiltered];
+        $errorMessage = [
+            'fooInput' => 'fooError',
+        ];
+        $colMessages = [$errorMessage];
 
-        $collectionData = $this->getValidCollectionData();
-        $collectionData[2] = $collectionData[0];
-        unset($collectionData[0]);
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($collectionData);
-        $this->assertTrue(
-            $this->filter->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($this->filter->getMessages())
+        $invalidIF = function () use ($dataRaw, $dataFiltered, $errorMessage) {
+            return $this->createBaseInputFilterMock(false, $dataRaw, $dataFiltered, $errorMessage);
+        };
+        $validIF = function () use ($dataRaw, $dataFiltered) {
+            return $this->createBaseInputFilterMock(true, $dataRaw, $dataFiltered);
+        };
+        $isRequired = true;
+
+        // @codingStandardsIgnoreStart
+        $dataSets = [
+            // Description => [$required, $count, $data, $inputFilter, $expectedRaw, $expecteValues, $expectedValid, $expectedMessages]
+            'Required: T, Count: N, Valid: T'  => [ $isRequired, null, $colRaw, $validIF  , $colRaw, $colFiltered, true , []],
+            'Required: T, Count: N, Valid: F'  => [ $isRequired, null, $colRaw, $invalidIF, $colRaw, $colFiltered, false, $colMessages],
+            'Required: T, Count: +1, Valid: F' => [ $isRequired,    2, $colRaw, $invalidIF, $colRaw, $colFiltered, false, $colMessages],
+            'Required: F, Count: N, Valid: T'  => [!$isRequired, null, $colRaw, $validIF  , $colRaw, $colFiltered, true , []],
+            'Required: F, Count: N, Valid: F'  => [!$isRequired, null, $colRaw, $invalidIF, $colRaw, $colFiltered, false, $colMessages],
+            'Required: F, Count: +1, Valid: F' => [!$isRequired,    2, $colRaw, $invalidIF, $colRaw, $colFiltered, false, $colMessages],
+            'Required: T, Data: [], Valid: X'  => [ $isRequired, null, []     , $invalidIF, []     , []          , false, []],
+            'Required: F, Data: [], Valid: X'  => [!$isRequired, null, []     , $invalidIF, []     , []          , true , []],
+        ];
+        // @codingStandardsIgnoreEnd
+
+        array_walk(
+            $dataSets,
+            function (&$set) {
+                // Create unique mock input instances for each set
+                $inputFilter = $set[3]();
+
+                $set[3] = $inputFilter;
+            }
         );
-    }
 
-    public function testInvalidDataReturnsFalse()
-    {
-        if (!extension_loaded('intl')) {
-            $this->markTestSkipped('ext/intl not enabled');
-        }
-
-        $invalidCollectionData = [
-            [
-                'foo' => ' bazbatlong ',
-                'bar' => '12345',
-                'baz' => '',
-            ],
-            [
-                'foo' => ' bazbat ',
-                'bar' => '12345',
-                'baz' => '',
-            ]
-        ];
-
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($invalidCollectionData);
-        $this->assertFalse($this->filter->isValid());
-    }
-
-    public function testDataLessThanCountIsInvalid()
-    {
-        if (!extension_loaded('intl')) {
-            $this->markTestSkipped('ext/intl not enabled');
-        }
-
-        $invalidCollectionData = [
-            [
-                'foo' => ' bazbat ',
-                'bar' => '12345',
-                'baz' => '',
-                'nest' => [
-                    'foo' => ' bazbat ',
-                    'bar' => '12345',
-                    'baz' => '',
-                ],
-            ],
-        ];
-
-        $this->filter->setCount(2);
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($invalidCollectionData);
-        $this->assertFalse($this->filter->isValid());
-    }
-
-    public function testGetValues()
-    {
-        if (!extension_loaded('intl')) {
-            $this->markTestSkipped('ext/intl not enabled');
-        }
-
-        $expectedData = [
-            [
-                'foo' => 'bazbat',
-                'bar' => '12345',
-                'baz' => '',
-                'nest' => [
-                    'foo' => 'bazbat',
-                    'bar' => '12345',
-                    'baz' => '',
-                ],
-            ],
-            [
-                'foo' => 'batbaz',
-                'bar' => '54321',
-                'baz' => '',
-                'nest' => [
-                    'foo' => 'batbaz',
-                    'bar' => '54321',
-                    'baz' => '',
-                ],
-            ]
-        ];
-
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($this->getValidCollectionData());
-
-        $this->assertTrue(
-            $this->filter->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($this->filter->getMessages())
-        );
-        $this->assertEquals($expectedData, $this->filter->getValues());
-
-        $this->assertCount(2, $this->filter->getValidInput());
-        foreach ($this->filter->getValidInput() as $validInputs) {
-            $this->assertCount(4, $validInputs);
-        }
-    }
-
-    public function testGetRawValues()
-    {
-        if (!extension_loaded('intl')) {
-            $this->markTestSkipped('ext/intl not enabled');
-        }
-
-        $expectedData = [
-            [
-                'foo' => ' bazbat ',
-                'bar' => '12345',
-                'baz' => '',
-                'nest' => [
-                    'foo' => ' bazbat ',
-                    'bar' => '12345',
-                    'baz' => '',
-                ],
-            ],
-            [
-                'foo' => ' batbaz ',
-                'bar' => '54321',
-                'baz' => '',
-                'nest' => [
-                    'foo' => ' batbaz ',
-                    'bar' => '54321',
-                    'baz' => '',
-                ],
-            ]
-        ];
-
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($this->getValidCollectionData());
-
-        $this->assertTrue(
-            $this->filter->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($this->filter->getMessages())
-        );
-        $this->assertEquals($expectedData, $this->filter->getRawValues());
-    }
-
-    public function testGetMessagesForInvalidInputs()
-    {
-        if (!extension_loaded('intl')) {
-            $this->markTestSkipped('ext/intl not enabled');
-        }
-
-        $invalidCollectionData = [
-            [
-                'foo' => ' bazbattoolong ',
-                'bar' => '12345',
-                'baz' => '',
-                'nest' => [
-                    'foo' => ' bazbat ',
-                    'bar' => '12345',
-                    'baz' => '',
-                ],
-            ],
-            [
-                'foo' => ' bazbat ',
-                'bar' => 'notstring',
-                'baz' => '',
-                'nest' => [
-                    'foo' => ' bazbat ',
-                    'bar' => '12345',
-                    'baz' => '',
-                ],
-            ],
-            [
-                'foo' => ' bazbat ',
-                'bar' => '12345',
-                'baz' => '',
-                'nest' => [
-                    // missing 'foo' here
-                    'bar' => '12345',
-                    'baz' => '',
-                ],
-            ],
-        ];
-
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($invalidCollectionData);
-
-        $this->assertFalse($this->filter->isValid());
-
-        $this->assertCount(3, $this->filter->getInvalidInput());
-        foreach ($this->filter->getInvalidInput() as $invalidInputs) {
-            $this->assertCount(1, $invalidInputs);
-        }
-
-        $messages = $this->filter->getMessages();
-
-        $this->assertCount(3, $messages);
-        $this->assertArrayHasKey('foo', $messages[0]);
-        $this->assertArrayHasKey('bar', $messages[1]);
-        $this->assertArrayHasKey('nest', $messages[2]);
-
-        $this->assertCount(1, $messages[0]['foo']);
-        $this->assertCount(1, $messages[1]['bar']);
-        $this->assertCount(1, $messages[2]['nest']);
+        return $dataSets;
     }
 
     public function testSetValidationGroupUsingFormStyle()
     {
-        if (!extension_loaded('intl')) {
-            $this->markTestSkipped('ext/intl not enabled');
-        }
-
-        // forms set an array of identical validation groups for each set of data
-        $formValidationGroup = [
-            [
-                'foo',
-                'bar',
-            ],
-            [
-                'foo',
-                'bar',
-            ],
-            [
-                'foo',
-                'bar',
-            ]
+        $validationGroup = [
+            'fooGroup',
         ];
+        $colValidationGroup = [$validationGroup];
 
-        $data = [
-            [
-                'foo' => ' bazbat ',
-                'bar' => '12345'
-            ],
-            [
-                'foo' => ' batbaz ',
-                'bar' => '54321'
-            ],
-            [
-                'foo' => ' batbaz ',
-                'bar' => '54321'
-            ]
+        $dataRaw = [
+            'fooInput' => 'fooRaw',
         ];
+        $dataFiltered = [
+            'fooInput' => 'fooFiltered',
+        ];
+        $colRaw = [$dataRaw];
+        $colFiltered = [$dataFiltered];
+        $baseInputFilter = $this->createBaseInputFilterMock(true, $dataRaw, $dataFiltered);
+        $baseInputFilter->expects($this->once())
+            ->method('setValidationGroup')
+            ->with($validationGroup)
+        ;
 
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($data);
-        $this->filter->setValidationGroup($formValidationGroup);
+        $this->inputFilter->setInputFilter($baseInputFilter);
+        $this->inputFilter->setData($colRaw);
+        $this->inputFilter->setValidationGroup($colValidationGroup);
 
         $this->assertTrue(
-            $this->filter->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($this->filter->getMessages())
+            $this->inputFilter->isValid(),
+            'isValid() value not match. Detail . ' . json_encode($this->inputFilter->getMessages())
         );
-    }
-
-    public function testEmptyCollectionIsValidByDefault()
-    {
-        if (!extension_loaded('intl')) {
-            $this->markTestSkipped('ext/intl not enabled');
-        }
-
-        $data = [];
-
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($data);
-
-        $this->assertTrue(
-            $this->filter->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($this->filter->getMessages())
-        );
-    }
-
-    public function testEmptyCollectionIsNotValidIfRequired()
-    {
-        if (!extension_loaded('intl')) {
-            $this->markTestSkipped('ext/intl not enabled');
-        }
-
-        $data = [];
-
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($data);
-        $this->filter->setIsRequired(true);
-
-        $this->assertFalse($this->filter->isValid());
-    }
-
-    public function testSetRequired()
-    {
-        $this->filter->setIsRequired(true);
-        $this->assertEquals(true, $this->filter->getIsRequired());
-    }
-
-    public function testNonRequiredFieldsAreValidated()
-    {
-        $invalidCollectionData = [
-            [
-                'foo' => ' bazbattoolong ',
-                'bar' => '12345',
-                'baz' => 'baztoolong',
-                'nest' => [
-                    'foo' => ' bazbat ',
-                    'bar' => '12345',
-                    'baz' => '',
-                ],
-            ]
-        ];
-
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($invalidCollectionData);
-
-        $this->assertFalse($this->filter->isValid());
-        $this->assertCount(2, current($this->filter->getInvalidInput()));
-        $this->assertArrayHasKey('baz', current($this->filter->getMessages()));
-    }
-
-    public function testNestedCollectionWithEmptyChild()
-    {
-        $items_inputfilter = new BaseInputFilter();
-        $items_inputfilter->add(new Input(), 'id')
-                          ->add(new Input(), 'type');
-        $items = new CollectionInputFilter();
-        $items->setInputFilter($items_inputfilter);
-
-        $groups_inputfilter = new BaseInputFilter();
-        $groups_inputfilter->add(new Input(), 'group_class')
-                           ->add($items, 'items');
-        $groups = new CollectionInputFilter();
-        $groups->setInputFilter($groups_inputfilter);
-
-        $inputFilter = new BaseInputFilter();
-        $inputFilter->add($groups, 'groups');
-
-        $preFilterdata = [
-            'groups' => [
-                [
-                    'group_class' => 'bar',
-                    'items' => [
-                        [
-                            'id' => 100,
-                            'type' => 'item-1',
-                        ],
-                    ],
-                ],
-                [
-                    'group_class' => 'bar',
-                    'items' => [
-                        [
-                            'id' => 200,
-                            'type' => 'item-2',
-                        ],
-                        [
-                            'id' => 300,
-                            'type' => 'item-3',
-                        ],
-                        [
-                            'id' => 400,
-                            'type' => 'item-4',
-                        ],
-                    ],
-                ],
-                [
-                    'group_class' => 'biz',
-                ],
-            ],
-        ];
-
-        $postFilterdata = [
-            'groups' => [
-                [
-                    'group_class' => 'bar',
-                    'items' => [
-                        [
-                            'id' => 100,
-                            'type' => 'item-1',
-                        ],
-                    ],
-                ],
-                [
-                    'group_class' => 'bar',
-                    'items' => [
-                        [
-                            'id' => 200,
-                            'type' => 'item-2',
-                        ],
-                        [
-                            'id' => 300,
-                            'type' => 'item-3',
-                        ],
-                        [
-                            'id' => 400,
-                            'type' => 'item-4',
-                        ],
-                    ],
-                ],
-                [
-                    'group_class' => 'biz',
-                    'items' => [],
-                ],
-            ],
-        ];
-
-        $inputFilter->setData($preFilterdata);
-        $inputFilter->isValid();
-        $values = $inputFilter->getValues();
-        $this->assertEquals($postFilterdata, $values);
-    }
-
-    public function testNestedCollectionWithEmptyData()
-    {
-        $items_inputfilter = new BaseInputFilter();
-        $items_inputfilter->add(new Input(), 'id')
-                          ->add(new Input(), 'type');
-        $items = new CollectionInputFilter();
-        $items->setInputFilter($items_inputfilter);
-
-        $groups_inputfilter = new BaseInputFilter();
-        $groups_inputfilter->add(new Input(), 'group_class')
-                           ->add($items, 'items');
-        $groups = new CollectionInputFilter();
-        $groups->setInputFilter($groups_inputfilter);
-
-        $inputFilter = new BaseInputFilter();
-        $inputFilter->add($groups, 'groups');
-
-        $data = [
-            'groups' => [
-                [
-                    'group_class' => 'bar',
-                    'items' => [
-                        [
-                            'id' => 100,
-                            'type' => 'item-1',
-                        ],
-                    ],
-                ],
-                [
-                    'group_class' => 'biz',
-                    'items' => [],
-                ],
-                [
-                    'group_class' => 'bar',
-                    'items' => [
-                        [
-                            'id' => 200,
-                            'type' => 'item-2',
-                        ],
-                        [
-                            'id' => 300,
-                            'type' => 'item-3',
-                        ],
-                        [
-                            'id' => 400,
-                            'type' => 'item-4',
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $inputFilter->setData($data);
-        $inputFilter->isValid();
-        $values = $inputFilter->getValues();
-        $this->assertEquals($data, $values);
-    }
-
-    /**
-     * @group 6472
-     */
-    public function testNestedCollectionWhereChildDataIsNotOverwritten()
-    {
-        $items_inputfilter = new BaseInputFilter();
-        $items_inputfilter->add(new Input(), 'id')
-                          ->add(new Input(), 'type');
-        $items = new CollectionInputFilter();
-        $items->setInputFilter($items_inputfilter);
-
-        $groups_inputfilter = new BaseInputFilter();
-        $groups_inputfilter->add(new Input(), 'group_class')
-                           ->add($items, 'items');
-        $groups = new CollectionInputFilter();
-        $groups->setInputFilter($groups_inputfilter);
-
-        $inputFilter = new BaseInputFilter();
-        $inputFilter->add($groups, 'groups');
-
-        $data = [
-            'groups' => [
-                [
-                    'group_class' => 'bar',
-                    'items' => [
-                        [
-                            'id' => 100,
-                            'type' => 'item-100',
-                        ],
-                        [
-                            'id' => 101,
-                            'type' => 'item-101',
-                        ],
-                        [
-                            'id' => 102,
-                            'type' => 'item-102',
-                        ],
-                        [
-                            'id' => 103,
-                            'type' => 'item-103',
-                        ],
-                    ],
-                ],
-                [
-                    'group_class' => 'foo',
-                    'items' => [
-                        [
-                            'id' => 200,
-                            'type' => 'item-200',
-                        ],
-                        [
-                            'id' => 201,
-                            'type' => 'item-201',
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $inputFilter->setData($data);
-        $inputFilter->isValid();
-        $values = $inputFilter->getValues();
-        $this->assertEquals($data, $values);
+        $this->assertEquals($colRaw, $this->inputFilter->getRawValues(), 'getRawValues() value not match');
+        $this->assertEquals($colFiltered, $this->inputFilter->getValues(), 'getValues() value not match');
+        $this->assertEquals([], $this->inputFilter->getMessages(), 'getMessages() value not match');
     }
 
     public function dataNestingCollection()
@@ -739,24 +233,24 @@ class CollectionInputFilterTest extends TestCase
         return [
             'count not specified' => [
                 'count' => null,
-                'isValid' => true
+                'isValid' => true,
             ],
             'count=0' => [
                 'count' => 0,
-                'isValid' => true
+                'isValid' => true,
             ],
             'count = 1' =>  [
                 'count' => 1,
-                'isValid' => true
+                'isValid' => true,
             ],
             'count = 2' => [
                 'count' => 2,
-                'isValid' => false
+                'isValid' => false,
             ],
             'count = 3' => [
                 'count' => 3,
-                'isValid' => false
-            ]
+                'isValid' => false,
+            ],
         ];
     }
 
@@ -790,34 +284,116 @@ class CollectionInputFilterTest extends TestCase
                 [
                     'second_collection' => [
                         [
-                            'input' => 'some value'
+                            'input' => 'some value',
                         ],
                         [
-                            'input' => 'some value'
-                        ]
-                    ]
+                            'input' => 'some value',
+                        ],
+                    ],
                 ],
                 [
                     'second_collection' => [
                         [
-                            'input' => 'some value'
+                            'input' => 'some value',
                         ],
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
 
         $mainInputFilter->setData($data);
         $this->assertSame($expectedIsValid, $mainInputFilter->isValid());
     }
 
-    public function testInvalidCollectionIsNotValid()
+    public function inputFilterProvider()
     {
-        $data = 1;
+        $baseInputFilter = new BaseInputFilter();
 
-        $this->filter->setInputFilter($this->getBaseInputFilter());
-        $this->filter->setData($data);
+        $inputFilterSpecificationAsArray = [];
+        $inputSpecificationAsTraversable = new ArrayIterator($inputFilterSpecificationAsArray);
 
-        $this->assertFalse($this->filter->isValid());
+        $inputFilterSpecificationResult = new InputFilter();
+        $inputFilterSpecificationResult->getFactory()->getInputFilterManager();
+
+        $dataSets = [
+            // Description => [inputFilter, $expectedType]
+            'BaseInputFilter' => [$baseInputFilter, BaseInputFilter::class],
+            'array' => [$inputFilterSpecificationAsArray, InputFilter::class],
+            'Traversable' => [$inputSpecificationAsTraversable, InputFilter::class],
+        ];
+
+        return $dataSets;
+    }
+
+    public function countVsDataProvider()
+    {
+        $data0 = [];
+        $data1 = ['A' => 'a'];
+        $data2 = ['A' => 'a', 'B' => 'b'];
+
+        // @codingStandardsIgnoreStart
+        return [
+            // Description => [$count, $data, $expectedCount]
+            'C:   -1, D: null' => [  -1, null  ,  0],
+            'C:    0, D: null' => [   0, null  ,  0],
+            'C:    1, D: null' => [   1, null  ,  1],
+            'C: null, D:    0' => [null, $data0,  0],
+            'C: null, D:    1' => [null, $data1,  1],
+            'C: null, D:    2' => [null, $data2,  2],
+            'C:   -1, D:    0' => [  -1, $data0,  0],
+            'C:    0, D:    0' => [   0, $data0,  0],
+            'C:    1, D:    0' => [   1, $data0,  1],
+            'C:   -1, D:    1' => [  -1, $data1,  0],
+            'C:    0, D:    1' => [   0, $data1,  0],
+            'C:    1, D:    1' => [   1, $data1,  1],
+        ];
+        // @codingStandardsIgnoreEnd
+    }
+
+    public function isRequiredProvider()
+    {
+        return [
+            'enabled' => [true],
+            'disabled' => [false],
+        ];
+    }
+
+    /**
+     * @param null|bool $isValid
+     * @param mixed[] $getRawValues
+     * @param mixed[] $getValues
+     * @param string[] $getMessages
+     *
+     * @return MockObject|BaseInputFilter
+     */
+    protected function createBaseInputFilterMock(
+        $isValid = null,
+        $getRawValues = [],
+        $getValues = [],
+        $getMessages = []
+    ) {
+        /** @var BaseInputFilter|MockObject $inputFilter */
+        $inputFilter = $this->getMock(BaseInputFilter::class);
+        $inputFilter->method('getRawValues')
+            ->willReturn($getRawValues)
+        ;
+        $inputFilter->method('getValues')
+            ->willReturn($getValues)
+        ;
+        if (($isValid === false) || ($isValid === true)) {
+            $inputFilter->expects($this->once())
+                ->method('isValid')
+                ->willReturn($isValid)
+            ;
+        } else {
+            $inputFilter->expects($this->never())
+                ->method('isValid')
+            ;
+        }
+        $inputFilter->method('getMessages')
+            ->willReturn($getMessages)
+        ;
+
+        return $inputFilter;
     }
 }
