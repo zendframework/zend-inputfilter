@@ -12,13 +12,12 @@ namespace ZendTest\InputFilter;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
-use Zend\Filter;
 use Zend\Filter\FilterChain;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputInterface;
-use Zend\Validator;
-use Zend\Validator\NotEmpty;
+use Zend\Validator\NotEmpty as NotEmptyValidator;
 use Zend\Validator\ValidatorChain;
+use Zend\Validator\ValidatorInterface;
 
 /**
  * @covers Zend\InputFilter\Input
@@ -35,7 +34,7 @@ class InputTest extends TestCase
         $this->input = new Input('foo');
     }
 
-    public function assertRequiredValidationErrorMessage($input, $message = '')
+    public function assertRequiredValidationErrorMessage(Input $input, $message = '')
     {
         $message  = $message ?: 'Expected failure message for required input';
         $message .= ';';
@@ -43,10 +42,10 @@ class InputTest extends TestCase
         $messages = $input->getMessages();
         $this->assertInternalType('array', $messages, $message . ' non-array messages array');
 
-        $notEmpty         = new NotEmpty();
+        $notEmpty         = new NotEmptyValidator();
         $messageTemplates = $notEmpty->getOption('messageTemplates');
         $this->assertSame([
-            NotEmpty::IS_EMPTY => $messageTemplates[NotEmpty::IS_EMPTY],
+            NotEmptyValidator::IS_EMPTY => $messageTemplates[NotEmptyValidator::IS_EMPTY],
         ], $messages, $message . ' missing NotEmpty::IS_EMPTY key and/or contains additional messages');
     }
 
@@ -58,27 +57,27 @@ class InputTest extends TestCase
     public function testInputHasEmptyFilterChainByDefault()
     {
         $filters = $this->input->getFilterChain();
-        $this->assertInstanceOf(Filter\FilterChain::class, $filters);
+        $this->assertInstanceOf(FilterChain::class, $filters);
         $this->assertEquals(0, count($filters));
     }
 
     public function testInputHasEmptyValidatorChainByDefault()
     {
         $validators = $this->input->getValidatorChain();
-        $this->assertInstanceOf(Validator\ValidatorChain::class, $validators);
+        $this->assertInstanceOf(ValidatorChain::class, $validators);
         $this->assertEquals(0, count($validators));
     }
 
     public function testCanInjectFilterChain()
     {
-        $chain = new Filter\FilterChain();
+        $chain = $this->createFilterChainMock();
         $this->input->setFilterChain($chain);
         $this->assertSame($chain, $this->input->getFilterChain());
     }
 
     public function testCanInjectValidatorChain()
     {
-        $chain = new Validator\ValidatorChain();
+        $chain = $this->createValidatorChainMock();
         $this->input->setValidatorChain($chain);
         $this->assertSame($chain, $this->input->getValidatorChain());
     }
@@ -107,13 +106,13 @@ class InputTest extends TestCase
 
     public function testContinueIfEmptyFlagIsFalseByDefault()
     {
-        $input = new Input('foo');
+        $input = $this->input;
         $this->assertFalse($input->continueIfEmpty());
     }
 
     public function testContinueIfEmptyFlagIsMutable()
     {
-        $input = new Input('foo');
+        $input = $this->input;
         $input->setContinueIfEmpty(true);
         $this->assertTrue($input->continueIfEmpty());
     }
@@ -141,7 +140,7 @@ class InputTest extends TestCase
         $input->setContinueIfEmpty(true);
 
         $input->setRequired($required);
-        $input->setValidatorChain($this->createValidatorChainMock($isValid));
+        $input->setValidatorChain($this->createValidatorChainMock($isValid, $originalValue));
         $input->setFallbackValue($fallbackValue);
         $input->setValue($originalValue);
 
@@ -158,7 +157,7 @@ class InputTest extends TestCase
     /**
      * @dataProvider fallbackValueVsIsValidProvider
      */
-    public function testFallbackValueVsIsValidRulesWhenValueNotSet($required, $fallbackValue, $originalValue, $isValid)
+    public function testFallbackValueVsIsValidRulesWhenValueNotSet($required, $fallbackValue)
     {
         $expectedValue = $fallbackValue; // Should always return the fallback value
 
@@ -166,7 +165,7 @@ class InputTest extends TestCase
         $input->setContinueIfEmpty(true);
 
         $input->setRequired($required);
-        $input->setValidatorChain($this->createValidatorChainMock($isValid));
+        $input->setValidatorChain($this->createValidatorChainMock(null));
         $input->setFallbackValue($fallbackValue);
 
         $this->assertTrue(
@@ -258,67 +257,76 @@ class InputTest extends TestCase
         $this->assertEquals([], $input->getMessages(), 'getMessages() should be empty because the input is valid');
     }
 
-    public function testNotEmptyValidatorNotInjectedIfContinueIfEmptyIsTrue()
+    /**
+     * @dataProvider emptyValueProvider
+     */
+    public function testNotEmptyValidatorNotInjectedIfContinueIfEmptyIsTrue($value)
     {
-        $input = new Input('foo');
+        $input = $this->input;
         $input->setContinueIfEmpty(true);
-        $input->setValue('');
+        $input->setValue($value);
         $input->isValid();
         $validators = $input->getValidatorChain()
                                 ->getValidators();
         $this->assertEmpty($validators);
     }
 
-    public function testValueIsNullByDefault()
+    public function testDefaultGetValue()
     {
         $this->assertNull($this->input->getValue());
     }
 
     public function testValueMayBeInjected()
     {
-        $this->input->setValue('bar');
-        $this->assertEquals('bar', $this->input->getValue());
+        $valueRaw = $this->getDummyValue();
+
+        $this->input->setValue($valueRaw);
+        $this->assertEquals($valueRaw, $this->input->getValue());
     }
 
     public function testRetrievingValueFiltersTheValue()
     {
-        $this->input->setValue('bar');
-        $filter = new Filter\StringToUpper();
-        $this->input->getFilterChain()->attach($filter);
-        $this->assertEquals('BAR', $this->input->getValue());
+        $valueRaw = $this->getDummyValue();
+        $valueFiltered = $this->getDummyValue(false);
+
+        $filterChain = $this->createFilterChainMock($valueRaw, $valueFiltered);
+
+        $this->input->setFilterChain($filterChain);
+        $this->input->setValue($valueRaw);
+
+        $this->assertSame($valueFiltered, $this->input->getValue());
     }
 
     public function testCanRetrieveRawValue()
     {
-        $this->input->setValue('bar');
-        $filter = new Filter\StringToUpper();
-        $this->input->getFilterChain()->attach($filter);
-        $this->assertEquals('bar', $this->input->getRawValue());
+        $valueRaw = $this->getDummyValue();
+
+        $filterChain = $this->createFilterChainMock();
+
+        $this->input->setFilterChain($filterChain);
+        $this->input->setValue($valueRaw);
+
+        $this->assertEquals($valueRaw, $this->input->getRawValue());
     }
 
     public function testValidationOperatesOnFilteredValue()
     {
-        $this->input->setValue(' 123 ');
-        $filter = new Filter\StringTrim();
-        $this->input->getFilterChain()->attach($filter);
-        $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
+        $valueRaw = $this->getDummyValue();
+        $valueFiltered = $this->getDummyValue(false);
+
+        $filterChain = $this->createFilterChainMock($valueRaw, $valueFiltered);
+
+        $validatorChain = $this->createValidatorChainMock(true, $valueFiltered);
+
+        $this->input->setAllowEmpty(true);
+        $this->input->setFilterChain($filterChain);
+        $this->input->setValidatorChain($validatorChain);
+        $this->input->setValue($valueRaw);
+
         $this->assertTrue(
             $this->input->isValid(),
             'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
         );
-    }
-
-    public function testSpecifyingMessagesToInputReturnsThoseOnFailedValidation()
-    {
-        $this->input->setValue('bar');
-        $validator = new Validator\Digits();
-        $this->input->getValidatorChain()->attach($validator);
-        $this->input->setErrorMessage('Please enter only digits');
-        $this->assertFalse($this->input->isValid());
-        $messages = $this->input->getMessages();
-        $this->assertArrayNotHasKey(Validator\Digits::NOT_DIGITS, $messages);
-        $this->assertContains('Please enter only digits', $messages);
     }
 
     public function testBreakOnFailureFlagIsOffByDefault()
@@ -332,10 +340,13 @@ class InputTest extends TestCase
         $this->assertTrue($this->input->breakOnFailure());
     }
 
-    public function testNotEmptyValidatorAddedWhenIsValidIsCalled()
+    /**
+     * @dataProvider emptyValueProvider
+     */
+    public function testNotEmptyValidatorAddedWhenIsValidIsCalled($value)
     {
         $this->assertTrue($this->input->isRequired());
-        $this->input->setValue('');
+        $this->input->setValue($value);
         $validatorChain = $this->input->getValidatorChain();
         $this->assertEquals(0, count($validatorChain->getValidators()));
 
@@ -349,16 +360,15 @@ class InputTest extends TestCase
         $this->assertEquals(1, count($validatorChain->getValidators()));
     }
 
-    public function testRequiredNotEmptyValidatorNotAddedWhenOneExists()
+    /**
+     * @dataProvider emptyValueProvider
+     */
+    public function testRequiredNotEmptyValidatorNotAddedWhenOneExists($value)
     {
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue('');
+        $this->input->setRequired(true);
+        $this->input->setValue($value);
 
-        /** @var Validator\NotEmpty|MockObject $notEmptyMock */
-        $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
-        $notEmptyMock->expects($this->exactly(1))
-                     ->method('isValid')
-                     ->will($this->returnValue(false));
+        $notEmptyMock = $this->createNonEmptyValidatorMock(false, $value);
 
         $validatorChain = $this->input->getValidatorChain();
         $validatorChain->prependValidator($notEmptyMock);
@@ -369,41 +379,23 @@ class InputTest extends TestCase
         $this->assertEquals($notEmptyMock, $validators[0]['instance']);
     }
 
-    public function testNotAllowEmptyWithFilterConvertsNonemptyToEmptyIsNotValid()
+    /**
+     * @dataProvider emptyValueProvider
+     */
+    public function testDoNotInjectNotEmptyValidatorIfAnywhereInChain($valueRaw, $valueFiltered)
     {
-        $this->input->setValue('nonempty')
-                    ->getFilterChain()->attach(new Filter\Callback(function () {
-                        return '';
-                    }));
-        $this->assertFalse($this->input->isValid());
-    }
-
-    public function testNotAllowEmptyWithFilterConvertsEmptyToNonEmptyIsValid()
-    {
-        $this->input->setValue('')
-                    ->getFilterChain()->attach(new Filter\Callback(function () {
-                        return 'nonempty';
-                    }));
-        $this->assertTrue(
-            $this->input->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
-        );
-    }
-
-    public function testDoNotInjectNotEmptyValidatorIfAnywhereInChain()
-    {
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue('');
-
-        /** @var Validator\NotEmpty|MockObject $notEmptyMock */
-        $notEmptyMock = $this->getMock(Validator\NotEmpty::class, ['isValid']);
-        $notEmptyMock->expects($this->exactly(1))
-                     ->method('isValid')
-                     ->will($this->returnValue(false));
-
+        $filterChain = $this->createFilterChainMock($valueRaw, $valueFiltered);
         $validatorChain = $this->input->getValidatorChain();
-        $validatorChain->attach(new Validator\Digits());
+
+        $this->input->setRequired(true);
+        $this->input->setFilterChain($filterChain);
+        $this->input->setValue($valueRaw);
+
+        $notEmptyMock = $this->createNonEmptyValidatorMock(false, $valueFiltered);
+
+        $validatorChain->attach($this->createValidatorMock(true));
         $validatorChain->attach($notEmptyMock);
+
         $this->assertFalse($this->input->isValid());
 
         $validators = $validatorChain->getValidators();
@@ -471,8 +463,10 @@ class InputTest extends TestCase
         $this->assertEquals($originalInput, $input, 'Input was not reset to the default value state');
     }
 
-    public function testMerge($sourceRawValue = 'bazRawValue')
+    public function testMerge()
     {
+        $sourceRawValue = $this->getDummyValue();
+
         $source = $this->createInputInterfaceMock();
         $source->method('getName')->willReturn('bazInput');
         $source->method('getErrorMessage')->willReturn('bazErrorMessage');
@@ -772,31 +766,53 @@ class InputTest extends TestCase
     }
 
     /**
+     * @param mixed $valueRaw
+     * @param mixed $valueFiltered
+     *
      * @return FilterChain|MockObject
      */
-    protected function createFilterChainMock()
+    protected function createFilterChainMock($valueRaw = null, $valueFiltered = null)
     {
         /** @var FilterChain|MockObject $filterChain */
         $filterChain = $this->getMock(FilterChain::class);
+
+        $filterChain->method('filter')
+            ->with($valueRaw)
+            ->willReturn($valueFiltered)
+        ;
 
         return $filterChain;
     }
 
     /**
      * @param null|bool $isValid If set stub isValid method for return the argument value.
+     * @param mixed $value
+     * @param mixed $context
+     * @param string[] $messages
      *
      * @return ValidatorChain|MockObject
      */
-    protected function createValidatorChainMock($isValid = null)
+    protected function createValidatorChainMock($isValid = null, $value = null, $context = null, $messages = [])
     {
         /** @var ValidatorChain|MockObject $validatorChain */
         $validatorChain = $this->getMock(ValidatorChain::class);
 
-        if ($isValid !== null) {
-            $validatorChain->method('isValid')
+        if (($isValid === false) || ($isValid === true)) {
+            $validatorChain->expects($this->once())
+                ->method('isValid')
+                ->with($value, $context)
                 ->willReturn($isValid)
             ;
+        } else {
+            $validatorChain->expects($this->never())
+                ->method('isValid')
+                ->with($value, $context)
+            ;
         }
+
+        $validatorChain->method('getMessages')
+            ->willReturn($messages)
+        ;
 
         return $validatorChain;
     }
@@ -807,24 +823,25 @@ class InputTest extends TestCase
      * @param mixed $context
      * @param string[] $messages
      *
-     * @return Validator\ValidatorInterface|MockObject
+     * @return ValidatorInterface|MockObject
      */
-    protected function createValidatorMock($isValid, $value, $context = null, $messages = [])
+    protected function createValidatorMock($isValid, $value = 'not-set', $context = null, $messages = [])
     {
-        /** @var Validator\ValidatorInterface|MockObject $validator */
-        $validator = $this->getMock(Validator\ValidatorInterface::class);
+        /** @var ValidatorInterface|MockObject $validator */
+        $validator = $this->getMock(ValidatorInterface::class);
 
         if (($isValid === false) || ($isValid === true)) {
-            $validator->expects($this->once())
+            $isValidMethod = $validator->expects($this->once())
                 ->method('isValid')
-                ->with($value, $context)
                 ->willReturn($isValid)
             ;
         } else {
-            $validator->expects($this->never())
+            $isValidMethod = $validator->expects($this->never())
                 ->method('isValid')
-                ->with($value, $context)
             ;
+        }
+        if ($value !== 'not-set') {
+            $isValidMethod->with($value, $context);
         }
 
         $validator->method('getMessages')
@@ -832,5 +849,34 @@ class InputTest extends TestCase
         ;
 
         return $validator;
+    }
+
+    /**
+     * @param bool $isValid
+     * @param mixed $value
+     * @param mixed $context
+     *
+     * @return NotEmptyValidator|MockObject
+     */
+    protected function createNonEmptyValidatorMock($isValid, $value, $context =  null)
+    {
+        /** @var NotEmptyValidator|MockObject $notEmptyMock */
+        $notEmptyMock = $this->getMock(NotEmptyValidator::class, ['isValid']);
+        $notEmptyMock->expects($this->once())
+            ->method('isValid')
+            ->with($value, $context)
+            ->willReturn($isValid)
+        ;
+
+        return $notEmptyMock;
+    }
+
+    protected function getDummyValue($raw = true)
+    {
+        if ($raw) {
+            return 'foo';
+        } else {
+            return 'filtered';
+        }
     }
 }
