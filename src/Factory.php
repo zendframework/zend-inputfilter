@@ -341,14 +341,17 @@ class Factory
             } else {
 
                 // Patch to enable nested, integer indexed input_filter_specs
-                // InputFilter doesn't have an name property!
-                // But if the key is an integer and type and name are specified maybe we could use it.
-                if (isset($value['type']) && is_string($value['type'])) {
-                    if (isset($value['name']) && is_string($value['name'])) {
+                // Check type and name are in spec
+                if (isset($value['type']) && is_string($value['type'])
+                    && isset($value['name']) && is_string($value['name'])) {
+                    // Make sure type is an InputFilter
+                    $checkType = $this->getInputFilterManager()->get($value['type']);
+                    if ($checkType instanceof InputFilter) {
+                        // Only apply when key is an integer
                         if (is_integer($key)) {
                             $key = $value['name'];
                         }
-                        // Remove
+                        // Remove name from spec. InputFilter doesn't have an name property!
                         unset($value['name']);
                     }
                 }
