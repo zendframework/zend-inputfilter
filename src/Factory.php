@@ -343,9 +343,12 @@ class Factory
                 // Patch to enable nested, integer indexed input_filter_specs
                 // InputFilter doesn't have an name property!
                 // But if the key is an integer and type and name are specified maybe we could use it.
-                if (is_integer($key) && isset($value['type']) && is_string($value['type'])) {
+                if (isset($value['type']) && is_string($value['type'])) {
                     if (isset($value['name']) && is_string($value['name'])) {
-                        $key = $value['name'];
+                        if (is_integer($key)) {
+                            $key = $value['name'];
+                        }
+                        // Remove
                         unset($value['name']);
                     }
                 }
