@@ -307,12 +307,12 @@ class Factory
         }
 
         $type = InputFilter::class;
-    
+
         if (isset($inputFilterSpecification['type']) && is_string($inputFilterSpecification['type'])) {
             $type = $inputFilterSpecification['type'];
             unset($inputFilterSpecification['type']);
         }
-        
+
         $inputFilter = $this->getInputFilterManager()->get($type);
 
         if ($inputFilter instanceof CollectionInputFilter) {
@@ -339,9 +339,9 @@ class Factory
             ) {
                 $input = $value;
             } else {
-                
+
                 // Patch to enable nested, integer indexed input_filter_specs
-                // InputFilter doesn't have an name property! 
+                // InputFilter doesn't have an name property!
                 // But if the key is an integer and type and name are specified maybe we could use it.
                 if (is_integer($key) && isset($value['type']) && is_string($value['type'])) {
                     if (isset($value['name']) && is_string($value['name'])) {
@@ -349,7 +349,7 @@ class Factory
                         unset($value['name']);
                     }
                 }
-                
+
                 $input = $this->createInput($value);
             }
 

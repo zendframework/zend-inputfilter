@@ -918,18 +918,20 @@ class FactoryTest extends TestCase
         $factory = $this->createDefaultFactory();
         $inputFilter = $factory->createInputFilter([
             1 => [
+                'type' => InputFilter::class,
                 'name' => 'foo',
             ],
         ]);
 
         $this->assertTrue($inputFilter->has('foo'));
     }
-    
+
     public function testCreateInputFilterUsesAssociatedNameMappingOverConfiguredName()
     {
         $factory = $this->createDefaultFactory();
         $inputFilter = $factory->createInputFilter([
             'foo' => [
+                'type' => InputFilter::class,
                 'name' => 'bar',
             ],
         ]);
@@ -937,7 +939,7 @@ class FactoryTest extends TestCase
         $this->assertTrue($inputFilter->has('foo'));
         $this->assertFalse($inputFilter->has('bar'));
     }
-    
+
     public function testCreateInputFilterUsesConfiguredNameForNestedInputFilters()
     {
         $factory = $this->createDefaultFactory();
@@ -979,7 +981,7 @@ class FactoryTest extends TestCase
         $this->assertEquals(1, count($collectionInputFilter));
         $this->assertTrue($collectionInputFilter->has('bat'));
     }
-    
+
     /**
      * @return Factory
      */
