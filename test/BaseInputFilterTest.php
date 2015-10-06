@@ -565,8 +565,7 @@ class BaseInputFilterTest extends TestCase
         $arrayInput = $this->getMock(ArrayInput::class);
         $arrayInput
             ->expects($this->once())
-            ->method('setValue')
-            ->with([]);
+            ->method('resetValue');
 
         $filter = $this->inputFilter;
         $filter->add($arrayInput, 'arrayInput');
@@ -596,6 +595,15 @@ class BaseInputFilterTest extends TestCase
             ],
             array_keys($inputFilter->getInputs())
         );
+    }
+
+    public function testHasValueIsFalseIfNoValueWasProvided()
+    {
+        $inputFilter = new BaseInputFilter();
+        $inputFilter->add(new ArrayInput(), 'foo');
+
+        $inputFilter->setData([]);
+        $this->assertFalse($inputFilter->get('foo')->hasValue());
     }
 
     public function addMethodArgumentsProvider()

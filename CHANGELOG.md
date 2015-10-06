@@ -18,7 +18,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- `ArrayInput::hasValue()` returned `true` for inputs that didn't get a value via `BaseInputFilter::setData()`
 
 ## 2.5.5 - 2015-09-03
 

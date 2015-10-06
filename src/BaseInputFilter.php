@@ -513,7 +513,7 @@ class BaseInputFilter implements
                 }
 
                 if ($input instanceof ArrayInput) {
-                    $input->setValue([]);
+                    $input->resetValue();
                     continue;
                 }
 
