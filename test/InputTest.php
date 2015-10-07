@@ -222,6 +222,39 @@ class InputTest extends TestCase
 
     /**
      * @group 28
+     * @group 69
+     */
+    public function testRequiredWithoutFallbackAndValueNotSetProvidesAttachedNotEmptyValidatorIsEmptyErrorMessage()
+    {
+        $input = new Input();
+        $input->setRequired(true);
+
+        $customMessage = [
+            NotEmptyValidator::IS_EMPTY => "Custom message",
+        ];
+
+        $notEmpty = $this->getMockBuilder(NotEmptyValidator::class)
+            ->setMethods(['getOption'])
+            ->getMock();
+
+        $notEmpty->expects($this->once())
+            ->method('getOption')
+            ->with('messageTemplates')
+            ->willReturn($customMessage);
+
+        $input->getValidatorChain()
+            ->attach($notEmpty);
+
+        $this->assertFalse(
+            $input->isValid(),
+            'isValid() should always return false when no fallback value is present, '
+            . 'the input is required, and no data is set.'
+        );
+        $this->assertEquals($customMessage, $input->getMessages());
+    }
+
+    /**
+     * @group 28
      * @group 60
      */
     public function testRequiredWithoutFallbackAndValueNotSetProvidesCustomErrorMessageWhenSet()
