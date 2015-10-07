@@ -512,11 +512,6 @@ class BaseInputFilter implements
                     continue;
                 }
 
-                if ($input instanceof ArrayInput) {
-                    $input->resetValue();
-                    continue;
-                }
-
                 if ($input instanceof Input) {
                     $input->resetValue();
                     continue;
