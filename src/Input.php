@@ -491,7 +491,20 @@ class Input implements
      */
     protected function prepareRequiredValidationFailureMessage()
     {
-        $notEmpty = new NotEmpty();
+        $chain = $this->getValidatorChain();
+        $validators = $chain->getValidators();
+
+        foreach ($validators as $validator) {
+            if ($validator['instance'] instanceof NotEmpty) {
+                $notEmpty = $validator['instance'];
+                break;
+            }
+        }
+
+        if (!isset($notEmpty)) {
+            $notEmpty = new NotEmpty();
+        }
+
         $templates = $notEmpty->getOption('messageTemplates');
         return [
             NotEmpty::IS_EMPTY => $templates[NotEmpty::IS_EMPTY],
