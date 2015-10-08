@@ -15,7 +15,6 @@ use FilterIterator;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
-use Zend\InputFilter\ArrayInput;
 use Zend\InputFilter\BaseInputFilter;
 use Zend\InputFilter\Exception\InvalidArgumentException;
 use Zend\InputFilter\Exception\RuntimeException;
@@ -554,23 +553,6 @@ class BaseInputFilterTest extends TestCase
         $filter->add($foo2);
 
         $this->assertFalse($filter->get('foo')->isRequired());
-    }
-
-    /**
-     * @group 5638
-     */
-    public function testPopulateSupportsArrayInputEvenIfDataMissing()
-    {
-        /** @var ArrayInput|MockObject $arrayInput */
-        $arrayInput = $this->getMock(ArrayInput::class);
-        $arrayInput
-            ->expects($this->once())
-            ->method('setValue')
-            ->with([]);
-
-        $filter = $this->inputFilter;
-        $filter->add($arrayInput, 'arrayInput');
-        $filter->setData(['foo' => 'bar']);
     }
 
     /**
