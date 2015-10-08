@@ -18,7 +18,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- `ArrayInput::hasValue()` returned `true` for inputs that didn't get a value via `BaseInputFilter::setData()`
+- [#72](https://github.com/zendframework/zend-inputfilter/pull/72) `ArrayInput`
+  value is properly reset after `BaseInputFilter::setData()`
 
 ## 2.5.5 - 2015-09-03
 
