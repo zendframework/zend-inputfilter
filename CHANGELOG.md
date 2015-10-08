@@ -36,7 +36,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#72](https://github.com/zendframework/zend-inputfilter/pull/72) `ArrayInput`
+  value is properly reset after `BaseInputFilter::setData()`
 
 ## 2.5.5 - 2015-09-03
 
