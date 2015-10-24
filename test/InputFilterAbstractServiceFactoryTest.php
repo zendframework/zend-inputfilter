@@ -170,4 +170,164 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
         $inputFilter = $this->services->get('InputFilterManager')->get('foobar');
         $this->assertInstanceOf(InputFilterInterface::class, $inputFilter);
     }
+
+    public function testRetrieveNestedInputFilterServiceFromInputFilterPluginManager()
+    {
+        $this->filters->addAbstractFactory($this->factory);
+
+        $this->services->setService('FilterManager', $filters = new FilterPluginManager());
+        $this->services->setService('ValidatorManager', $validators = new ValidatorPluginManager());
+        $this->services->setService('Config', [
+            'input_filter_specs' => [
+                'MyAddressFilter' => [
+                    'city' => [
+                        'name' => 'city',
+                        'required' => true,
+                    ],
+                ],
+                'MyPersonFilter' => [
+                    'gender' => [
+                        'name' => 'gender',
+                        'required' => true,
+                    ],
+                    'addresses' => [
+                        'type' => \Zend\InputFilter\CollectionInputFilter::class,
+                        'input_filter' => [
+                            'type' => 'MyAddressFilter',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $actual = $this->factory->createServiceWithName($this->filters, 'MyPersonFilter', 'MyPersonFilter');
+
+        $this->assertInstanceOf(InputFilterInterface::class, $actual);
+
+        $actual->setData([
+            'gender' => 'M',
+            'addresses' => [
+                [
+                    'city' => 'Phoenix',
+                ],
+                [
+                    'city' => 'Tucson',
+                ],
+            ],
+        ]);
+
+        $this->assertTrue($actual->isValid());
+    }
+
+    /**
+     * @depends testRetrieveNestedInputFilterServiceFromInputFilterPluginManager
+     * @expectedException \Zend\ServiceManager\Exception\ServiceNotFoundException
+     */
+    public function testFactoryUsesDifferentInputFilterManagerDueToMissingFilterManager()
+    {
+        $this->filters->addAbstractFactory($this->factory);
+
+        $this->services->setService('ValidatorManager', $validators = new ValidatorPluginManager());
+        $this->services->setService('Config', [
+            'input_filter_specs' => [
+                'MyAddressFilter' => [
+                    'city' => [
+                        'name' => 'city',
+                        'required' => true,
+                    ],
+                ],
+                'MyPersonFilter' => [
+                    'gender' => [
+                        'name' => 'gender',
+                        'required' => true,
+                    ],
+                    'addresses' => [
+                        'type' => \Zend\InputFilter\CollectionInputFilter::class,
+                        'input_filter' => [
+                            'type' => 'MyAddressFilter',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->factory->createServiceWithName($this->filters, 'MyPersonFilter', 'MyPersonFilter');
+    }
+
+    /**
+     * @depends testRetrieveNestedInputFilterServiceFromInputFilterPluginManager
+     * @expectedException \Zend\ServiceManager\Exception\ServiceNotFoundException
+     */
+    public function testFactoryUsesDifferentInputFilterManagerDueToMissingValidatorManager()
+    {
+        $this->filters->addAbstractFactory($this->factory);
+
+        $this->services->setService('FilterManager', $filters = new FilterPluginManager());
+        $this->services->setService('Config', [
+            'input_filter_specs' => [
+                'MyAddressFilter' => [
+                    'city' => [
+                        'name' => 'city',
+                        'required' => true,
+                    ],
+                ],
+                'MyPersonFilter' => [
+                    'gender' => [
+                        'name' => 'gender',
+                        'required' => true,
+                    ],
+                    'addresses' => [
+                        'type' => \Zend\InputFilter\CollectionInputFilter::class,
+                        'input_filter' => [
+                            'type' => 'MyAddressFilter',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->factory->createServiceWithName($this->filters, 'MyPersonFilter', 'MyPersonFilter');
+    }
+
+    /**
+     * @depends testRetrieveNestedInputFilterServiceFromInputFilterPluginManager
+     * @expectedException \Zend\ServiceManager\Exception\ServiceNotFoundException
+     */
+    public function testFactoryUsesDifferentInputFilterManagerDueToMissingInputFilterManager()
+    {
+        $services = new ServiceManager();
+        $inputFilters  = new InputFilterPluginManager();
+        $inputFilters->setServiceLocator($services);
+
+        $factory = new InputFilterAbstractServiceFactory();
+
+        $inputFilters->addAbstractFactory($factory);
+
+        $services->setService('FilterManager', $filters = new FilterPluginManager());
+        $services->setService('ValidatorManager', $validators = new ValidatorPluginManager());
+        $services->setService('Config', [
+            'input_filter_specs' => [
+                'MyAddressFilter' => [
+                    'city' => [
+                        'name' => 'city',
+                        'required' => true,
+                    ],
+                ],
+                'MyPersonFilter' => [
+                    'gender' => [
+                        'name' => 'gender',
+                        'required' => true,
+                    ],
+                    'addresses' => [
+                        'type' => \Zend\InputFilter\CollectionInputFilter::class,
+                        'input_filter' => [
+                            'type' => 'MyAddressFilter',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $factory->createServiceWithName($inputFilters, 'MyPersonFilter', 'MyPersonFilter');
+    }
 }
