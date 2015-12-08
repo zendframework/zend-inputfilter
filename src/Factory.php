@@ -10,6 +10,7 @@
 namespace Zend\InputFilter;
 
 use Traversable;
+use Zend\ServiceManager\ServiceManager;
 use Zend\Filter\FilterChain;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\ArrayUtils;
@@ -117,13 +118,12 @@ class Factory
     public function setInputFilterManager(InputFilterPluginManager $inputFilterManager)
     {
         $this->inputFilterManager = $inputFilterManager;
-        $serviceLocator = $this->inputFilterManager->getServiceLocator();
-        if ($serviceLocator && $serviceLocator instanceof ServiceLocatorInterface) {
-            if ($serviceLocator->has('ValidatorManager')) {
-                $this->getDefaultValidatorChain()->setPluginManager($serviceLocator->get('ValidatorManager'));
+        if ($inputFilterManager && $inputFilterManager instanceof ServiceLocatorInterface) {
+            if ($inputFilterManager->has('ValidatorManager')) {
+                $this->getDefaultValidatorChain()->setPluginManager($inputFilterManager->get('ValidatorManager'));
             }
-            if ($serviceLocator->has('FilterManager')) {
-                $this->getDefaultFilterChain()->setPluginManager($serviceLocator->get('FilterManager'));
+            if ($inputFilterManager->has('FilterManager')) {
+                $this->getDefaultFilterChain()->setPluginManager($inputFilterManager->get('FilterManager'));
             }
         }
         return $this;
@@ -135,7 +135,7 @@ class Factory
     public function getInputFilterManager()
     {
         if (null === $this->inputFilterManager) {
-            $this->inputFilterManager = new InputFilterPluginManager;
+            $this->inputFilterManager = new InputFilterPluginManager(new ServiceManager());
         }
 
         return $this->inputFilterManager;

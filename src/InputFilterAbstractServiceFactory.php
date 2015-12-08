@@ -10,8 +10,10 @@
 namespace Zend\InputFilter;
 
 use Zend\Filter\FilterPluginManager;
-use Zend\ServiceManager\AbstractFactoryInterface;
+use Zend\ServiceManager\Factory\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\ServiceManager;
+use Interop\Container\ContainerInterface;
 use Zend\Validator\ValidatorPluginManager;
 
 class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
@@ -27,15 +29,8 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
      * @param string                  $rName
      * @return bool
      */
-    public function canCreateServiceWithName(ServiceLocatorInterface $inputFilters, $cName, $rName)
+    public function canCreate(ContainerInterface $services, $rName)
     {
-        $services = $inputFilters->getServiceLocator();
-        if (! $services instanceof ServiceLocatorInterface
-            || ! $services->has('Config')
-        ) {
-            return false;
-        }
-
         $config = $services->get('Config');
         if (!isset($config['input_filter_specs'][$rName])
             || !is_array($config['input_filter_specs'][$rName])
@@ -52,9 +47,8 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
      * @param string                  $rName
      * @return InputFilterInterface
      */
-    public function createServiceWithName(ServiceLocatorInterface $inputFilters, $cName, $rName)
+    public function __invoke(ContainerInterface $services, $rName, array  $options = null)
     {
-        $services  = $inputFilters->getServiceLocator();
         $allConfig = $services->get('Config');
         $config    = $allConfig['input_filter_specs'][$rName];
 
@@ -94,7 +88,7 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
             return $services->get('FilterManager');
         }
 
-        return new FilterPluginManager();
+        return new FilterPluginManager(new ServiceManager());
     }
 
     /**
@@ -107,6 +101,6 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
             return $services->get('ValidatorManager');
         }
 
-        return new ValidatorPluginManager();
+        return new ValidatorPluginManager(new ServiceManager());
     }
 }

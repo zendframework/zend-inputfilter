@@ -14,12 +14,12 @@
     },
     "require": {
         "php": ">=5.5",
-        "zendframework/zend-filter": "~2.5",
-        "zendframework/zend-validator": "^2.5.3",
-        "zendframework/zend-stdlib": "~2.5"
+        "zendframework/zend-filter": "dev-develop as 2.6.0",
+        "zendframework/zend-validator": "dev-develop",
+        "zendframework/zend-stdlib": "dev-develop as 2.8.0"
     },
     "require-dev": {
-        "zendframework/zend-servicemanager": "~2.5",
+        "zendframework/zend-servicemanager": "dev-develop as 2.7.0",
         "fabpot/php-cs-fixer": "1.7.*",
         "phpunit/PHPUnit": "^4.5"
     },

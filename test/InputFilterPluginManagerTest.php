@@ -17,6 +17,7 @@ use Zend\InputFilter\InputFilter;
 use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputFilterPluginManager;
 use Zend\InputFilter\InputInterface;
+use Zend\ServiceManager\ServiceManager;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\InitializableInterface;
@@ -34,7 +35,7 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->manager = new InputFilterPluginManager();
+        $this->manager = new InputFilterPluginManager(new ServiceManager());
     }
 
     public function testIsASubclassOfAbstractPluginManager()
@@ -84,8 +85,6 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testInputFilterInvokableClassSMDependenciesArePopulatedWithoutServiceLocator()
     {
-        $this->assertNull($this->manager->getServiceLocator(), 'Plugin manager is expected to no have a service locator');
-
         /** @var InputFilter $service */
         $service = $this->manager->get('inputfilter');
 
@@ -99,8 +98,12 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testInputFilterInvokableClassSMDependenciesArePopulatedWithServiceLocator()
     {
-        $filterManager = $this->getMock(FilterPluginManager::class);
-        $validatorManager = $this->getMock(ValidatorPluginManager::class);
+        $filterManager = $this->getMockBuilder(FilterPluginManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $validatorManager = $this->getMockBuilder(ValidatorPluginManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $serviceLocator = $this->createServiceLocatorInterfaceMock();
         $serviceLocator->method('get')
@@ -111,9 +114,6 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
                 ]
             )
         ;
-
-        $this->manager->setServiceLocator($serviceLocator);
-        $this->assertSame($serviceLocator, $this->manager->getServiceLocator(), 'getServiceLocator() value not match');
 
         /** @var InputFilter $service */
         $service = $this->manager->get('inputfilter');

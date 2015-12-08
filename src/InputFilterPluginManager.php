@@ -9,10 +9,13 @@
 
 namespace Zend\InputFilter;
 
+use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ConfigInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\InitializableInterface;
+use Zend\ServiceManager\Factory\InvokableFactory;
 
 /**
  * Plugin manager implementation for input filters.
@@ -22,13 +25,23 @@ use Zend\Stdlib\InitializableInterface;
 class InputFilterPluginManager extends AbstractPluginManager
 {
     /**
+     * Default alias of plugins
+     *
+     * @var string[]
+     */
+    protected $aliases = [
+        'inputfilter' => InputFilter::class,
+        'collection'  => CollectionInputFilter::class,
+    ];
+
+    /**
      * Default set of plugins
      *
      * @var string[]
      */
-    protected $invokableClasses = [
-        'inputfilter' => InputFilter::class,
-        'collection'  => CollectionInputFilter::class,
+    protected $factories = [
+        InputFilter::class  => InvokableFactory::class,
+        CollectionInputFilter::class  => InvokableFactory::class,
     ];
 
     /**
@@ -41,10 +54,9 @@ class InputFilterPluginManager extends AbstractPluginManager
     /**
      * @param ConfigInterface $configuration
      */
-    public function __construct(ConfigInterface $configuration = null)
+    public function __construct(ContainerInterface $parentLocator, array $config = [])
     {
-        parent::__construct($configuration);
-
+        parent::__construct($parentLocator, $config);
         $this->addInitializer([$this, 'populateFactory']);
     }
 
@@ -70,7 +82,7 @@ class InputFilterPluginManager extends AbstractPluginManager
     /**
      * {@inheritDoc}
      */
-    public function validatePlugin($plugin)
+    public function validate($plugin)
     {
         if ($plugin instanceof InputFilterInterface || $plugin instanceof InputInterface) {
             // Hook to perform various initialization, when the inputFilter is not created through the factory
@@ -88,5 +100,10 @@ class InputFilterPluginManager extends AbstractPluginManager
             InputFilterInterface::class,
             InputInterface::class
         ));
+    }
+
+    public function shareByDefault()
+    {
+        return $this->shareByDefault;
     }
 }
