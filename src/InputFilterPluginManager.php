@@ -12,7 +12,9 @@ namespace Zend\InputFilter;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ConfigInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\InitializableInterface;
+use Zend\ServiceManager\Factory\InvokableFactory;
 
 /**
  * Plugin manager implementation for input filters.
@@ -26,9 +28,14 @@ class InputFilterPluginManager extends AbstractPluginManager
      *
      * @var string[]
      */
-    protected $invokableClasses = [
+    protected $aliases = [
         'inputfilter' => InputFilter::class,
         'collection'  => CollectionInputFilter::class,
+    ];
+
+    protected $factories = [
+        InputFilter::class  => InvokableFactory::class,
+        CollectionInputFilter::class  => InvokableFactory::class,
     ];
 
     /**
@@ -43,7 +50,11 @@ class InputFilterPluginManager extends AbstractPluginManager
      */
     public function __construct(ConfigInterface $configuration = null)
     {
-        parent::__construct($configuration);
+        if (null === $configuration) {
+            $configuration = [];
+        }
+
+        parent::__construct(new ServiceManager(), $configuration);
 
         $this->addInitializer([$this, 'populateFactory']);
     }
@@ -70,7 +81,7 @@ class InputFilterPluginManager extends AbstractPluginManager
     /**
      * {@inheritDoc}
      */
-    public function validatePlugin($plugin)
+    public function validate($plugin)
     {
         if ($plugin instanceof InputFilterInterface || $plugin instanceof InputInterface) {
             // Hook to perform various initialization, when the inputFilter is not created through the factory

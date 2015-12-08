@@ -17,6 +17,7 @@ use Zend\InputFilter\InputFilter;
 use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputFilterPluginManager;
 use Zend\InputFilter\InputInterface;
+use Zend\ServiceManager\ServiceManager;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\InitializableInterface;
@@ -34,7 +35,7 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->manager = new InputFilterPluginManager();
+        $this->manager = new InputFilterPluginManager(new ServiceManager());
     }
 
     public function testIsASubclassOfAbstractPluginManager()
