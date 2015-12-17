@@ -140,7 +140,7 @@ class InputTest extends TestCase
         $input->setContinueIfEmpty(true);
 
         $input->setRequired($required);
-        $input->setValidatorChain($this->createValidatorChainMock($isValid, $originalValue));
+        $input->setValidatorChain($this->createValidatorChainMock([[$originalValue, null, $isValid]]));
         $input->setFallbackValue($fallbackValue);
         $input->setValue($originalValue);
 
@@ -165,7 +165,7 @@ class InputTest extends TestCase
         $input->setContinueIfEmpty(true);
 
         $input->setRequired($required);
-        $input->setValidatorChain($this->createValidatorChainMock(null));
+        $input->setValidatorChain($this->createValidatorChainMock());
         $input->setFallbackValue($fallbackValue);
 
         $this->assertTrue(
@@ -289,7 +289,7 @@ class InputTest extends TestCase
         $valueRaw = $this->getDummyValue();
         $valueFiltered = $this->getDummyValue(false);
 
-        $filterChain = $this->createFilterChainMock($valueRaw, $valueFiltered);
+        $filterChain = $this->createFilterChainMock([[$valueRaw, $valueFiltered]]);
 
         $this->input->setFilterChain($filterChain);
         $this->input->setValue($valueRaw);
@@ -314,9 +314,9 @@ class InputTest extends TestCase
         $valueRaw = $this->getDummyValue();
         $valueFiltered = $this->getDummyValue(false);
 
-        $filterChain = $this->createFilterChainMock($valueRaw, $valueFiltered);
+        $filterChain = $this->createFilterChainMock([[$valueRaw, $valueFiltered]]);
 
-        $validatorChain = $this->createValidatorChainMock(true, $valueFiltered);
+        $validatorChain = $this->createValidatorChainMock([[$valueFiltered, null, true]]);
 
         $this->input->setAllowEmpty(true);
         $this->input->setFilterChain($filterChain);
@@ -384,7 +384,7 @@ class InputTest extends TestCase
      */
     public function testDoNotInjectNotEmptyValidatorIfAnywhereInChain($valueRaw, $valueFiltered)
     {
-        $filterChain = $this->createFilterChainMock($valueRaw, $valueFiltered);
+        $filterChain = $this->createFilterChainMock([[$valueRaw, $valueFiltered]]);
         $validatorChain = $this->input->getValidatorChain();
 
         $this->input->setRequired(true);
@@ -766,47 +766,41 @@ class InputTest extends TestCase
     }
 
     /**
-     * @param mixed $valueRaw
-     * @param mixed $valueFiltered
+     * @param array $valueMap
      *
      * @return FilterChain|MockObject
      */
-    protected function createFilterChainMock($valueRaw = null, $valueFiltered = null)
+    protected function createFilterChainMock(array $valueMap = [])
     {
         /** @var FilterChain|MockObject $filterChain */
         $filterChain = $this->getMock(FilterChain::class);
 
         $filterChain->method('filter')
-            ->with($valueRaw)
-            ->willReturn($valueFiltered)
+            ->willReturnMap($valueMap)
         ;
 
         return $filterChain;
     }
 
     /**
-     * @param null|bool $isValid If set stub isValid method for return the argument value.
-     * @param mixed $value
-     * @param mixed $context
+     * @param array $valueMap
      * @param string[] $messages
      *
      * @return ValidatorChain|MockObject
      */
-    protected function createValidatorChainMock($isValid = null, $value = null, $context = null, $messages = [])
+    protected function createValidatorChainMock(array $valueMap = [], $messages = [])
     {
         /** @var ValidatorChain|MockObject $validatorChain */
         $validatorChain = $this->getMock(ValidatorChain::class);
 
-        if (($isValid === false) || ($isValid === true)) {
-            $validatorChain->expects($this->once())
-                ->method('isValid')
-                ->with($value, $context)
-                ->willReturn($isValid)
-            ;
-        } else {
+        if (empty($valueMap)) {
             $validatorChain->expects($this->never())
                 ->method('isValid')
-                ->with($value, $context)
+            ;
+        } else {
+            $validatorChain->expects($this->atLeastOnce())
+                ->method('isValid')
+                ->willReturnMap($valueMap)
             ;
         }
 
