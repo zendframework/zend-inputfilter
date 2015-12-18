@@ -111,48 +111,6 @@ class FileInputTest extends InputTest
         $this->assertEquals($badValue, $this->input->getValue());
     }
 
-    public function testGetMessagesReturnsValidationMessages()
-    {
-        $this->input->setAutoPrependUploadValidator(true);
-        $this->input->setValue([
-            'tmp_name' => __FILE__,
-            'name'     => 'foo',
-            'size'     => 1,
-            'error'    => 0,
-        ]);
-        $this->assertFalse($this->input->isValid());
-        $messages = $this->input->getMessages();
-        $this->assertArrayHasKey(Validator\File\UploadFile::ATTACK, $messages);
-    }
-
-    public function testCanValidateArrayOfMultiFileData()
-    {
-        $values = [
-            [
-                'tmp_name' => __FILE__,
-                'name'     => 'foo',
-            ],
-            [
-                'tmp_name' => __FILE__,
-                'name'     => 'bar',
-            ],
-            [
-                'tmp_name' => __FILE__,
-                'name'     => 'baz',
-            ],
-        ];
-        $this->input->setValue($values);
-        $this->input->setValidatorChain($this->createValidatorChainMock([
-            [$values[0], null, true],
-            [$values[1], null, true],
-            [$values[2], null, true],
-        ]));
-        $this->assertTrue(
-            $this->input->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
-        );
-    }
-
     public function testAutoPrependUploadValidatorIsOnByDefault()
     {
         $input = new FileInput('foo');
