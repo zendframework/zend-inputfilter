@@ -36,8 +36,7 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
     public function setUp()
     {
         $this->services = new ServiceManager();
-        $this->filters  = new InputFilterPluginManager();
-        $this->filters->setServiceLocator($this->services);
+        $this->filters  = new InputFilterPluginManager($this->services);
         $this->services->setService('InputFilterManager', $this->filters);
 
         $this->factory = new InputFilterAbstractServiceFactory();
