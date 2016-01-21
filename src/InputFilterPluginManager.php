@@ -49,7 +49,7 @@ class InputFilterPluginManager extends AbstractPluginManager
      *
      * @var bool
      */
-    protected $shareByDefault = false;
+    protected $sharedByDefault = false;
 
     /**
      * @param ConfigInterface $configuration
