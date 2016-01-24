@@ -59,7 +59,7 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
         $this->services->setService('Config', [
             'input_filter_specs' => [],
         ]);
-        $this->assertFalse($this->factory->canCreate($this->filters, 'filter'));
+        $this->assertFalse($this->factory->canCreate($this->services, 'filter'));
     }
 
     public function testCanCreateServiceIfConfigInputFiltersContainsMatchingServiceName()
@@ -69,7 +69,7 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
                 'filter' => [],
             ],
         ]);
-        $this->assertTrue($this->factory->canCreate($this->filters, 'filter'));
+        $this->assertTrue($this->factory->canCreate($this->services, 'filter'));
     }
 
     public function testCreatesInputFilterInstance()
@@ -88,12 +88,12 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
      */
     public function testUsesConfiguredValidationAndFilterManagerServicesWhenCreatingInputFilter()
     {
-        $filters = new FilterPluginManager();
+        $filters = new FilterPluginManager($this->services);
         $filter  = function ($value) {
         };
         $filters->setService('foo', $filter);
 
-        $validators = new ValidatorPluginManager();
+        $validators = new ValidatorPluginManager($this->services);
         /** @var ValidatorInterface|MockObject $validator */
         $validator  = $this->getMock(ValidatorInterface::class);
         $validators->setService('foo', $validator);
@@ -117,7 +117,7 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
             ],
         ]);
 
-        $inputFilter = $this->factory->createServiceWithName($this->filters, 'filter', 'filter');
+        $inputFilter = $this->factory->createServiceWithName($this->services, 'filter', 'filter');
         $this->assertTrue($inputFilter->has('input'));
 
         $input = $inputFilter->get('input');
@@ -128,7 +128,7 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
         $this->assertSame($filter, $filterChain->plugin('foo'));
         $this->assertEquals(1, count($filterChain));
 
-        $validatorChain = $input->getvalidatorChain();
+        $validatorChain = $input->getValidatorChain();
         $this->assertSame($validators, $validatorChain->getPluginManager());
         $this->assertEquals(1, count($validatorChain));
         $this->assertSame($validator, $validatorChain->plugin('foo'));

@@ -31,6 +31,10 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
      */
     public function canCreate(ContainerInterface $services, $rName)
     {
+        if (! $services->has('Config')) {
+            return false;
+        }
+
         $config = $services->get('Config');
         if (!isset($config['input_filter_specs'][$rName])
             || !is_array($config['input_filter_specs'][$rName])
@@ -55,6 +59,17 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
         $factory   = $this->getInputFilterFactory($services);
 
         return $factory->createInputFilter($config);
+    }
+
+    /**
+     * @param ServiceLocatorInterface $inputFilters
+     * @param string                  $cName
+     * @param string                  $rName
+     * @return InputFilterInterface
+     */
+    public function createServiceWithName(ServiceLocatorInterface $inputFilters, $cName, $rName)
+    {
+        return $this($inputFilters, $rName);
     }
 
     /**
