@@ -85,16 +85,24 @@ class InputFilterPluginManager extends AbstractPluginManager
 
     public function populateFactoryPluginManagers(Factory $factory)
     {
-        if ($this->creationContext->has('FilterManager')) {
-            $factory->getDefaultFilterChain()->setPluginManager($this->creationContext->get('FilterManager'));
+        if (property_exists($this, 'creationContext')) {
+            // v3
+            $container = $this->creationContext;
+        } else {
+            // v2
+            $container = $this->serviceLocator;
         }
-        if ($this->creationContext->has('ValidatorManager')) {
-            $factory->getDefaultValidatorChain()->setPluginManager($this->creationContext->get('ValidatorManager'));
+
+        if ($container->has('FilterManager')) {
+            $factory->getDefaultFilterChain()->setPluginManager($container->get('FilterManager'));
+        }
+        if ($container->has('ValidatorManager')) {
+            $factory->getDefaultValidatorChain()->setPluginManager($container->get('ValidatorManager'));
         }
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} (v3)
      */
     public function validate($plugin)
     {
@@ -114,6 +122,21 @@ class InputFilterPluginManager extends AbstractPluginManager
             InputFilterInterface::class,
             InputInterface::class
         ));
+    }
+
+    /**
+     * Validate the plugin (v2)
+     *
+     * Checks that the filter loaded is either a valid callback or an instance
+     * of FilterInterface.
+     *
+     * @param  mixed                      $plugin
+     * @return void
+     * @throws Exception\RuntimeException if invalid
+     */
+    public function validatePlugin($plugin)
+    {
+        $this->validate($plugin);
     }
 
     public function shareByDefault()

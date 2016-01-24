@@ -11,7 +11,7 @@ namespace Zend\InputFilter;
 
 use Interop\Container\ContainerInterface;
 use Zend\Filter\FilterPluginManager;
-use Zend\ServiceManager\Factory\AbstractFactoryInterface;
+use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Validator\ValidatorPluginManager;
@@ -24,7 +24,8 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
     protected $factory;
 
     /**
-     * @param ServiceLocatorInterface $inputFilters
+     *
+     * @param ContainerInterface $services
      * @param string                  $cName
      * @param string                  $rName
      * @return bool
@@ -46,9 +47,22 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
     }
 
     /**
-     * @param ServiceLocatorInterface $inputFilters
-     * @param string                  $cName
+     * Determine if we can create a service with name (v2)
+     *
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param $name
+     * @param $requestedName
+     * @return bool
+     */
+    public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    {
+        return $this->canCreate($serviceLocator, $requestedName);
+    }
+
+    /**
+     * @param ContainerInterface      $services
      * @param string                  $rName
+     * @param array                   $options
      * @return InputFilterInterface
      */
     public function __invoke(ContainerInterface $services, $rName, array  $options = null)
