@@ -118,14 +118,7 @@ class Factory
     public function setInputFilterManager(InputFilterPluginManager $inputFilterManager)
     {
         $this->inputFilterManager = $inputFilterManager;
-        if ($inputFilterManager && $inputFilterManager instanceof ServiceLocatorInterface) {
-            if ($inputFilterManager->has('ValidatorManager')) {
-                $this->getDefaultValidatorChain()->setPluginManager($inputFilterManager->get('ValidatorManager'));
-            }
-            if ($inputFilterManager->has('FilterManager')) {
-                $this->getDefaultFilterChain()->setPluginManager($inputFilterManager->get('FilterManager'));
-            }
-        }
+        $inputFilterManager->populateFactoryPluginManagers($this);
         return $this;
     }
 

@@ -31,7 +31,10 @@ class InputFilterPluginManager extends AbstractPluginManager
      */
     protected $aliases = [
         'inputfilter' => InputFilter::class,
+        'inputFilter' => InputFilter::class,
+        'InputFilter' => InputFilter::class,
         'collection'  => CollectionInputFilter::class,
+        'Collection'  => CollectionInputFilter::class,
     ];
 
     /**
@@ -80,11 +83,16 @@ class InputFilterPluginManager extends AbstractPluginManager
             $factory = $inputFilter->getFactory();
 
             $factory->setInputFilterManager($this);
+        }
+    }
 
-            if ($container instanceof ContainerInterface) {
-                $factory->getDefaultFilterChain()->setPluginManager($container->get('FilterManager'));
-                $factory->getDefaultValidatorChain()->setPluginManager($container->get('ValidatorManager'));
-            }
+    public function populateFactoryPluginManagers(Factory $factory)
+    {
+        if ($this->creationContext->has('FilterManager')) {
+            $factory->getDefaultFilterChain()->setPluginManager($this->creationContext->get('FilterManager'));
+        }
+        if ($this->creationContext->has('ValidatorManager')) {
+            $factory->getDefaultValidatorChain()->setPluginManager($this->creationContext->get('ValidatorManager'));
         }
     }
 
@@ -113,6 +121,6 @@ class InputFilterPluginManager extends AbstractPluginManager
 
     public function shareByDefault()
     {
-        return $this->shareByDefault;
+        return $this->sharedByDefault;
     }
 }
