@@ -17,9 +17,9 @@ use Zend\InputFilter\InputFilter;
 use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputFilterPluginManager;
 use Zend\InputFilter\InputInterface;
-use Zend\ServiceManager\ServiceManager;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\InitializableInterface;
 use Zend\Validator\ValidatorPluginManager;
 

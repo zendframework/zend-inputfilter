@@ -9,10 +9,10 @@
 
 namespace ZendTest\InputFilter;
 
+use Interop\Container\ContainerInterface;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\Filter;
-use Interop\Container\ContainerInterface;
 use Zend\InputFilter\CollectionInputFilter;
 use Zend\InputFilter\Exception\InvalidArgumentException;
 use Zend\InputFilter\Exception\RuntimeException;

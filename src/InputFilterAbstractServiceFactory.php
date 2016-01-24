@@ -9,11 +9,11 @@
 
 namespace Zend\InputFilter;
 
+use Interop\Container\ContainerInterface;
 use Zend\Filter\FilterPluginManager;
 use Zend\ServiceManager\Factory\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\ServiceManager;
-use Interop\Container\ContainerInterface;
 use Zend\Validator\ValidatorPluginManager;
 
 class InputFilterAbstractServiceFactory implements AbstractFactoryInterface

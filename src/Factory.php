@@ -10,9 +10,8 @@
 namespace Zend\InputFilter;
 
 use Traversable;
-use Zend\ServiceManager\ServiceManager;
 use Zend\Filter\FilterChain;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\ValidatorInterface;

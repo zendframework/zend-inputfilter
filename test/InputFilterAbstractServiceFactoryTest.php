@@ -10,7 +10,6 @@
 namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
-use Interop\Container\ContainerInterface;
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\Filter\FilterPluginManager;
 use Zend\InputFilter\InputFilterAbstractServiceFactory;

@@ -11,11 +11,8 @@ namespace Zend\InputFilter;
 
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ConfigInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\ServiceManager\ServiceManager;
-use Zend\Stdlib\InitializableInterface;
 use Zend\ServiceManager\Factory\InvokableFactory;
+use Zend\Stdlib\InitializableInterface;
 
 /**
  * Plugin manager implementation for input filters.
