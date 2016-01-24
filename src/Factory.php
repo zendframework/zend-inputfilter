@@ -10,9 +10,8 @@
 namespace Zend\InputFilter;
 
 use Traversable;
-use Zend\ServiceManager\ServiceManager;
 use Zend\Filter\FilterChain;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\ValidatorInterface;
@@ -118,14 +117,7 @@ class Factory
     public function setInputFilterManager(InputFilterPluginManager $inputFilterManager)
     {
         $this->inputFilterManager = $inputFilterManager;
-        if ($inputFilterManager && $inputFilterManager instanceof ServiceLocatorInterface) {
-            if ($inputFilterManager->has('ValidatorManager')) {
-                $this->getDefaultValidatorChain()->setPluginManager($inputFilterManager->get('ValidatorManager'));
-            }
-            if ($inputFilterManager->has('FilterManager')) {
-                $this->getDefaultFilterChain()->setPluginManager($inputFilterManager->get('FilterManager'));
-            }
-        }
+        $inputFilterManager->populateFactoryPluginManagers($this);
         return $this;
     }
 

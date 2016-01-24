@@ -11,11 +11,8 @@ namespace Zend\InputFilter;
 
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ConfigInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\ServiceManager\ServiceManager;
-use Zend\Stdlib\InitializableInterface;
 use Zend\ServiceManager\Factory\InvokableFactory;
+use Zend\Stdlib\InitializableInterface;
 
 /**
  * Plugin manager implementation for input filters.
@@ -31,7 +28,10 @@ class InputFilterPluginManager extends AbstractPluginManager
      */
     protected $aliases = [
         'inputfilter' => InputFilter::class,
+        'inputFilter' => InputFilter::class,
+        'InputFilter' => InputFilter::class,
         'collection'  => CollectionInputFilter::class,
+        'Collection'  => CollectionInputFilter::class,
     ];
 
     /**
@@ -80,16 +80,29 @@ class InputFilterPluginManager extends AbstractPluginManager
             $factory = $inputFilter->getFactory();
 
             $factory->setInputFilterManager($this);
+        }
+    }
 
-            if ($container instanceof ContainerInterface) {
-                $factory->getDefaultFilterChain()->setPluginManager($container->get('FilterManager'));
-                $factory->getDefaultValidatorChain()->setPluginManager($container->get('ValidatorManager'));
-            }
+    public function populateFactoryPluginManagers(Factory $factory)
+    {
+        if (property_exists($this, 'creationContext')) {
+            // v3
+            $container = $this->creationContext;
+        } else {
+            // v2
+            $container = $this->serviceLocator;
+        }
+
+        if ($container && $container->has('FilterManager')) {
+            $factory->getDefaultFilterChain()->setPluginManager($container->get('FilterManager'));
+        }
+        if ($container && $container->has('ValidatorManager')) {
+            $factory->getDefaultValidatorChain()->setPluginManager($container->get('ValidatorManager'));
         }
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} (v3)
      */
     public function validate($plugin)
     {
@@ -111,8 +124,23 @@ class InputFilterPluginManager extends AbstractPluginManager
         ));
     }
 
+    /**
+     * Validate the plugin (v2)
+     *
+     * Checks that the filter loaded is either a valid callback or an instance
+     * of FilterInterface.
+     *
+     * @param  mixed                      $plugin
+     * @return void
+     * @throws Exception\RuntimeException if invalid
+     */
+    public function validatePlugin($plugin)
+    {
+        $this->validate($plugin);
+    }
+
     public function shareByDefault()
     {
-        return $this->shareByDefault;
+        return $this->sharedByDefault;
     }
 }
