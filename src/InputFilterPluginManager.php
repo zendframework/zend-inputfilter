@@ -93,10 +93,10 @@ class InputFilterPluginManager extends AbstractPluginManager
             $container = $this->serviceLocator;
         }
 
-        if ($container->has('FilterManager')) {
+        if ($container && $container->has('FilterManager')) {
             $factory->getDefaultFilterChain()->setPluginManager($container->get('FilterManager'));
         }
-        if ($container->has('ValidatorManager')) {
+        if ($container && $container->has('ValidatorManager')) {
             $factory->getDefaultValidatorChain()->setPluginManager($container->get('ValidatorManager'));
         }
     }
