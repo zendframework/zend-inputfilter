@@ -33,9 +33,15 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
      */
     protected $manager;
 
+    /**
+     * @var ServiceManager
+     */
+    protected $services;
+
     public function setUp()
     {
-        $this->manager = new InputFilterPluginManager(new ServiceManager());
+        $this->services = new ServiceManager();
+        $this->manager = new InputFilterPluginManager($this->services);
     }
 
     public function testIsASubclassOfAbstractPluginManager()
@@ -105,15 +111,8 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $serviceLocator = $this->createServiceLocatorInterfaceMock();
-        $serviceLocator->method('get')
-            ->willReturnMap(
-                [
-                    ['FilterManager', $filterManager],
-                    ['ValidatorManager', $validatorManager],
-                ]
-            )
-        ;
+        $this->services->setService('FilterManager', $filterManager);
+        $this->services->setService('ValidatorManager', $validatorManager);
 
         /** @var InputFilter $service */
         $service = $this->manager->get('inputfilter');
