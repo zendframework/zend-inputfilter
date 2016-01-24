@@ -52,7 +52,8 @@ class InputFilterPluginManager extends AbstractPluginManager
     protected $sharedByDefault = false;
 
     /**
-     * @param ConfigInterface $configuration
+     * @param ContainerInterface $parentLocator
+     * @param array $config
      */
     public function __construct(ContainerInterface $parentLocator, array $config = [])
     {
@@ -63,18 +64,26 @@ class InputFilterPluginManager extends AbstractPluginManager
     /**
      * Inject this and populate the factory with filter chain and validator chain
      *
-     * @param $inputFilter
+     * @param mixed $first
+     * @param mixed $second
      */
-    public function populateFactory($inputFilter)
+    public function populateFactory($first, $second)
     {
+        if ($first instanceof ContainerInterface) {
+            $container = $first;
+            $inputFilter = $second;
+        } else {
+            $container = $second;
+            $inputFilter = $first;
+        }
         if ($inputFilter instanceof InputFilter) {
             $factory = $inputFilter->getFactory();
 
             $factory->setInputFilterManager($this);
 
-            if ($this->serviceLocator instanceof ServiceLocatorInterface) {
-                $factory->getDefaultFilterChain()->setPluginManager($this->serviceLocator->get('FilterManager'));
-                $factory->getDefaultValidatorChain()->setPluginManager($this->serviceLocator->get('ValidatorManager'));
+            if ($container instanceof ContainerInterface) {
+                $factory->getDefaultFilterChain()->setPluginManager($container->get('FilterManager'));
+                $factory->getDefaultValidatorChain()->setPluginManager($container->get('ValidatorManager'));
             }
         }
     }
