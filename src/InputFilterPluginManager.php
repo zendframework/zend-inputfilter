@@ -9,9 +9,9 @@
 
 namespace Zend\InputFilter;
 
+use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ConfigInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\Factory\InvokableFactory;
 use Zend\Stdlib\InitializableInterface;
 
 /**
@@ -22,13 +22,26 @@ use Zend\Stdlib\InitializableInterface;
 class InputFilterPluginManager extends AbstractPluginManager
 {
     /**
+     * Default alias of plugins
+     *
+     * @var string[]
+     */
+    protected $aliases = [
+        'inputfilter' => InputFilter::class,
+        'inputFilter' => InputFilter::class,
+        'InputFilter' => InputFilter::class,
+        'collection'  => CollectionInputFilter::class,
+        'Collection'  => CollectionInputFilter::class,
+    ];
+
+    /**
      * Default set of plugins
      *
      * @var string[]
      */
-    protected $invokableClasses = [
-        'inputfilter' => InputFilter::class,
-        'collection'  => CollectionInputFilter::class,
+    protected $factories = [
+        InputFilter::class  => InvokableFactory::class,
+        CollectionInputFilter::class  => InvokableFactory::class,
     ];
 
     /**
@@ -36,41 +49,62 @@ class InputFilterPluginManager extends AbstractPluginManager
      *
      * @var bool
      */
-    protected $shareByDefault = false;
+    protected $sharedByDefault = false;
 
     /**
-     * @param ConfigInterface $configuration
+     * @param ContainerInterface $parentLocator
+     * @param array $config
      */
-    public function __construct(ConfigInterface $configuration = null)
+    public function __construct(ContainerInterface $parentLocator, array $config = [])
     {
-        parent::__construct($configuration);
-
+        parent::__construct($parentLocator, $config);
         $this->addInitializer([$this, 'populateFactory']);
     }
 
     /**
      * Inject this and populate the factory with filter chain and validator chain
      *
-     * @param $inputFilter
+     * @param mixed $first
+     * @param mixed $second
      */
-    public function populateFactory($inputFilter)
+    public function populateFactory($first, $second)
     {
+        if ($first instanceof ContainerInterface) {
+            $container = $first;
+            $inputFilter = $second;
+        } else {
+            $container = $second;
+            $inputFilter = $first;
+        }
         if ($inputFilter instanceof InputFilter) {
             $factory = $inputFilter->getFactory();
 
             $factory->setInputFilterManager($this);
+        }
+    }
 
-            if ($this->serviceLocator instanceof ServiceLocatorInterface) {
-                $factory->getDefaultFilterChain()->setPluginManager($this->serviceLocator->get('FilterManager'));
-                $factory->getDefaultValidatorChain()->setPluginManager($this->serviceLocator->get('ValidatorManager'));
-            }
+    public function populateFactoryPluginManagers(Factory $factory)
+    {
+        if (property_exists($this, 'creationContext')) {
+            // v3
+            $container = $this->creationContext;
+        } else {
+            // v2
+            $container = $this->serviceLocator;
+        }
+
+        if ($container && $container->has('FilterManager')) {
+            $factory->getDefaultFilterChain()->setPluginManager($container->get('FilterManager'));
+        }
+        if ($container && $container->has('ValidatorManager')) {
+            $factory->getDefaultValidatorChain()->setPluginManager($container->get('ValidatorManager'));
         }
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} (v3)
      */
-    public function validatePlugin($plugin)
+    public function validate($plugin)
     {
         if ($plugin instanceof InputFilterInterface || $plugin instanceof InputInterface) {
             // Hook to perform various initialization, when the inputFilter is not created through the factory
@@ -88,5 +122,25 @@ class InputFilterPluginManager extends AbstractPluginManager
             InputFilterInterface::class,
             InputInterface::class
         ));
+    }
+
+    /**
+     * Validate the plugin (v2)
+     *
+     * Checks that the filter loaded is either a valid callback or an instance
+     * of FilterInterface.
+     *
+     * @param  mixed                      $plugin
+     * @return void
+     * @throws Exception\RuntimeException if invalid
+     */
+    public function validatePlugin($plugin)
+    {
+        $this->validate($plugin);
+    }
+
+    public function shareByDefault()
+    {
+        return $this->sharedByDefault;
     }
 }
