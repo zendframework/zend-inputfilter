@@ -22,23 +22,6 @@ All notable changes to this project will be documented in this file, in reverse 
   [#95](https://github.com/zendframework/zend-inputfilter/pull/95), and
   [#96](https://github.com/zendframework/zend-inputfilter/pull/96) update the
   component to be forwards-compatible with zend-servicemanager v3.
-
-## 2.5.6 - TBD
-
-### Added
-
-- Nothing.
-
-### Deprecated
-
-- Nothing.
-
-### Removed
-
-- Nothing.
-
-### Fixed
-
 - [#72](https://github.com/zendframework/zend-inputfilter/pull/72) `ArrayInput`
   value is properly reset after `BaseInputFilter::setData()`
 
