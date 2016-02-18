@@ -158,9 +158,4 @@ class InputFilterPluginManager extends AbstractPluginManager
             throw new Exception\RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
     }
-
-    public function shareByDefault()
-    {
-        return $this->sharedByDefault;
-    }
 }

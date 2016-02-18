@@ -52,7 +52,11 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testIsNotSharedByDefault()
     {
-        $this->assertFalse($this->manager->shareByDefault());
+        $property = method_exists($this->manager, 'configure')
+            ? 'sharedByDefault' // v3
+            : 'shareByDefault'; // v2
+
+        $this->assertAttributeSame(false, $property, $this->manager);
     }
 
     public function testRegisteringInvalidElementRaisesException()
