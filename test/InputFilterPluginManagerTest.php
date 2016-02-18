@@ -18,7 +18,9 @@ use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputFilterPluginManager;
 use Zend\InputFilter\InputInterface;
 use Zend\ServiceManager\AbstractPluginManager;
+use Zend\ServiceManager\Exception\InvalidServiceException;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\InitializableInterface;
 use Zend\Validator\ValidatorPluginManager;
 
@@ -32,9 +34,15 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
      */
     protected $manager;
 
+    /**
+     * @var ServiceManager
+     */
+    protected $services;
+
     public function setUp()
     {
-        $this->manager = new InputFilterPluginManager();
+        $this->services = new ServiceManager();
+        $this->manager = new InputFilterPluginManager($this->services);
     }
 
     public function testIsASubclassOfAbstractPluginManager()
@@ -44,13 +52,17 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testIsNotSharedByDefault()
     {
-        $this->assertFalse($this->manager->shareByDefault());
+        $property = method_exists($this->manager, 'configure')
+            ? 'sharedByDefault' // v3
+            : 'shareByDefault'; // v2
+
+        $this->assertAttributeSame(false, $property, $this->manager);
     }
 
     public function testRegisteringInvalidElementRaisesException()
     {
         $this->setExpectedException(
-            RuntimeException::class,
+            $this->getServiceNotFoundException(),
             'must implement Zend\InputFilter\InputFilterInterface or Zend\InputFilter\InputInterface'
         );
         $this->manager->setService('test', $this);
@@ -59,7 +71,7 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
     public function testLoadingInvalidElementRaisesException()
     {
         $this->manager->setInvokableClass('test', get_class($this));
-        $this->setExpectedException(RuntimeException::class);
+        $this->setExpectedException($this->getServiceNotFoundException());
         $this->manager->get('test');
     }
 
@@ -84,8 +96,6 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testInputFilterInvokableClassSMDependenciesArePopulatedWithoutServiceLocator()
     {
-        $this->assertNull($this->manager->getServiceLocator(), 'Plugin manager is expected to no have a service locator');
-
         /** @var InputFilter $service */
         $service = $this->manager->get('inputfilter');
 
@@ -99,21 +109,15 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testInputFilterInvokableClassSMDependenciesArePopulatedWithServiceLocator()
     {
-        $filterManager = $this->getMock(FilterPluginManager::class);
-        $validatorManager = $this->getMock(ValidatorPluginManager::class);
+        $filterManager = $this->getMockBuilder(FilterPluginManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $validatorManager = $this->getMockBuilder(ValidatorPluginManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $serviceLocator = $this->createServiceLocatorInterfaceMock();
-        $serviceLocator->method('get')
-            ->willReturnMap(
-                [
-                    ['FilterManager', $filterManager],
-                    ['ValidatorManager', $validatorManager],
-                ]
-            )
-        ;
-
-        $this->manager->setServiceLocator($serviceLocator);
-        $this->assertSame($serviceLocator, $this->manager->getServiceLocator(), 'getServiceLocator() value not match');
+        $this->services->setService('FilterManager', $filterManager);
+        $this->services->setService('ValidatorManager', $validatorManager);
 
         /** @var InputFilter $service */
         $service = $this->manager->get('inputfilter');
@@ -210,5 +214,13 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
         $serviceLocator = $this->getMock(ServiceLocatorInterface::class);
 
         return $serviceLocator;
+    }
+
+    protected function getServiceNotFoundException()
+    {
+        if (method_exists($this->manager, 'configure')) {
+            return InvalidServiceException::class;
+        }
+        return RuntimeException::class;
     }
 }
