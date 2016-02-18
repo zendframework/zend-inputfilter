@@ -62,15 +62,16 @@ class InputFilterPluginManager extends AbstractPluginManager
      */
     protected $shareByDefault = false;
 
-
     /**
-     * @param ContainerInterface $parentLocator
-     * @param array $config
+     * @param null|\Zend\ServiceManager\ConfigInterface|ContainerInterface $configOrContainer
+     *     For zend-servicemanager v2, null or a ConfigInterface instance are
+     *     allowed; for v3, a ContainerInterface is expected.
+     * @param array $v3config Optional configuration array (zend-servicemanager v3 only)
      */
-    public function __construct(ContainerInterface $parentLocator, array $config = [])
+    public function __construct($configOrContainer = null, array $v3config = [])
     {
-        parent::__construct($parentLocator, $config);
-        $this->addInitializer([$this, 'populateFactory']);
+        $this->initializers[] = [$this, 'populateFactory'];
+        parent::__construct($configOrContainer, $v3config);
     }
 
     /**

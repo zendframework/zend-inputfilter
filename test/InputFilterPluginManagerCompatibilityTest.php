@@ -12,10 +12,11 @@ namespace ZendTest\InputFilter;
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\InputFilterPluginManager;
+use Zend\ServiceManager\Config;
 use Zend\ServiceManager\ServiceManager;
 use Zend\ServiceManager\Test\CommonPluginManagerTrait;
 
-class MigrationTest extends TestCase
+class InputFilterPluginManagerCompatibilityTest extends TestCase
 {
     use CommonPluginManagerTrait;
 
@@ -38,5 +39,27 @@ class MigrationTest extends TestCase
     {
         // InputFilterManager accepts multiple instance types
         return;
+    }
+
+    public function testConstructorArgumentsAreOptionalUnderV2()
+    {
+        $plugins = $this->getPluginManager();
+        if (method_exists($plugins, 'configure')) {
+            $this->markTestSkipped('zend-servicemanager v3 plugin managers require a container argument');
+        }
+
+        $plugins = new InputFilterPluginManager();
+        $this->assertInstanceOf(InputFilterPluginManager::class, $plugins);
+    }
+
+    public function testConstructorAllowsConfigInstanceAsFirstArgumentUnderV2()
+    {
+        $plugins = $this->getPluginManager();
+        if (method_exists($plugins, 'configure')) {
+            $this->markTestSkipped('zend-servicemanager v3 plugin managers require a container argument');
+        }
+
+        $plugins = new InputFilterPluginManager(new Config([]));
+        $this->assertInstanceOf(InputFilterPluginManager::class, $plugins);
     }
 }
