@@ -13,7 +13,6 @@ use Interop\Container\ContainerInterface;
 use Zend\Filter\FilterPluginManager;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\ServiceManager\ServiceManager;
 use Zend\Validator\ValidatorPluginManager;
 
 class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
@@ -23,7 +22,6 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
      */
     protected $factory;
 
-
     /**
      * @param ContainerInterface      $services
      * @param string                  $rName
@@ -32,14 +30,8 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
      */
     public function __invoke(ContainerInterface $services, $rName, array  $options = null)
     {
-        // v2 - get parent service manager
-        if (! method_exists($services, 'configure')) {
-            $services = $services->getServiceLocator();
-        }
-
         $allConfig = $services->get('config');
         $config    = $allConfig['input_filter_specs'][$rName];
-
         $factory   = $this->getInputFilterFactory($services);
 
         return $factory->createInputFilter($config);
@@ -54,11 +46,6 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
      */
     public function canCreate(ContainerInterface $services, $rName)
     {
-        // v2 - get parent service manager
-        if (! method_exists($services, 'configure')) {
-            $services = $services->getServiceLocator();
-        }
-
         if (! $services->has('config')) {
             return false;
         }
@@ -83,7 +70,15 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
      */
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        return $this->canCreate($serviceLocator, $requestedName);
+        // v2 => need to get parent service locator
+        $services = $serviceLocator->getServiceLocator();
+
+        // No parent locator => cannot create service.
+        if (! $services) {
+            return false;
+        }
+
+        return $this->canCreate($services, $requestedName);
     }
 
     /**
@@ -94,7 +89,15 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
      */
     public function createServiceWithName(ServiceLocatorInterface $inputFilters, $cName, $rName)
     {
-        return $this($inputFilters, $rName);
+        // v2 => need to get parent service locator
+        $services = $inputFilters->getServiceLocator();
+
+        // No parent locator => cannot create service.
+        if (! $services) {
+            return false;
+        }
+
+        return $this($services, $rName);
     }
 
     /**
@@ -128,7 +131,7 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
             return $services->get('FilterManager');
         }
 
-        return new FilterPluginManager(new ServiceManager());
+        return new FilterPluginManager($services);
     }
 
     /**
@@ -141,6 +144,6 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
             return $services->get('ValidatorManager');
         }
 
-        return new ValidatorPluginManager(new ServiceManager());
+        return new ValidatorPluginManager($services);
     }
 }
