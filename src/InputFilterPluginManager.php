@@ -95,19 +95,22 @@ class InputFilterPluginManager extends AbstractPluginManager
         }
     }
 
+    /**
+     * Populate the filter and validator managers for the default filter/validator chains.
+     *
+     * @param Factory $factory
+     * @return void
+     */
     public function populateFactoryPluginManagers(Factory $factory)
     {
-        if (property_exists($this, 'creationContext')) {
-            // v3
-            $container = $this->creationContext;
-        } else {
-            // v2
-            $container = $this->serviceLocator;
-        }
+        $container = property_exists($this, 'creationContext')
+            ? $this->creationContext // v3
+            : $this->serviceLocator; // v2
 
         if ($container && $container->has('FilterManager')) {
             $factory->getDefaultFilterChain()->setPluginManager($container->get('FilterManager'));
         }
+
         if ($container && $container->has('ValidatorManager')) {
             $factory->getDefaultValidatorChain()->setPluginManager($container->get('ValidatorManager'));
         }
