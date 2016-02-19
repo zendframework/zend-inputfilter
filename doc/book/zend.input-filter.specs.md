@@ -1,21 +1,16 @@
 # Input filter specifications
 
 `Zend\InputFilter` allows configuration-driven creation of input filters via
-`Zend\InputFilter\InputFilterAbstractServiceFactory`. This abstract factory is responsible for
-creating and returning an appropriate input filter given named configuration under the top-level
-configuration key `input_filter_specs`.
+`Zend\InputFilter\InputFilterAbstractServiceFactory`. This abstract factory is responsible for creating and returning an appropriate input filter given named configuration under the top-level configuration key `input_filter_specs`.
 
-It is registered with `Zend\InputFilter\InputFilterPluginManager`, allowing you to pull the input
-filter via that plugin manager. A side effect is that forms pulled from
+It is registered with `Zend\InputFilter\InputFilterPluginManager`, allowing you to pull the input filter via that plugin manager. A side effect is that forms pulled from
 `Zend\Form\FormElementManager` can use these named input filters.
 
 ## Setup
 
 This functionality is disabled by default.
 
-To enable it, you must add the `Zend\InputFilter\InputFilterAbstractServiceFactory` abstract factory
-to the `Zend\InputFilter\InputFilterPluginManager` configuration, which is unser the `input_filters`
-configuration key.
+To enable it, you must add the `Zend\InputFilter\InputFilterAbstractServiceFactory` abstract factory to the `Zend\InputFilter\InputFilterPluginManager` configuration, which is unser the `input_filters` configuration key.
 
 ```php
 return array(
