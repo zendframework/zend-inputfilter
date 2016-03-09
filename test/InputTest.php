@@ -34,21 +34,6 @@ class InputTest extends TestCase
         $this->input = new Input('foo');
     }
 
-    public function assertRequiredValidationErrorMessage(Input $input, $message = '')
-    {
-        $message  = $message ?: 'Expected failure message for required input';
-        $message .= ';';
-
-        $messages = $input->getMessages();
-        $this->assertInternalType('array', $messages, $message . ' non-array messages array');
-
-        $notEmpty         = new NotEmptyValidator();
-        $messageTemplates = $notEmpty->getOption('messageTemplates');
-        $this->assertSame([
-            NotEmptyValidator::IS_EMPTY => $messageTemplates[NotEmptyValidator::IS_EMPTY],
-        ], $messages, $message . ' missing NotEmpty::IS_EMPTY key and/or contains additional messages');
-    }
-
     public function testConstructorRequiresAName()
     {
         $this->assertEquals('foo', $this->input->getName());
@@ -183,59 +168,28 @@ class InputTest extends TestCase
         $input = $this->input;
         $input->setRequired(true);
 
-        $this->assertFalse(
-            $input->isValid(),
-            'isValid() should be return always false when no fallback value, is required, and not data is set.'
-        );
-        $this->assertRequiredValidationErrorMessage($input);
-    }
-
-    public function testRequiredWithoutFallbackAndValueNotSetThenFailReturnsCustomErrorMessageWhenSet()
-    {
-        $input = $this->input;
-        $input->setRequired(true);
-        $input->setErrorMessage('FAILED TO VALIDATE');
+        $expectedMessages = [
+            'inputRequired' => 'Value is required',
+        ];
 
         $this->assertFalse(
             $input->isValid(),
             'isValid() should be return always false when no fallback value, is required, and not data is set.'
         );
-        $this->assertSame(['FAILED TO VALIDATE'], $input->getMessages());
+        $this->assertEquals($expectedMessages, $input->getMessages(), 'getMessages() value not match');
     }
 
-    /**
-     * @group 28
-     * @group 60
-     */
-    public function testRequiredWithoutFallbackAndValueNotSetProvidesNotEmptyValidatorIsEmptyErrorMessage()
+    public function testRequiredWithoutFallbackAndValueNotSetThenFailWithCustomErrorMessage()
     {
         $input = $this->input;
         $input->setRequired(true);
+        $input->setErrorMessage('fooErrorMessage');
 
         $this->assertFalse(
             $input->isValid(),
-            'isValid() should always return false when no fallback value is present, '
-            . 'the input is required, and no data is set.'
+            'isValid() should be return always false when no fallback value, is required, and not data is set.'
         );
-        $this->assertRequiredValidationErrorMessage($input);
-    }
-
-    /**
-     * @group 28
-     * @group 60
-     */
-    public function testRequiredWithoutFallbackAndValueNotSetProvidesCustomErrorMessageWhenSet()
-    {
-        $input = $this->input;
-        $input->setRequired(true);
-        $input->setErrorMessage('FAILED TO VALIDATE');
-
-        $this->assertFalse(
-            $input->isValid(),
-            'isValid() should always return false when no fallback value is present, '
-            . 'the input is required, and no data is set.'
-        );
-        $this->assertSame(['FAILED TO VALIDATE'], $input->getMessages());
+        $this->assertEquals(['fooErrorMessage'], $input->getMessages(), 'getMessages() value not match');
     }
 
     public function testNotRequiredWithoutFallbackAndValueNotSetThenIsValid()

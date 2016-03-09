@@ -63,6 +63,7 @@ class ArrayInput extends Input
         $hasValue = $this->hasValue();
         $required = $this->isRequired();
         $hasFallback = $this->hasFallback();
+        $values    = $this->getValue();
 
         if (! $hasValue && $hasFallback) {
             $this->setValue($this->getFallbackValue());
@@ -70,17 +71,14 @@ class ArrayInput extends Input
         }
 
         if (! $hasValue && $required) {
-            if ($this->errorMessage === null) {
-                $this->errorMessage = $this->prepareRequiredValidationFailureMessage();
-            }
-            return false;
+            $this->injectRequiredValidator();
+            $values = [$this];
         }
 
         if (!$this->continueIfEmpty() && !$this->allowEmpty()) {
             $this->injectNotEmptyValidator();
         }
         $validator = $this->getValidatorChain();
-        $values    = $this->getValue();
         $result    = true;
         foreach ($values as $value) {
             $empty = ($value === null || $value === '' || $value === []);

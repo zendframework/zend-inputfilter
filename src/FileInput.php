@@ -118,16 +118,15 @@ class FileInput extends Input
         $required        = $this->isRequired();
         $allowEmpty      = $this->allowEmpty();
         $continueIfEmpty = $this->continueIfEmpty();
+        $validator = $this->getValidatorChain();
 
         if (! $hasValue && ! $required) {
             return true;
         }
 
         if (! $hasValue && $required && ! $this->hasFallback()) {
-            if ($this->errorMessage === null) {
-                $this->errorMessage = $this->prepareRequiredValidationFailureMessage();
-            }
-            return false;
+            $this->injectRequiredValidator();
+            return $validator->isValid($this);
         }
 
         if ($empty && ! $required && ! $continueIfEmpty) {
@@ -139,7 +138,6 @@ class FileInput extends Input
         }
 
         $this->injectUploadValidator();
-        $validator = $this->getValidatorChain();
         //$value   = $this->getValue(); // Do not run the filters yet for File uploads (see getValue())
 
         if (!is_array($rawValue)) {
