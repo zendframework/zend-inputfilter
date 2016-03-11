@@ -5,11 +5,11 @@ The `Zend\InputFilter\FileInput` class is a special `Input` type for uploaded fi
 
 While `FileInput` uses the same interface as `Input`, it differs in a few ways:
 
-1.  It expects the raw value to be in the `$_FILES` array format.
-2.  The validators are run **before** the filters (which is the opposite behavior of `Input`). This
+1. It expects the raw value to be in the `$_FILES` array format.
+2. The validators are run **before** the filters (which is the opposite behavior of `Input`). This
 is so that any `is_uploaded_file()` validation can be run prior to any filters that may
 rename/move/modify the file.
-3.  Instead of adding a `NotEmpty` validator, it will (by default) automatically add a
+3. Instead of adding a `NotEmpty` validator, it will (by default) automatically add a
 `Zend\Validator\File\UploadFile` validator.
 
 The biggest thing to be concerned about is that if you are using a `<input type="file">` element in
@@ -67,6 +67,5 @@ if ($inputFilter->isValid()) {           // FileInput validators are run, but no
 
 Also see
 
-- File filter classes&lt;zend.filter.file&gt;
-- File validator classes&lt;zend.validator.file&gt;
-
+* [Zend\Filter](https://github.com/zendframework/zend-filter/blob/master/doc/book/intro.md)
+* [Zend\Validator](https://github.com/zendframework/zend-validator)
