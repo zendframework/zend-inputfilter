@@ -91,7 +91,7 @@ interface InputFilterInterface extends Countable
      *
      * @return InputInterface[]
      */
-    public function getInvalidInput();
+    public function getInvalidInputs();
 
     /**
      * Return a list of inputs that were valid.
@@ -101,7 +101,7 @@ interface InputFilterInterface extends Countable
      *
      * @return InputInterface[]
      */
-    public function getValidInput();
+    public function getValidInputs();
 
     /**
      * Retrieve a value from a named input

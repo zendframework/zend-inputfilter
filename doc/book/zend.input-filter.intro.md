@@ -29,7 +29,7 @@ if ($inputFilter->isValid()) {
     echo "The form is valid\n";
 } else {
     echo "The form is not valid\n";
-    foreach ($inputFilter->getInvalidInput() as $error) {
+    foreach ($inputFilter->getInvalidInputs() as $error) {
         print_r($error->getMessages());
     }
 }
@@ -37,7 +37,7 @@ if ($inputFilter->isValid()) {
 
 In this example we validated the email and password values. The email must be a valid address and
 the password must be composed with at least 8 characters. If the input data are not valid, we report
-the list of invalid input using the `getInvalidInput()` method.
+the list of invalid input using the `getInvalidInputs()` method.
 
 You can add one or more validators to each input using the `attach()` method for each validator. It
 is also possible to specify a "validation group", a subset of the data to be validated; this may be

@@ -182,11 +182,11 @@ class CollectionInputFilter extends InputFilter
             }
 
             if ($inputFilter->isValid()) {
-                $this->validInputs[$key] = $inputFilter->getValidInput();
+                $this->validInputs[$key] = $inputFilter->getValidInputs();
             } else {
                 $valid = false;
                 $this->collectionMessages[$key] = $inputFilter->getMessages();
-                $this->invalidInputs[$key] = $inputFilter->getInvalidInput();
+                $this->invalidInputs[$key] = $inputFilter->getInvalidInputs();
             }
 
             $this->collectionValues[$key] = $inputFilter->getValues();
