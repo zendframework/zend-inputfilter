@@ -59,7 +59,7 @@ if ($inputFilter->isValid()) {           // FileInput validators are run, but no
     $data = $inputFilter->getValues();   // This is when the FileInput filters are run.
 } else {
     echo "The form is not valid\n";
-    foreach ($inputFilter->getInvalidInput() as $error) {
+    foreach ($inputFilter->getInvalidInputs() as $error) {
         print_r ($error->getMessages());
     }
 }

@@ -311,8 +311,8 @@ class BaseInputFilterTest extends TestCase
 
         // ** Check validation state **
         $this->assertEquals($expectedIsValid, $inputFilter->isValid(), 'isValid() value not match');
-        $this->assertEquals($expectedInvalidInputs, $inputFilter->getInvalidInput(), 'getInvalidInput() value not match');
-        $this->assertEquals($expectedValidInputs, $inputFilter->getValidInput(), 'getValidInput() value not match');
+        $this->assertEquals($expectedInvalidInputs, $inputFilter->getInvalidInputs(), 'getInvalidInputs() value not match');
+        $this->assertEquals($expectedValidInputs, $inputFilter->getValidInputs(), 'getValidInputs() value not match');
         $this->assertEquals($expectedMessages, $inputFilter->getMessages(), 'getMessages() value not match');
 
         // ** Check unknown fields **
@@ -494,12 +494,12 @@ class BaseInputFilterTest extends TestCase
         );
         $this->assertArrayNotHasKey(
             $optionalInputName,
-            $filter->getValidInput(),
+            $filter->getValidInputs(),
             'Missing optional fields must not appear as valid input neither invalid input'
         );
         $this->assertArrayNotHasKey(
             $optionalInputName,
-            $filter->getInvalidInput(),
+            $filter->getInvalidInputs(),
             'Missing optional fields must not appear as valid input neither invalid input'
         );
     }

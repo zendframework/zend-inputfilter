@@ -341,7 +341,7 @@ class BaseInputFilter implements
      *
      * @return InputInterface[]
      */
-    public function getInvalidInput()
+    public function getInvalidInputs()
     {
         return (is_array($this->invalidInputs) ? $this->invalidInputs : []);
     }
@@ -354,7 +354,7 @@ class BaseInputFilter implements
      *
      * @return InputInterface[]
      */
-    public function getValidInput()
+    public function getValidInputs()
     {
         return (is_array($this->validInputs) ? $this->validInputs : []);
     }
@@ -464,7 +464,7 @@ class BaseInputFilter implements
     public function getMessages()
     {
         $messages = [];
-        foreach ($this->getInvalidInput() as $name => $input) {
+        foreach ($this->getInvalidInputs() as $name => $input) {
             $messages[$name] = $input->getMessages();
         }
 
