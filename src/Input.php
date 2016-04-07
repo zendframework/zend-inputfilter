@@ -491,10 +491,17 @@ class Input implements
      */
     protected function prepareRequiredValidationFailureMessage()
     {
-        $notEmpty = new NotEmpty();
-        $templates = $notEmpty->getOption('messageTemplates');
+        $notEmpty   = $this->getValidatorChain()->plugin(NotEmpty::class);
+        $templates  = $notEmpty->getOption('messageTemplates');
+        $message    = $templates[NotEmpty::IS_EMPTY];
+        $translator = $notEmpty->getTranslator();
+
+        if ($translator) {
+            $message = $translator->translate($message, $notEmpty->getTranslatorTextDomain());
+        }
+
         return [
-            NotEmpty::IS_EMPTY => $templates[NotEmpty::IS_EMPTY],
+            NotEmpty::IS_EMPTY => $message,
         ];
     }
 }
