@@ -41,7 +41,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- [#67](https://github.com/zendframework/zend-inputfilter/pull/67) fixes
+- [#67](https://github.com/zendframework/zend-inputfilter/pull/67) and
+  [#73](https://github.com/zendframework/zend-inputfilter/pull/73) fix
   localization of the `NotEmpty` validation error message (created for any
   required input for which a value was not provided).
 
