@@ -934,6 +934,75 @@ class FactoryTest extends TestCase
         $this->assertSame('bar', $input->getName());
     }
 
+    public function testCreateInputFilterConfiguredNameWhenSpecIsIntegerIndexed()
+    {
+        $factory = $this->createDefaultFactory();
+        $inputFilter = $factory->createInputFilter([
+            1 => [
+                'type' => InputFilter::class,
+                'name' => 'foo',
+            ],
+        ]);
+
+        $this->assertTrue($inputFilter->has('foo'));
+    }
+
+    public function testCreateInputFilterUsesAssociatedNameMappingOverConfiguredName()
+    {
+        $factory = $this->createDefaultFactory();
+        $inputFilter = $factory->createInputFilter([
+            'foo' => [
+                'type' => InputFilter::class,
+                'name' => 'bar',
+            ],
+        ]);
+
+        $this->assertTrue($inputFilter->has('foo'));
+        $this->assertFalse($inputFilter->has('bar'));
+    }
+
+    public function testCreateInputFilterUsesConfiguredNameForNestedInputFilters()
+    {
+        $factory = $this->createDefaultFactory();
+        $inputFilter = $factory->createInputFilter([
+            0 => [
+                'type' => InputFilter::class,
+                'name' => 'bar',
+                '0' => [
+                    'name' => 'bat',
+                ],
+                '1' => [
+                    'name' => 'baz',
+                ],
+            ],
+            1 => [
+                'type' => CollectionInputFilter::class,
+                'name' => 'foo',
+                'input_filter' => [
+                    '0' => [
+                        'name' => 'bat',
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertInstanceOf(InputFilter::class, $inputFilter);
+        $this->assertEquals(2, count($inputFilter));
+
+        $nestedInputFilter = $inputFilter->get('bar');
+        $this->assertInstanceOf(InputFilter::class, $nestedInputFilter);
+        $this->assertEquals(2, count($nestedInputFilter));
+        $this->assertTrue($nestedInputFilter->has('bat'));
+        $this->assertTrue($nestedInputFilter->has('baz'));
+
+        $collection = $inputFilter->get('foo');
+        $this->assertInstanceOf(CollectionInputFilter::class, $collection);
+        $collectionInputFilter = $collection->getInputFilter();
+        $this->assertInstanceOf(InputFilter::class, $collectionInputFilter);
+        $this->assertEquals(1, count($collectionInputFilter));
+        $this->assertTrue($collectionInputFilter->has('bat'));
+    }
+
     /**
      * @return Factory
      */
