@@ -15,7 +15,9 @@ use stdClass;
 use Zend\Filter\FilterChain;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputInterface;
+use Zend\Validator\AbstractValidator;
 use Zend\Validator\NotEmpty as NotEmptyValidator;
+use Zend\Validator\Translator\TranslatorInterface;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\ValidatorInterface;
 
@@ -32,6 +34,11 @@ class InputTest extends TestCase
     public function setUp()
     {
         $this->input = new Input('foo');
+    }
+
+    protected function tearDown()
+    {
+        AbstractValidator::setDefaultTranslator(null);
     }
 
     public function assertRequiredValidationErrorMessage(Input $input, $message = '')
@@ -567,6 +574,26 @@ class InputTest extends TestCase
         $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
         $this->assertEquals(['foo'], $target->getRawValue(), 'getRawValue() value not match');
         $this->assertTrue($target->hasValue(), 'hasValue() value not match');
+    }
+
+    public function testNotEmptyMessageIsTranslated()
+    {
+        /** @var TranslatorInterface|MockObject $translator */
+        $translator = $this->getMock(TranslatorInterface::class);
+        AbstractValidator::setDefaultTranslator($translator);
+        $notEmpty = new NotEmptyValidator();
+
+        $translatedMessage = 'some translation';
+        $translator->expects($this->atLeastOnce())
+            ->method('translate')
+            ->with($notEmpty->getMessageTemplates()[NotEmptyValidator::IS_EMPTY])
+            ->willReturn($translatedMessage)
+        ;
+
+        $this->assertFalse($this->input->isValid());
+        $messages = $this->input->getMessages();
+        $this->assertArrayHasKey('isEmpty', $messages);
+        $this->assertSame($translatedMessage, $messages['isEmpty']);
     }
 
     public function fallbackValueVsIsValidProvider()
