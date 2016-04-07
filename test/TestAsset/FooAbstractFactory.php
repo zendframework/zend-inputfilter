@@ -1,27 +1,37 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @link      http://github.com/zendframework/zend-inputfilter for the canonical source repository
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
 namespace ZendTest\InputFilter\TestAsset;
 
+use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 class FooAbstractFactory implements AbstractFactoryInterface
 {
-    public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    public function __invoke(ContainerInterface $container, $name, array $options = null)
+    {
+        return new Foo();
+    }
+
+    public function canCreate(ContainerInterface $container, $name)
     {
         if ($name == 'foo') {
             return true;
         }
     }
-    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+
+    public function canCreateServiceWithName(ServiceLocatorInterface $container, $name, $requestedName)
     {
-        return new Foo;
+        return $this->canCreate($container, $requestedName ?: $name);
+    }
+
+    public function createServiceWithName(ServiceLocatorInterface $container, $name, $requestedName)
+    {
+        return $this($container, $requestedName ?: $name);
     }
 }
