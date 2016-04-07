@@ -198,34 +198,37 @@ class SimplePerson
     protected $inputFilter;
 
     /**
-    * Retrieve input filter
-    *
-    * @return InputFilter
-    */
+     * Retrieve input filter
+     *
+     * @return InputFilter
+     */
     public function getInputFilter()
     {
-     if (!$this->inputFilter) {
-         // Create a new input filter
-         $this->inputFilter = new InputFilter();
-         // Merge our inputFilter in for the email property
-         $this->inputFilter->merge(new EmailInputFilter());
-         // Merge our inputFilter in for the name property
-         $this->inputFilter->merge(new NameInputFilter());
-     }
-     return $this->inputFilter;
+        if (! $this->inputFilter) {
+            // Create a new input filter
+            $this->inputFilter = new InputFilter();
+
+            // Merge our inputFilter in for the email property
+            $this->inputFilter->merge(new EmailInputFilter());
+
+            // Merge our inputFilter in for the name property
+            $this->inputFilter->merge(new NameInputFilter());
+        }
+
+        return $this->inputFilter;
     }
 
     /**
-    * Set input filter
-    *
-    * @param  InputFilterInterface $inputFilter
-    * @return SimplePerson
-    */
+     * Set input filter
+     *
+     * @param  InputFilterInterface $inputFilter
+     * @return SimplePerson
+     */
     public function setInputFilter(InputFilterInterface $inputFilter)
     {
-     $this->inputFilter = $inputFilter;
+        $this->inputFilter = $inputFilter;
 
-     return $this;
+        return $this;
     }
 }
 ```
