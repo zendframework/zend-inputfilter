@@ -27,7 +27,9 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
-- Nothing.
+- [#68](https://github.com/zendframework/zend-inputfilter/pull/68) adds support
+  for using *either* named keys *or* a `name` element in input filter specs
+  parsed by the `InputFilterAbstractServiceFactory`.
 
 ### Deprecated
 

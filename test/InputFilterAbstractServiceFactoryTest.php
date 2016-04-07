@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework (http://framework.zend.com/)
  *
@@ -27,7 +28,7 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
 {
     /**
      * @var ServiceManager
-    */
+     */
     protected $services;
 
     /**
