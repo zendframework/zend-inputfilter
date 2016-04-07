@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.7.0 - TBD
+
+### Added
+
+- [#3](https://github.com/zendframework/zend-inputfilter/pull/3) updates the
+  `InputFilterAbstractServiceFactory` to inject the created input filter factory
+  with the `InputFilterManager` service, ensuring that the generated factory can
+  pull named input filters and inputs from the container as needed.
+- [#100](https://github.com/zendframework/zend-inputfilter/pull/100) adds a
+  number of classes, in order to better allow usage as a standalone component:
+  - `InputFilterPluginManagerFactory`, ported from zend-mvc, allows creating and
+    returning an `InputFilterPluginManager`.
+  - `ConfigProvider` maps the `InputFilterManager` service to the above factory,
+    and enables the `InputFilterAbstractServiceFactory`.
+  - `Module` does the same as `ConfigProvider`, within a zend-mvc context, and
+    also registers a specification with the zend-modulemanager `ServiceListener`
+    to allow modules to configure the input filter plugin manager.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 2.6.1 - 2016-04-07
 
 ### Added

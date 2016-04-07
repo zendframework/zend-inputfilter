@@ -118,6 +118,8 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
             ->getDefaultValidatorChain()
             ->setPluginManager($this->getValidatorPluginManager($services));
 
+        $this->factory->setInputFilterManager($services->get('InputFilterManager'));
+
         return $this->factory;
     }
 
