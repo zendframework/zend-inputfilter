@@ -9,10 +9,10 @@ namespace ZendTest\InputFilter;
 
 use Interop\Container\ContainerInterface;
 use PHPUnit_Framework_TestCase as TestCase;
-use Zend\InputFilter\InputInterface;
 use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputFilterPluginManager;
 use Zend\InputFilter\InputFilterPluginManagerFactory;
+use Zend\InputFilter\InputInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 class InputFilterPluginManagerFactoryTest extends TestCase
