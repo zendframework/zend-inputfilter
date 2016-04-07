@@ -6,7 +6,10 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
-- Nothing.
+- [#3](https://github.com/zendframework/zend-inputfilter/pull/3) updates the
+  `InputFilterAbstractServiceFactory` to inject the created input filter factory
+  with the `InputFilterManager` service, ensuring that the generated factory can
+  pull named input filters and inputs from the container as needed.
 
 ### Deprecated
 
