@@ -260,17 +260,19 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
                 'filter' => [],
             ],
         ]);
-        $this->filters->addAbstractFactory('ZendTest\InputFilter\TestAsset\FooAbstractFactory');
+        $this->filters->addAbstractFactory(TestAsset\FooAbstractFactory::class);
 
-        /**
-         * @type InputFilter $filter
-         */
-        $filter = $this->factory->createServiceWithName($this->filters, 'filter', 'filter');
+        if (method_exists($this->filters, 'configure')) {
+            // zend-servicemanager v3 usage
+            $filter = $this->factory->__invoke($this->services, 'filter');
+        } else {
+            // zend-servicemanager v2 usage
+            $filter = $this->factory->createServiceWithName($this->filters, 'filter', 'filter');
+        }
 
         $inputFilterManager = $filter->getFactory()->getInputFilterManager();
 
         $this->assertInstanceOf('Zend\InputFilter\InputFilterPluginManager', $inputFilterManager);
-
         $this->assertInstanceOf('ZendTest\InputFilter\TestAsset\Foo', $inputFilterManager->get('foo'));
     }
 }
