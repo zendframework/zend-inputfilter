@@ -173,28 +173,63 @@ properties based on our compound set of filters.
 
 ```php
 use Zend\InputFilter\InputFilter;
+
+/**
+ * Filter to ensure a name property is set and > 8 characters
+ */
+class NameInputFilter extends InputFilter
+{
+    /** Filter body goes here **/
+}
+
+/**
+ * Filter to ensure an email property is set and > 8 characters and is valid
+ */
+class EmailInputFilter extends InputFilter
+{
+    /** Filter body goes here **/
+}
+
+class SimplePerson
+{
+    /** Member variables ommitted for berevity **/
+
+    /** @var InputFilter */
+    protected $inputFilter;
+
+    /**
+    * Retrieve input filter
+    *
+    * @return InputFilter
+    */
+    public function getInputFilter()
+    {
+     if (!$this->inputFilter) {
+         // Create a new input filter
+         $this->inputFilter = new InputFilter();
+         // Merge our inputFilter in for the email property
+         $this->inputFilter->merge(new EmailInputFilter());
+         // Merge our inputFilter in for the name property
+         $this->inputFilter->merge(new NameInputFilter());
+     }
+     return $this->inputFilter;
+    }
+
+    /**
+    * Set input filter
+    *
+    * @param  InputFilterInterface $inputFilter
+    * @return SimplePerson
+    */
+    public function setInputFilter(InputFilterInterface $inputFilter)
+    {
+     $this->inputFilter = $inputFilter;
+
+     return $this;
+    }
+}
 ```
 
-> /*\** Filter to ensure a name property is set and &gt; 8 characters  
-*/ class NameInputFilter extends InputFilter { /*\* Filter body goes here \*\*/ }
-/*\** Filter to ensure an email property is set and &gt; 8 characters and is valid  
-\*/
-class EmailInputFilter extends InputFilter { /*\* Filter body goes here*\*/ }
-class SimplePerson { /*\* Member variables ommitted for berevity*\*/
-/*\* @var InputFilter*/ protected $inputFilter;
-/*\** Retrieve input filter  
-\* \* @return InputFilter \*/
-public function getInputFilter() { if (!$this-&gt;inputFilter) { // Create a new input filter
-$this-&gt;inputFilter = new InputFilter(); // Merge our inputFilter in for the email property
-$this-&gt;inputFilter-&gt;merge(new EmailInputFilter()); // Merge our inputFilter in for the name
-property $this-&gt;inputFilter-&gt;merge(new NameInputFilter()); } return $this-&gt;inputFilter; }
-/*\** Set input filter  
-\* \* @param InputFilterInterface $inputFilter \* @return SimplePerson \*/
-public function setInputFilter(InputFilterInterface $inputFilter) { $this-&gt;inputFilter =
-$inputFilter;
-return $this;
-}
-}
 Also see
 
 - Zend\\\\Filter&lt;zend.filter.introduction&gt;
