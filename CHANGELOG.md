@@ -20,7 +20,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 - Nothing.
 
-## 2.7.2 - TBD
+## 2.7.2 - 2016-06-11
 
 ### Added
 
@@ -37,7 +37,10 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#110](https://github.com/zendframework/zend-inputfilter/pull/110) fixes an
+  issue with `InputFilterAbstractServiceFactory` whereby it was not working when
+  the provided container is not a plugin manager, but rather the application
+  container.
 
 ## 2.7.1 - 2016-04-18
 
