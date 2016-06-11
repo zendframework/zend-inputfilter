@@ -276,7 +276,7 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
     }
 
     /**
-     * @group 123
+     * @group zendframework/zend-servicemanager#123
      */
     public function testAllowsPassingNonPluginManagerContainerToFactoryWithServiceManagerV2()
     {
