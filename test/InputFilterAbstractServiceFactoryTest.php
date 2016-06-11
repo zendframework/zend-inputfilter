@@ -274,4 +274,31 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
         $this->assertInstanceOf('Zend\InputFilter\InputFilterPluginManager', $inputFilterManager);
         $this->assertInstanceOf('ZendTest\InputFilter\TestAsset\Foo', $inputFilterManager->get('foo'));
     }
+
+    /**
+     * @group zendframework/zend-servicemanager#123
+     */
+    public function testAllowsPassingNonPluginManagerContainerToFactoryWithServiceManagerV2()
+    {
+        $this->services->setService('config', [
+            'input_filter_specs' => [
+                'filter' => [],
+            ],
+        ]);
+        if (method_exists($this->services, 'configure')) {
+            // v3
+            $canCreate = 'canCreate';
+            $create = '__invoke';
+            $args = [$this->services, 'filter'];
+        } else {
+            // v2
+            $canCreate = 'canCreateServiceWithName';
+            $create = 'createServiceWithName';
+            $args = [$this->services, 'filter', 'filter'];
+        }
+
+        $this->assertTrue(call_user_func_array([$this->factory, $canCreate], $args));
+        $inputFilter = call_user_func_array([$this->factory, $create], $args);
+        $this->assertInstanceOf(InputFilterInterface::class, $inputFilter);
+    }
 }
