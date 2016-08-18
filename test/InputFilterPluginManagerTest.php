@@ -183,6 +183,14 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
         $initializableProphecy->init()->shouldBeCalled();
     }
 
+    public function testPopulateFactoryCanAcceptInputFilterAsFirstArgumentAndWillUseFactoryWhenItDoes()
+    {
+        $inputFilter = new InputFilter();
+        $this->manager->populateFactory($inputFilter);
+
+        $this->assertSame($this->manager, $inputFilter->getFactory()->getInputFilterManager());
+    }
+
     /**
      * @return MockObject|InputFilterInterface
      */
