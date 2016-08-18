@@ -143,7 +143,7 @@ class CollectionInputFilter extends InputFilter
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects an array or Traversable collection; invalid collection of type %s provided',
                 __METHOD__,
-                (is_object($data) ? get_class($data) : gettype($data))
+                is_object($data) ? get_class($data) : gettype($data)
             ));
         }
 
@@ -156,7 +156,7 @@ class CollectionInputFilter extends InputFilter
                 '%s expects each item in a collection to be an array or Traversable; '
                 . 'invalid item in collection of type %s detected',
                 __METHOD__,
-                (is_object($item) ? get_class($item) : gettype($item))
+                is_object($item) ? get_class($item) : gettype($item)
             ));
         }
 
