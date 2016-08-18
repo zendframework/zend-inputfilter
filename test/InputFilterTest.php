@@ -11,11 +11,9 @@ namespace ZendTest\InputFilter;
 
 use ArrayIterator;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
-use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\Factory;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
-use Zend\Validator\StringLength;
 
 /**
  * @covers Zend\InputFilter\InputFilter
@@ -79,63 +77,5 @@ class InputFilterTest extends BaseInputFilterTest
         $factory = $this->getMock(Factory::class);
 
         return $factory;
-    }
-
-    public function testGetUnknownWhenDataAreNotProvidedThrowsRuntimeException()
-    {
-        $this->setExpectedException(RuntimeException::class);
-
-        $this->inputFilter->getUnknown();
-    }
-
-    public function testGetUnknownWhenAllFieldsAreKnownReturnsAnEmptyArray()
-    {
-        $this->inputFilter->add([
-            'name' => 'foo',
-        ]);
-
-        $this->inputFilter->setData(['foo' => 'bar']);
-
-        $unknown = $this->inputFilter->getUnknown();
-
-        $this->assertCount(0, $unknown);
-    }
-
-    public function testGetUnknownFieldIsUnknown()
-    {
-        $this->inputFilter->add([
-            'name' => 'foo',
-        ]);
-
-        $this->inputFilter->setData(['foo' => 'bar', 'baz' => 'hey']);
-
-        $unknown = $this->inputFilter->getUnknown();
-
-        $this->assertCount(1, $unknown);
-        $this->assertEquals(['baz' => 'hey'], $unknown);
-    }
-
-    public function testGetUnknownWhenDataAreNotValid()
-    {
-        $this->inputFilter->add([
-            'name' => 'foo',
-            'validators' => [
-                [
-                    'name' => StringLength::class,
-                    'options' => [
-                        'min' => 3,
-                    ],
-                ],
-            ],
-        ]);
-
-        $this->inputFilter->setData(['foo' => 'a', 'bar' => 'baz']);
-
-        $isValid = $this->inputFilter->isValid();
-        $unknown = $this->inputFilter->getUnknown();
-
-        $this->assertFalse($isValid);
-        $this->assertCount(1, $unknown);
-        $this->assertEquals(['bar' => 'baz'], $unknown);
     }
 }
