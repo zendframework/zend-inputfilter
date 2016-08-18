@@ -36,7 +36,11 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#115](https://github.com/zendframework/zend-inputfilter/pull/115) fixes
+  retrieval of unknown fields when using a `CollectionInputFilter`. Previously,
+  it returned all fields in the collection, not just the unknown fields, which
+  was a different behavior from all other input filters. Now it will return only
+  the unknown fields for each collection.
 
 ## 2.7.2 - 2016-06-11
 
