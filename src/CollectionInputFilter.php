@@ -178,13 +178,11 @@ class CollectionInputFilter extends InputFilter
             }
         }
 
-        if (is_scalar($this->data)
-            || count($this->data) < $this->getCount()
-        ) {
+        if (count($this->data) < $this->getCount()) {
             $valid = false;
         }
 
-        if (empty($this->data) || is_scalar($this->data)) {
+        if (empty($this->data)) {
             $this->clearValues();
             $this->clearRawValues();
 

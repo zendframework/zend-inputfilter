@@ -106,15 +106,6 @@ class CollectionInputFilterTest extends TestCase
         $this->assertEquals(1, $this->inputFilter->getCount());
     }
 
-    public function testInvalidCollectionIsNotValid()
-    {
-        $data = 1;
-
-        $this->inputFilter->setData($data);
-
-        $this->assertFalse($this->inputFilter->isValid());
-    }
-
     /**
      * @dataProvider dataVsValidProvider
      */
