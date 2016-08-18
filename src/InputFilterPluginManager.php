@@ -77,23 +77,20 @@ class InputFilterPluginManager extends AbstractPluginManager
     /**
      * Inject this and populate the factory with filter chain and validator chain
      *
-     * @param mixed $first
-     * @param mixed $second
+     * @param ContainerInterface|InputFilter $containerOrInputFilter    When using ServiceManager v3
+     *                                                                  this will be the plugin manager instance
+     * @param InputFilter                    $inputFilter               This is only used with ServiceManager v3
      */
-    public function populateFactory($first, $second)
+    public function populateFactory($containerOrInputFilter, $inputFilter = null)
     {
-        if ($first instanceof ContainerInterface) {
-            $container = $first;
-            $inputFilter = $second;
-        } else {
-            $container = $second;
-            $inputFilter = $first;
-        }
-        if ($inputFilter instanceof InputFilter) {
-            $factory = $inputFilter->getFactory();
+        $inputFilter = $containerOrInputFilter instanceof ContainerInterface ? $inputFilter : $containerOrInputFilter;
 
-            $factory->setInputFilterManager($this);
+        if (! $inputFilter instanceof InputFilter) {
+            return;
         }
+
+        $factory = $inputFilter->getFactory();
+        $factory->setInputFilterManager($this);
     }
 
     /**
