@@ -504,7 +504,7 @@ class CollectionInputFilterTest extends TestCase
         $collectionInputFilter->setData($data);
     }
 
-    public function testValidateCollection()
+    public function testCollectionValidationDoesNotReuseMessagesBetweenInputs()
     {
         $inputFilter = new InputFilter();
         $inputFilter->add([
@@ -556,7 +556,7 @@ class CollectionInputFilterTest extends TestCase
         // @codingStandardsIgnoreEnd
     }
 
-    public function testValidateCollectionWithCustomErrorMessage()
+    public function testCollectionValidationUsesCustomInputErrorMessages()
     {
         $inputFilter = new InputFilter();
         $inputFilter->add([
