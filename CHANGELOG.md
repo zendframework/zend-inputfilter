@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.7.3 - TBD
+## 2.7.3 - 2016-08-18
 
 ### Added
 
@@ -38,6 +38,9 @@ All notable changes to this project will be documented in this file, in reverse 
   such, `setData()` now raises `Zend\InputFilter\Exception\InvalidArgumentException`
   for invalid data, ensuring that `isValid()` and `getUnknown()` only ever
   operate on usable collections and collection sets.
+- [#118](https://github.com/zendframework/zend-inputfilter/pull/118) fixes
+  aggregation of error messages when validating collections to ensure only the
+  error messages specific to a given datum are presented.
 
 ## 2.7.2 - 2016-06-11
 

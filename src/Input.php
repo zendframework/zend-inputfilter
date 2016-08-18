@@ -387,6 +387,10 @@ class Input implements
      */
     public function isValid($context = null)
     {
+        if (is_array($this->errorMessage)) {
+            $this->errorMessage = null;
+        }
+
         $value           = $this->getValue();
         $hasValue        = $this->hasValue();
         $empty           = ($value === null || $value === '' || $value === []);
