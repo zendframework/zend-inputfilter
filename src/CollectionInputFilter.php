@@ -252,4 +252,33 @@ class CollectionInputFilter extends InputFilter
     {
         return $this->collectionMessages;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUnknown()
+    {
+        if (!is_array($this->data) || !$this->data) {
+            throw new Exception\RuntimeException(sprintf(
+                '%s: no data present!',
+                __METHOD__
+            ));
+        }
+
+        $inputFilter = $this->getInputFilter();
+
+        $unknownInputs = [];
+        foreach ($this->data as $key => $data) {
+            if (!is_array($data)) {
+                $data = [];
+            }
+            $inputFilter->setData($data);
+
+            if ($unknown = $inputFilter->getUnknown()) {
+                $unknownInputs[$key] = $unknown;
+            }
+        }
+
+        return $unknownInputs;
+    }
 }

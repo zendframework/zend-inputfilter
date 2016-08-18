@@ -396,4 +396,53 @@ class CollectionInputFilterTest extends TestCase
 
         return $inputFilter;
     }
+
+    public function testGetUnknownWhenDataAreNotProvidedThrowsRuntimeException()
+    {
+        $this->setExpectedException(RuntimeException::class);
+
+        $this->inputFilter->getUnknown();
+    }
+
+    public function testGetUnknownWhenAllFieldsAreKnownReturnsAnEmptyArray()
+    {
+        $inputFilter = new InputFilter();
+        $inputFilter->add([
+            'name' => 'foo',
+        ]);
+
+        $collectionInputFilter = $this->inputFilter;
+        $collectionInputFilter->setInputFilter($inputFilter);
+
+        $collectionInputFilter->setData([
+            ['foo' => 'bar'],
+            ['foo' => 'baz'],
+        ]);
+
+        $unknown = $collectionInputFilter->getUnknown();
+
+        $this->assertFalse($collectionInputFilter->hasUnknown());
+        $this->assertCount(0, $unknown);
+    }
+
+    public function testGetUnknownFieldIsUnknown()
+    {
+        $inputFilter = new InputFilter();
+        $inputFilter->add([
+            'name' => 'foo',
+        ]);
+
+        $collectionInputFilter = $this->inputFilter;
+        $collectionInputFilter->setInputFilter($inputFilter);
+
+        $collectionInputFilter->setData([
+            ['foo' => 'bar', 'baz' => 'hey'],
+            ['foo' => 'car', 'tor' => 'ver']
+        ]);
+
+        $unknown = $collectionInputFilter->getUnknown();
+
+        $this->assertTrue($collectionInputFilter->hasUnknown());
+        $this->assertEquals([['baz' => 'hey'], ['tor' => 'ver']], $unknown);
+    }
 }
