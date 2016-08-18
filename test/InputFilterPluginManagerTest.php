@@ -149,13 +149,13 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
         $inputFilterInterfaceMock = $this->createInputFilterInterfaceMock();
         $inputInterfaceMock = $this->createInputInterfaceMock();
 
-        // @formatter:off
+        // @codingStandardsIgnoreStart
         return [
-            // Description => [$serviceName, $service, $instanceOf]
+            // Description         => [$serviceName,                  $service,                  $instanceOf]
             'InputFilterInterface' => ['inputFilterInterfaceService', $inputFilterInterfaceMock, InputFilterInterface::class],
-            'InputInterface' => ['inputInterfaceService', $inputInterfaceMock, InputInterface::class],
+            'InputInterface'       => ['inputInterfaceService',       $inputInterfaceMock,       InputInterface::class],
         ];
-        // @formatter:on
+        // @codingStandardsIgnoreEnd
     }
 
     /**

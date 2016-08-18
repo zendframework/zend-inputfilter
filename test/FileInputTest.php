@@ -251,7 +251,7 @@ class FileInputTest extends InputTest
     {
         $rawValue = [[
             'tmp_name' => 'foo',
-            'error'    => \UPLOAD_ERR_NO_FILE
+            'error'    => \UPLOAD_ERR_NO_FILE,
         ]];
         $this->assertTrue($this->input->isEmptyFile($rawValue));
     }
@@ -261,11 +261,11 @@ class FileInputTest extends InputTest
         $rawValue = [
             [
                 'tmp_name' => 'foo',
-                'error'    => \UPLOAD_ERR_OK
+                'error'    => \UPLOAD_ERR_OK,
             ],
             [
                 'tmp_name' => 'bar',
-                'error'    => \UPLOAD_ERR_OK
+                'error'    => \UPLOAD_ERR_OK,
             ],
         ];
         $this->assertFalse($this->input->isEmptyFile($rawValue));

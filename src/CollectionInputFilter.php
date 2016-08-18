@@ -56,7 +56,7 @@ class CollectionInputFilter extends InputFilter
             $inputFilter = $this->getFactory()->createInputFilter($inputFilter);
         }
 
-        if (!$inputFilter instanceof BaseInputFilter) {
+        if (! $inputFilter instanceof BaseInputFilter) {
             throw new Exception\RuntimeException(sprintf(
                 '%s expects an instance of %s; received "%s"',
                 __METHOD__,
@@ -172,7 +172,7 @@ class CollectionInputFilter extends InputFilter
         }
 
         foreach ($this->data as $key => $data) {
-            if (!is_array($data)) {
+            if (! is_array($data)) {
                 $data = [];
             }
             $inputFilter->setData($data);
@@ -258,7 +258,7 @@ class CollectionInputFilter extends InputFilter
      */
     public function getUnknown()
     {
-        if (!is_array($this->data) || !$this->data) {
+        if (! is_array($this->data) || ! $this->data) {
             throw new Exception\RuntimeException(sprintf(
                 '%s: no data present!',
                 __METHOD__
@@ -269,7 +269,7 @@ class CollectionInputFilter extends InputFilter
 
         $unknownInputs = [];
         foreach ($this->data as $key => $data) {
-            if (!is_array($data)) {
+            if (! is_array($data)) {
                 $data = [];
             }
             $inputFilter->setData($data);

@@ -123,7 +123,7 @@ class CollectionInputFilterTest extends TestCase
         $data,
         $inputFilter,
         $expectedRaw,
-        $expecteValues,
+        $expectedValues,
         $expectedValid,
         $expectedMessages
     ) {
@@ -140,7 +140,7 @@ class CollectionInputFilterTest extends TestCase
             'isValid() value not match. Detail . ' . json_encode($this->inputFilter->getMessages())
         );
         $this->assertEquals($expectedRaw, $this->inputFilter->getRawValues(), 'getRawValues() value not match');
-        $this->assertEquals($expecteValues, $this->inputFilter->getValues(), 'getValues() value not match');
+        $this->assertEquals($expectedValues, $this->inputFilter->getValues(), 'getValues() value not match');
         $this->assertEquals($expectedMessages, $this->inputFilter->getMessages(), 'getMessages() value not match');
     }
 
@@ -169,7 +169,7 @@ class CollectionInputFilterTest extends TestCase
 
         // @codingStandardsIgnoreStart
         $dataSets = [
-            // Description => [$required, $count, $data, $inputFilter, $expectedRaw, $expecteValues, $expectedValid, $expectedMessages]
+            // Description => [$required, $count, $data, $inputFilter, $expectedRaw, $expectedValues, $expectedValid, $expectedMessages]
             'Required: T, Count: N, Valid: T'  => [ $isRequired, null, $colRaw, $validIF  , $colRaw, $colFiltered, true , []],
             'Required: T, Count: N, Valid: F'  => [ $isRequired, null, $colRaw, $invalidIF, $colRaw, $colFiltered, false, $colMessages],
             'Required: T, Count: +1, Valid: F' => [ $isRequired,    2, $colRaw, $invalidIF, $colRaw, $colFiltered, false, $colMessages],
@@ -239,7 +239,7 @@ class CollectionInputFilterTest extends TestCase
                 'count' => 0,
                 'isValid' => true,
             ],
-            'count = 1' =>  [
+            'count = 1' => [
                 'count' => 1,
                 'isValid' => true,
             ],
@@ -270,7 +270,7 @@ class CollectionInputFilterTest extends TestCase
 
         $secondCollection = new CollectionInputFilter();
         $secondCollection->setInputFilter($secondInputFilter);
-        if (!is_null($count)) {
+        if (! is_null($count)) {
             $secondCollection->setCount($count);
         }
 
@@ -437,7 +437,7 @@ class CollectionInputFilterTest extends TestCase
 
         $collectionInputFilter->setData([
             ['foo' => 'bar', 'baz' => 'hey'],
-            ['foo' => 'car', 'tor' => 'ver']
+            ['foo' => 'car', 'tor' => 'ver'],
         ]);
 
         $unknown = $collectionInputFilter->getUnknown();

@@ -310,10 +310,12 @@ class BaseInputFilterTest extends TestCase
         }
 
         // ** Check validation state **
+        // @codingStandardsIgnoreStart
         $this->assertEquals($expectedIsValid, $inputFilter->isValid(), 'isValid() value not match');
         $this->assertEquals($expectedInvalidInputs, $inputFilter->getInvalidInput(), 'getInvalidInput() value not match');
         $this->assertEquals($expectedValidInputs, $inputFilter->getValidInput(), 'getValidInput() value not match');
         $this->assertEquals($expectedMessages, $inputFilter->getMessages(), 'getMessages() value not match');
+        // @codingStandardsIgnoreEnd
 
         // ** Check unknown fields **
         $this->assertFalse($inputFilter->hasUnknown(), 'hasUnknown() value not match');
@@ -353,7 +355,7 @@ class BaseInputFilterTest extends TestCase
             'deep' => [
                 'deep-input1' => 'deep-foo1',
                 'deep-input2' => 'deep-foo2',
-            ]
+            ],
         ];
         $expectedData = array_merge($data, ['notSet' => null]);
         /** @var Input|MockObject $resetInput */
@@ -650,13 +652,11 @@ class BaseInputFilterTest extends TestCase
         };
 
         $inputFilter = function ($isValid, $msg = []) use ($vRaw, $vFiltered) {
-            // @codingStandardsIgnoreStart
             return function ($context) use ($isValid, $vRaw, $vFiltered, $msg) {
                 $vRaw = ['fooInput' => $vRaw];
                 $vFiltered = ['fooInput' => $vFiltered];
                 return $this->createInputFilterInterfaceMock($isValid, $context, $vRaw, $vFiltered, $msg);
             };
-            // @codingStandardsIgnoreEnd
         };
 
         // @codingStandardsIgnoreStart
