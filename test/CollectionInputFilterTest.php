@@ -542,11 +542,14 @@ class CollectionInputFilterTest extends TestCase
         // @codingStandardsIgnoreStart
         $this->assertFalse($isValid);
         $this->assertCount(2, $messages);
+
         $this->assertArrayHasKey('email', $messages[0]);
+        $this->assertCount(1, $messages[0]['email']);
         $this->assertContains('Value is required and can\'t be empty', $messages[0]['email']);
+
         $this->assertArrayHasKey('email', $messages[1]);
-        $this->assertNotContains('Value is required and can\'t be empty', $messages[1]['email']);
         $this->assertCount(3, $messages[1]['email']);
+        $this->assertNotContains('Value is required and can\'t be empty', $messages[1]['email']);
         $this->assertContains('\'tom\' is not a valid hostname for the email address', $messages[1]['email']);
         $this->assertContains('The input does not match the expected structure for a DNS hostname', $messages[1]['email']);
         $this->assertContains('The input appears to be a local network name but local network names are not allowed', $messages[1]['email']);
