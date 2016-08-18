@@ -912,7 +912,7 @@ class InputTest extends TestCase
      *
      * @return NotEmptyValidator|MockObject
      */
-    protected function createNonEmptyValidatorMock($isValid, $value, $context =  null)
+    protected function createNonEmptyValidatorMock($isValid, $value, $context = null)
     {
         /** @var NotEmptyValidator|MockObject $notEmptyMock */
         $notEmptyMock = $this->getMock(NotEmptyValidator::class, ['isValid']);

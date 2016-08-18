@@ -41,8 +41,7 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
     /**
      *
      * @param ContainerInterface $services
-     * @param string                  $cName
-     * @param string                  $rName
+     * @param string $rName
      * @return bool
      */
     public function canCreate(ContainerInterface $services, $rName)
@@ -52,8 +51,8 @@ class InputFilterAbstractServiceFactory implements AbstractFactoryInterface
         }
 
         $config = $services->get('config');
-        if (!isset($config['input_filter_specs'][$rName])
-            || !is_array($config['input_filter_specs'][$rName])
+        if (! isset($config['input_filter_specs'][$rName])
+            || ! is_array($config['input_filter_specs'][$rName])
         ) {
             return false;
         }
