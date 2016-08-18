@@ -182,7 +182,7 @@ class CollectionInputFilter extends InputFilter
             $valid = false;
         }
 
-        if (empty($this->data)) {
+        if (! $this->data) {
             $this->clearValues();
             $this->clearRawValues();
 
