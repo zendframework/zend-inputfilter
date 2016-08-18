@@ -48,26 +48,6 @@ class ArrayInputTest extends InputTest
         return $dataSets;
     }
 
-    public function emptyValueProvider()
-    {
-        $dataSets = parent::emptyValueProvider();
-        array_walk($dataSets, function (&$set) {
-            $set['raw'] = [$set['raw']]; // Wrap value into an array.
-        });
-
-        return $dataSets;
-    }
-
-    public function mixedValueProvider()
-    {
-        $dataSets = parent::mixedValueProvider();
-        array_walk($dataSets, function (&$set) {
-            $set['raw'] = [$set['raw']]; // Wrap value into an array.
-        });
-
-        return $dataSets;
-    }
-
     protected function createFilterChainMock(array $valueMap = [])
     {
         // ArrayInput filters per each array value
@@ -101,16 +81,6 @@ class ArrayInputTest extends InputTest
         );
 
         return parent::createValidatorChainMock($valueMap, $messages);
-    }
-
-    protected function createNonEmptyValidatorMock($isValid, $value, $context =  null)
-    {
-        // ArrayInput validates per each array value
-        if (is_array($value)) {
-            $value = current($value);
-        }
-
-        return parent::createNonEmptyValidatorMock($isValid, $value, $context);
     }
 
     protected function getDummyValue($raw = true)

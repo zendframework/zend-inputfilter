@@ -9,23 +9,16 @@
 
 namespace ZendTest\InputFilter;
 
-use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Zend\InputFilter\FileInput;
-use Zend\Validator;
 
 /**
  * @covers Zend\InputFilter\FileInput
  */
 class FileInputTest extends InputTest
 {
-    /** @var FileInput */
-    protected $input;
-
     public function setUp()
     {
         $this->input = new FileInput('foo');
-        // Upload validator does not work in CLI test environment, disable
-        $this->input->setAutoPrependUploadValidator(false);
     }
 
     public function testRetrievingValueFiltersTheValue()
@@ -111,76 +104,37 @@ class FileInputTest extends InputTest
         $this->assertEquals($badValue, $this->input->getValue());
     }
 
-    public function testAutoPrependUploadValidatorIsOnByDefault()
+    public function testCanValidateArrayOfMultiFileData()
     {
-        $input = new FileInput('foo');
-        $this->assertTrue($input->getAutoPrependUploadValidator());
-    }
+        $values = [
+            [
+                'tmp_name' => __FILE__,
+                'name'     => 'foo',
+            ],
+            [
+                'tmp_name' => __FILE__,
+                'name'     => 'bar',
+            ],
+            [
+                'tmp_name' => __FILE__,
+                'name'     => 'baz',
+            ],
+        ];
+        $this->input->setValue($values);
+        $this->input->setValidatorChain($this->createValidatorChainMock([
+            [$values[0], null, true],
+            [$values[1], null, false],
+            [$values[2], null, true],
+        ]));
 
-    public function testUploadValidatorIsAddedWhenIsValidIsCalled()
-    {
-        $this->input->setAutoPrependUploadValidator(true);
-        $this->assertTrue($this->input->getAutoPrependUploadValidator());
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue([
-            'tmp_name' => __FILE__,
-            'name'     => 'foo',
-            'size'     => 1,
-            'error'    => 0,
-        ]);
-        $validatorChain = $this->input->getValidatorChain();
-        $this->assertEquals(0, count($validatorChain->getValidators()));
-
-        $this->assertFalse($this->input->isValid());
-        $validators = $validatorChain->getValidators();
-        $this->assertEquals(1, count($validators));
-        $this->assertInstanceOf(Validator\File\UploadFile::class, $validators[0]['instance']);
-    }
-
-    public function testUploadValidatorIsNotAddedWhenIsValidIsCalled()
-    {
-        $this->assertFalse($this->input->getAutoPrependUploadValidator());
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue(['tmp_name' => 'bar']);
-        $validatorChain = $this->input->getValidatorChain();
-        $this->assertEquals(0, count($validatorChain->getValidators()));
-
-        $this->assertTrue(
+        $this->assertFalse(
             $this->input->isValid(),
             'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
         );
-        $this->assertEquals(0, count($validatorChain->getValidators()));
-    }
-
-    public function testRequiredUploadValidatorValidatorNotAddedWhenOneExists()
-    {
-        $this->input->setAutoPrependUploadValidator(true);
-        $this->assertTrue($this->input->getAutoPrependUploadValidator());
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue(['tmp_name' => 'bar']);
-
-        /** @var Validator\File\UploadFile|MockObject $uploadMock */
-        $uploadMock = $this->getMock(Validator\File\UploadFile::class, ['isValid']);
-        $uploadMock->expects($this->exactly(1))
-                     ->method('isValid')
-                     ->will($this->returnValue(true));
-
-        $validatorChain = $this->input->getValidatorChain();
-        $validatorChain->prependValidator($uploadMock);
-        $this->assertTrue(
-            $this->input->isValid(),
-            'isValid() value not match. Detail . ' . json_encode($this->input->getMessages())
-        );
-
-        $validators = $validatorChain->getValidators();
-        $this->assertEquals(1, count($validators));
-        $this->assertEquals($uploadMock, $validators[0]['instance']);
     }
 
     public function testValidationsRunWithoutFileArrayDueToAjaxPost()
     {
-        $this->input->setAutoPrependUploadValidator(true);
-        $this->assertTrue($this->input->getAutoPrependUploadValidator());
         $this->assertTrue($this->input->isRequired());
         $this->input->setValue('');
 
@@ -193,16 +147,6 @@ class FileInputTest extends InputTest
         ];
         $this->input->setValidatorChain($this->createValidatorChainMock([[$expectedNormalizedValue, null, false]]));
         $this->assertFalse($this->input->isValid());
-    }
-
-    public function testNotEmptyValidatorAddedWhenIsValidIsCalled($value = null)
-    {
-        $this->markTestSkipped('Test is not enabled in FileInputTest');
-    }
-
-    public function testRequiredNotEmptyValidatorNotAddedWhenOneExists($value = null)
-    {
-        $this->markTestSkipped('Test is not enabled in FileInputTest');
     }
 
     public function testFallbackValueVsIsValidRules(
@@ -221,146 +165,6 @@ class FileInputTest extends InputTest
         $fallbackValue = null
     ) {
         $this->markTestSkipped('Input::setFallbackValue is not implemented on FileInput');
-    }
-
-    public function testIsEmptyFileNotArray()
-    {
-        $rawValue = 'file';
-        $this->assertTrue($this->input->isEmptyFile($rawValue));
-    }
-
-    public function testIsEmptyFileUploadNoFile()
-    {
-        $rawValue = [
-            'tmp_name' => '',
-            'error' => \UPLOAD_ERR_NO_FILE,
-        ];
-        $this->assertTrue($this->input->isEmptyFile($rawValue));
-    }
-
-    public function testIsEmptyFileOk()
-    {
-        $rawValue = [
-            'tmp_name' => 'name',
-            'error' => \UPLOAD_ERR_OK,
-        ];
-        $this->assertFalse($this->input->isEmptyFile($rawValue));
-    }
-
-    public function testIsEmptyMultiFileUploadNoFile()
-    {
-        $rawValue = [[
-            'tmp_name' => 'foo',
-            'error'    => \UPLOAD_ERR_NO_FILE
-        ]];
-        $this->assertTrue($this->input->isEmptyFile($rawValue));
-    }
-
-    public function testIsEmptyFileMultiFileOk()
-    {
-        $rawValue = [
-            [
-                'tmp_name' => 'foo',
-                'error'    => \UPLOAD_ERR_OK
-            ],
-            [
-                'tmp_name' => 'bar',
-                'error'    => \UPLOAD_ERR_OK
-            ],
-        ];
-        $this->assertFalse($this->input->isEmptyFile($rawValue));
-    }
-
-    /**
-     * Specific FileInput::merge extras
-     */
-    public function testFileInputMerge()
-    {
-        $source = new FileInput();
-        $source->setAutoPrependUploadValidator(true);
-
-        $target = $this->input;
-        $target->setAutoPrependUploadValidator(false);
-
-        $return = $target->merge($source);
-        $this->assertSame($target, $return, 'merge() must return it self');
-
-        $this->assertEquals(
-            true,
-            $target->getAutoPrependUploadValidator(),
-            'getAutoPrependUploadValidator() value not match'
-        );
-    }
-
-    public function isRequiredVsAllowEmptyVsContinueIfEmptyVsIsValidProvider()
-    {
-        $dataSets = parent::isRequiredVsAllowEmptyVsContinueIfEmptyVsIsValidProvider();
-
-        // FileInput do not use NotEmpty validator so the only validator present in the chain is the custom one.
-        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty / tmp_name']);
-        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty / single']);
-        unset($dataSets['Required: T; AEmpty: F; CIEmpty: F; Validator: X, Value: Empty / multi']);
-
-        return $dataSets;
-    }
-
-    public function emptyValueProvider()
-    {
-        return [
-            'tmp_name' => [
-                'raw' => 'file',
-                'filtered' => [
-                    'tmp_name' => 'file',
-                    'name' => 'file',
-                    'size' => 0,
-                    'type' => '',
-                    'error' => UPLOAD_ERR_NO_FILE,
-                ],
-            ],
-            'single' => [
-                'raw' => [
-                    'tmp_name' => '',
-                    'error' => UPLOAD_ERR_NO_FILE,
-                ],
-                'filtered' => [
-                    'tmp_name' => '',
-                    'error' => UPLOAD_ERR_NO_FILE,
-                ],
-            ],
-            'multi' => [
-                'raw' => [
-                    [
-                        'tmp_name' => 'foo',
-                        'error' => UPLOAD_ERR_NO_FILE,
-                    ],
-                ],
-                'filtered' => [
-                    'tmp_name' => 'foo',
-                    'error' => UPLOAD_ERR_NO_FILE,
-                ],
-            ],
-        ];
-    }
-
-    public function mixedValueProvider()
-    {
-        $fooUploadErrOk = [
-            'tmp_name' => 'foo',
-            'error' => UPLOAD_ERR_OK,
-        ];
-
-        return [
-            'single' => [
-                'raw' => $fooUploadErrOk,
-                'filtered' => $fooUploadErrOk,
-            ],
-            'multi' => [
-                'raw' => [
-                    $fooUploadErrOk,
-                ],
-                'filtered' => $fooUploadErrOk,
-            ],
-        ];
     }
 
     protected function getDummyValue($raw = true)

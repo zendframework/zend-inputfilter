@@ -10,28 +10,12 @@
 namespace Zend\InputFilter;
 
 use Zend\Filter\FilterChain;
-use Zend\ServiceManager\AbstractPluginManager;
 use Zend\Validator\NotEmpty;
 use Zend\Validator\ValidatorChain;
 
 class Input implements
-    InputInterface,
-    EmptyContextInterface
+    InputInterface
 {
-    /**
-     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
-     *
-     * @var bool
-     */
-    protected $allowEmpty = false;
-
-    /**
-     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
-     *
-     * @var bool
-     */
-    protected $continueIfEmpty = false;
-
     /**
      * @var bool
      */
@@ -51,13 +35,6 @@ class Input implements
      * @var string
      */
     protected $name;
-
-    /**
-     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
-     *
-     * @var bool
-     */
-    protected $notEmptyValidator = false;
 
     /**
      * @var bool
@@ -97,36 +74,12 @@ class Input implements
     }
 
     /**
-     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain and set this to `true`.
-     *
-     * @param  bool $allowEmpty
-     * @return Input
-     */
-    public function setAllowEmpty($allowEmpty)
-    {
-        $this->allowEmpty = (bool) $allowEmpty;
-        return $this;
-    }
-
-    /**
      * @param  bool $breakOnFailure
      * @return Input
      */
     public function setBreakOnFailure($breakOnFailure)
     {
         $this->breakOnFailure = (bool) $breakOnFailure;
-        return $this;
-    }
-
-    /**
-     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain and set this to `true`.
-     *
-     * @param bool $continueIfEmpty
-     * @return Input
-     */
-    public function setContinueIfEmpty($continueIfEmpty)
-    {
-        $this->continueIfEmpty = (bool) $continueIfEmpty;
         return $this;
     }
 
@@ -226,31 +179,11 @@ class Input implements
     }
 
     /**
-     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
-     *
-     * @return bool
-     */
-    public function allowEmpty()
-    {
-        return $this->allowEmpty;
-    }
-
-    /**
      * @return bool
      */
     public function breakOnFailure()
     {
         return $this->breakOnFailure;
-    }
-
-    /**
-     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain. Should always return `true`.
-     *
-     * @return bool
-     */
-    public function continueIfEmpty()
-    {
-        return $this->continueIfEmpty;
     }
 
     /**
@@ -361,13 +294,9 @@ class Input implements
     public function merge(InputInterface $input)
     {
         $this->setBreakOnFailure($input->breakOnFailure());
-        if ($input instanceof Input) {
-            $this->setContinueIfEmpty($input->continueIfEmpty());
-        }
         $this->setErrorMessage($input->getErrorMessage());
         $this->setName($input->getName());
         $this->setRequired($input->isRequired());
-        $this->setAllowEmpty($input->allowEmpty());
         if (!($input instanceof Input) || $input->hasValue()) {
             $this->setValue($input->getRawValue());
         }
@@ -388,10 +317,7 @@ class Input implements
     {
         $value           = $this->getValue();
         $hasValue        = $this->hasValue();
-        $empty           = ($value === null || $value === '' || $value === []);
         $required        = $this->isRequired();
-        $allowEmpty      = $this->allowEmpty();
-        $continueIfEmpty = $this->continueIfEmpty();
 
         if (! $hasValue && $this->hasFallback()) {
             $this->setValue($this->getFallbackValue());
@@ -407,22 +333,6 @@ class Input implements
                 $this->errorMessage = $this->prepareRequiredValidationFailureMessage();
             }
             return false;
-        }
-
-        if ($empty && ! $required && ! $continueIfEmpty) {
-            return true;
-        }
-
-        if ($empty && $allowEmpty && ! $continueIfEmpty) {
-            return true;
-        }
-
-        // At this point, we need to run validators.
-        // If we do not allow empty and the "continue if empty" flag are
-        // BOTH false, we inject the "not empty" validator into the chain,
-        // which adds that logic into the validation routine.
-        if (! $allowEmpty && ! $continueIfEmpty) {
-            $this->injectNotEmptyValidator();
         }
 
         $validator = $this->getValidatorChain();
@@ -450,38 +360,6 @@ class Input implements
 
         $validator = $this->getValidatorChain();
         return $validator->getMessages();
-    }
-
-    /**
-     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
-     *
-     * @return void
-     */
-    protected function injectNotEmptyValidator()
-    {
-        if ((!$this->isRequired() && $this->allowEmpty()) || $this->notEmptyValidator) {
-            return;
-        }
-        $chain = $this->getValidatorChain();
-
-        // Check if NotEmpty validator is already in chain
-        $validators = $chain->getValidators();
-        foreach ($validators as $validator) {
-            if ($validator['instance'] instanceof NotEmpty) {
-                $this->notEmptyValidator = true;
-                return;
-            }
-        }
-
-        $this->notEmptyValidator = true;
-
-        if (class_exists(AbstractPluginManager::class)) {
-            $chain->prependByName('NotEmpty', [], true);
-
-            return;
-        }
-
-        $chain->prependValidator(new NotEmpty(), true);
     }
 
     /**

@@ -214,7 +214,6 @@ class FactoryTest extends TestCase
     {
         return [
             // Description => [$specificationKey]
-            'continue_if_empty' => ['continue_if_empty'],
             'fallback_value' => ['fallback_value'],
         ];
     }
@@ -448,31 +447,6 @@ class FactoryTest extends TestCase
         }
     }
 
-    public function testFactoryWillCreateInputWithSuggestedRequiredFlagAndAlternativeAllowEmptyFlag()
-    {
-        $factory = $this->createDefaultFactory();
-        $input   = $factory->createInput([
-            'name'     => 'foo',
-            'required' => false,
-            'allow_empty' => false,
-        ]);
-        $this->assertInstanceOf(InputInterface::class, $input);
-        $this->assertFalse($input->isRequired());
-        $this->assertFalse($input->allowEmpty());
-    }
-
-    public function testFactoryWillCreateInputWithSuggestedAllowEmptyFlagAndImpliesRequiredFlag()
-    {
-        $factory = $this->createDefaultFactory();
-        $input   = $factory->createInput([
-            'name'        => 'foo',
-            'allow_empty' => true,
-        ]);
-        $this->assertInstanceOf(InputInterface::class, $input);
-        $this->assertTrue($input->allowEmpty());
-        $this->assertFalse($input->isRequired());
-    }
-
     public function testFactoryWillCreateInputWithSuggestedName()
     {
         $factory = $this->createDefaultFactory();
@@ -481,17 +455,6 @@ class FactoryTest extends TestCase
         ]);
         $this->assertInstanceOf(InputInterface::class, $input);
         $this->assertEquals('foo', $input->getName());
-    }
-
-    public function testFactoryWillCreateInputWithContinueIfEmptyFlag()
-    {
-        $factory = $this->createDefaultFactory();
-        $input = $factory->createInput([
-            'name'              => 'foo',
-            'continue_if_empty' => true,
-        ]);
-        $this->assertInstanceOf(InputInterface::class, $input);
-        $this->assertTrue($input->continueIfEmpty());
     }
 
     public function testFactoryAcceptsInputInterface()
@@ -543,7 +506,6 @@ class FactoryTest extends TestCase
                 ],
             ],
             'bar' => [
-                'allow_empty' => true,
                 'filters'     => [
                     [
                         'name' => Filter\StringTrim::class,
@@ -575,7 +537,6 @@ class FactoryTest extends TestCase
                     ],
                 ],
                 'bar' => [
-                    'allow_empty' => true,
                     'filters'     => [
                         [
                             'name' => Filter\StringTrim::class
@@ -595,7 +556,6 @@ class FactoryTest extends TestCase
             ],
             'zomg' => [
                 'name' => 'zomg',
-                'continue_if_empty' => true,
             ],
         ]);
         $this->assertInstanceOf(InputFilter::class, $inputFilter);
@@ -612,7 +572,6 @@ class FactoryTest extends TestCase
                     break;
                 case 'bar':
                     $this->assertInstanceOf(Input::class, $input);
-                    $this->assertTrue($input->allowEmpty());
                     $this->assertEquals(2, count($input->getFilterChain()));
                     break;
                 case 'baz':
@@ -624,7 +583,6 @@ class FactoryTest extends TestCase
                     $this->assertEquals(2, count($foo->getValidatorChain()));
                     $bar = $input->get('bar');
                     $this->assertInstanceOf(Input::class, $bar);
-                    $this->assertTrue($bar->allowEmpty());
                     $this->assertEquals(2, count($bar->getFilterChain()));
                     break;
                 case 'bat':
@@ -633,7 +591,6 @@ class FactoryTest extends TestCase
                     break;
                 case 'zomg':
                     $this->assertInstanceOf(Input::class, $input);
-                    $this->assertTrue($input->continueIfEmpty());
             }
         }
     }

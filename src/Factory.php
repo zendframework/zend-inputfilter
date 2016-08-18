@@ -204,22 +204,6 @@ class Factory
                 case 'required':
                     $input->setRequired($value);
                     break;
-                case 'allow_empty':
-                    $input->setAllowEmpty($value);
-                    if (!isset($inputSpecification['required'])) {
-                        $input->setRequired(!$value);
-                    }
-                    break;
-                case 'continue_if_empty':
-                    if (!$input instanceof Input) {
-                        throw new Exception\RuntimeException(sprintf(
-                            '%s "continue_if_empty" can only set to inputs of type "%s"',
-                            __METHOD__,
-                            Input::class
-                        ));
-                    }
-                    $input->setContinueIfEmpty($inputSpecification['continue_if_empty']);
-                    break;
                 case 'error_message':
                     $input->setErrorMessage($value);
                     break;
