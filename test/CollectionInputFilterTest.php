@@ -15,6 +15,7 @@ use PHPUnit_Framework_TestCase as TestCase;
 use stdClass;
 use Zend\InputFilter\BaseInputFilter;
 use Zend\InputFilter\CollectionInputFilter;
+use Zend\InputFilter\Exception\InvalidArgumentException;
 use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
@@ -103,15 +104,6 @@ class CollectionInputFilterTest extends TestCase
         $this->assertEquals(2, $this->inputFilter->getCount());
         $this->inputFilter->setData($collectionData2);
         $this->assertEquals(1, $this->inputFilter->getCount());
-    }
-
-    public function testInvalidCollectionIsNotValid()
-    {
-        $data = 1;
-
-        $this->inputFilter->setData($data);
-
-        $this->assertFalse($this->inputFilter->isValid());
     }
 
     /**
@@ -328,8 +320,8 @@ class CollectionInputFilterTest extends TestCase
     public function countVsDataProvider()
     {
         $data0 = [];
-        $data1 = ['A' => 'a'];
-        $data2 = ['A' => 'a', 'B' => 'b'];
+        $data1 = [['A' => 'a']];
+        $data2 = [['A' => 'a'], ['B' => 'b']];
 
         // @codingStandardsIgnoreStart
         return [
@@ -444,5 +436,69 @@ class CollectionInputFilterTest extends TestCase
 
         $this->assertTrue($collectionInputFilter->hasUnknown());
         $this->assertEquals([['baz' => 'hey'], ['tor' => 'ver']], $unknown);
+    }
+
+    public function invalidCollections()
+    {
+        return [
+            'null'       => [[['this' => 'is valid'], null]],
+            'false'      => [[['this' => 'is valid'], false]],
+            'true'       => [[['this' => 'is valid'], true]],
+            'zero'       => [[['this' => 'is valid'], 0]],
+            'int'        => [[['this' => 'is valid'], 1]],
+            'zero-float' => [[['this' => 'is valid'], 0.0]],
+            'float'      => [[['this' => 'is valid'], 1.1]],
+            'string'     => [[['this' => 'is valid'], 'this is not']],
+            'object'     => [[['this' => 'is valid'], (object) ['this' => 'is invalid']]],
+        ];
+    }
+
+    /**
+     * @dataProvider invalidCollections
+     */
+    public function testSettingDataAsArrayWithInvalidCollectionsRaisesException($data)
+    {
+        $collectionInputFilter = $this->inputFilter;
+
+        $this->setExpectedException(InvalidArgumentException::class, 'invalid item in collection');
+        $collectionInputFilter->setData($data);
+    }
+
+    /**
+     * @dataProvider invalidCollections
+     */
+    public function testSettingDataAsTraversableWithInvalidCollectionsRaisesException($data)
+    {
+        $collectionInputFilter = $this->inputFilter;
+        $data = new ArrayIterator($data);
+
+        $this->setExpectedException(InvalidArgumentException::class, 'invalid item in collection');
+        $collectionInputFilter->setData($data);
+    }
+
+    public function invalidDataType()
+    {
+        return [
+            'null'       => [null],
+            'false'      => [false],
+            'true'       => [true],
+            'zero'       => [0],
+            'int'        => [1],
+            'zero-float' => [0.0],
+            'float'      => [1.1],
+            'string'     => ['this is not'],
+            'object'     => [(object) ['this' => 'is invalid']],
+        ];
+    }
+
+    /**
+     * @dataProvider invalidDataType
+     */
+    public function testSettingDataWithNonArrayNonTraversableRaisesException($data)
+    {
+        $collectionInputFilter = $this->inputFilter;
+
+        $this->setExpectedException(InvalidArgumentException::class, 'invalid collection');
+        $collectionInputFilter->setData($data);
     }
 }

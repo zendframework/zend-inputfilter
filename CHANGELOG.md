@@ -28,6 +28,16 @@ All notable changes to this project will be documented in this file, in reverse 
   from prior to the 2.7 series; specifically, previously it would inject itself
   as the plugin manager to input filter factories when under zend-servicemanager
   v2; it now will do so again.
+- [#116](https://github.com/zendframework/zend-inputfilter/pull/116) fixes the
+  behavior of `CollectionInputFilter::setData()`. Prior to this release, it
+  would validate whether the data represented a collection (i.e., it was an
+  array or traversable) and whether individual items in the collection were data
+  sets (i.e., arrays or traversables) only during `isValid()` and/or
+  `getUnknown()` calls, raising exceptions during runtime. These should have
+  been considered invalid arguments when the data was provided; they now are. As
+  such, `setData()` now raises `Zend\InputFilter\Exception\InvalidArgumentException`
+  for invalid data, ensuring that `isValid()` and `getUnknown()` only ever
+  operate on usable collections and collection sets.
 
 ## 2.7.2 - 2016-06-11
 
