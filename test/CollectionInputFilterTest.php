@@ -421,6 +421,7 @@ class CollectionInputFilterTest extends TestCase
 
         $unknown = $collectionInputFilter->getUnknown();
 
+        $this->assertFalse($collectionInputFilter->hasUnknown());
         $this->assertCount(0, $unknown);
     }
 
@@ -441,6 +442,7 @@ class CollectionInputFilterTest extends TestCase
 
         $unknown = $collectionInputFilter->getUnknown();
 
+        $this->assertTrue($collectionInputFilter->hasUnknown());
         $this->assertEquals([['baz' => 'hey'], ['tor' => 'ver']], $unknown);
     }
 }
