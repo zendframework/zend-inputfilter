@@ -56,7 +56,7 @@ class CollectionInputFilter extends InputFilter
             $inputFilter = $this->getFactory()->createInputFilter($inputFilter);
         }
 
-        if (!$inputFilter instanceof BaseInputFilter) {
+        if (! $inputFilter instanceof BaseInputFilter) {
             throw new Exception\RuntimeException(sprintf(
                 '%s expects an instance of %s; received "%s"',
                 __METHOD__,
@@ -273,7 +273,7 @@ class CollectionInputFilter extends InputFilter
      */
     public function getUnknown()
     {
-        if (!$this->data) {
+        if (! $this->data) {
             throw new Exception\RuntimeException(sprintf(
                 '%s: no data present!',
                 __METHOD__

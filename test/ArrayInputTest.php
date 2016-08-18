@@ -103,7 +103,7 @@ class ArrayInputTest extends InputTest
         return parent::createValidatorChainMock($valueMap, $messages);
     }
 
-    protected function createNonEmptyValidatorMock($isValid, $value, $context =  null)
+    protected function createNonEmptyValidatorMock($isValid, $value, $context = null)
     {
         // ArrayInput validates per each array value
         if (is_array($value)) {

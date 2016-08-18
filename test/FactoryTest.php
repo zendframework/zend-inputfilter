@@ -62,11 +62,9 @@ class FactoryTest extends TestCase
             RuntimeException::class,
             'Input factory expects the "type" to be a valid class or a plugin name; received "foo"'
         );
-        $factory->createInput(
-            [
-                'type' => $type,
-            ]
-        );
+        $factory->createInput([
+            'type' => $type,
+        ]);
     }
 
     public function testGetInputFilterManagerSettedByItsSetter()
@@ -99,11 +97,9 @@ class FactoryTest extends TestCase
             'Input factory expects the "type" to be a class implementing Zend\InputFilter\InputInterface; ' .
             'received "fooPlugin"'
         );
-        $factory->createInput(
-            [
-                'type' => $type,
-            ]
-        );
+        $factory->createInput([
+            'type' => $type,
+        ]);
     }
 
     public function testCreateInputWithTypeAsAnInvalidClassInstanceThrowException()
@@ -116,11 +112,9 @@ class FactoryTest extends TestCase
             'Input factory expects the "type" to be a class implementing Zend\InputFilter\InputInterface; ' .
             'received "stdClass"'
         );
-        $factory->createInput(
-            [
-                'type' => $type,
-            ]
-        );
+        $factory->createInput([
+            'type' => $type,
+        ]);
     }
 
     public function testCreateInputWithFiltersAsAnInvalidTypeThrowException()
@@ -129,14 +123,12 @@ class FactoryTest extends TestCase
 
         $this->setExpectedException(
             RuntimeException::class,
-            'expects the value associated with "filters" to be an array/Traversable of filters or filter specifications,' .
-            ' or a FilterChain; received "string"'
+            'expects the value associated with "filters" to be an array/Traversable'
+            . ' of filters or filter specifications, or a FilterChain; received "string"'
         );
-        $factory->createInput(
-            [
-                'filters' => 'invalid_value',
-            ]
-        );
+        $factory->createInput([
+            'filters' => 'invalid_value',
+        ]);
     }
 
     public function testCreateInputWithFiltersAsAnSpecificationWithMissingNameThrowException()
@@ -147,15 +139,13 @@ class FactoryTest extends TestCase
             RuntimeException::class,
             'Invalid filter specification provided; does not include "name" key'
         );
-        $factory->createInput(
-            [
-                'filters' => [
-                    [
-                        // empty
-                    ]
-                ],
-            ]
-        );
+        $factory->createInput([
+            'filters' => [
+                [
+                    // empty
+                ]
+            ],
+        ]);
     }
 
     public function testCreateInputWithFiltersAsAnCollectionOfInvalidTypesThrowException()
@@ -166,13 +156,11 @@ class FactoryTest extends TestCase
             RuntimeException::class,
             'Invalid filter specification provided; was neither a filter instance nor an array specification'
         );
-        $factory->createInput(
-            [
-                'filters' => [
-                    'invalid value'
-                ],
-            ]
-        );
+        $factory->createInput([
+            'filters' => [
+                'invalid value',
+            ],
+        ]);
     }
 
     public function testCreateInputWithValidatorsAsAnInvalidTypeThrowException()
@@ -184,11 +172,9 @@ class FactoryTest extends TestCase
             'expects the value associated with "validators" to be an array/Traversable of validators or validator ' .
             'specifications, or a ValidatorChain; received "string"'
         );
-        $factory->createInput(
-            [
-                'validators' => 'invalid_value',
-            ]
-        );
+        $factory->createInput([
+            'validators' => 'invalid_value',
+        ]);
     }
 
     public function testCreateInputWithValidatorsAsAnSpecificationWithMissingNameThrowException()
@@ -199,15 +185,13 @@ class FactoryTest extends TestCase
             RuntimeException::class,
             'Invalid validator specification provided; does not include "name" key'
         );
-        $factory->createInput(
-            [
-                'validators' => [
-                    [
-                        // empty
-                    ]
-                ],
-            ]
-        );
+        $factory->createInput([
+            'validators' => [
+                [
+                    // empty
+                ]
+            ],
+        ]);
     }
 
     public function inputTypeSpecificationProvider()
@@ -227,19 +211,20 @@ class FactoryTest extends TestCase
         $factory = $this->createDefaultFactory();
         $type = 'pluginInputInterface';
 
-        $pluginManager = $this->createInputFilterPluginManagerMockForPlugin($type, $this->getMock(InputInterface::class));
+        $pluginManager = $this->createInputFilterPluginManagerMockForPlugin(
+            $type,
+            $this->getMock(InputInterface::class)
+        );
         $factory->setInputFilterManager($pluginManager);
 
         $this->setExpectedException(
             RuntimeException::class,
             sprintf('"%s" can only set to inputs of type "Zend\InputFilter\Input"', $specificationKey)
         );
-        $factory->createInput(
-            [
-                'type' => $type,
-                $specificationKey => true,
-            ]
-        );
+        $factory->createInput([
+            'type' => $type,
+            $specificationKey => true,
+        ]);
     }
 
     public function testCreateInputWithValidatorsAsAnCollectionOfInvalidTypesThrowException()
@@ -250,13 +235,11 @@ class FactoryTest extends TestCase
             RuntimeException::class,
             'Invalid validator specification provided; was neither a validator instance nor an array specification'
         );
-        $factory->createInput(
-            [
-                'validators' => [
-                    'invalid value'
-                ],
-            ]
-        );
+        $factory->createInput([
+            'validators' => [
+                'invalid value',
+            ],
+        ]);
     }
 
     public function testCreateInputFilterWithInvalidDataTypeThrowsInvalidArgumentException()
@@ -334,8 +317,10 @@ class FactoryTest extends TestCase
         $this->assertSame($validatorPlugins, $inputValidatorChain->getPluginManager());
     }
 
+    // @codingStandardsIgnoreStart
     public function testFactoryInjectsComposedFilterAndValidatorChainsIntoInputObjectsWhenCreatingNewInputFilterObjects()
     {
+        // @codingStandardsIgnoreEnd
         $smMock = $this->getMock(ContainerInterface::class);
         $factory          = $this->createDefaultFactory();
         $filterPlugins    = new Filter\FilterPluginManager($smMock);
@@ -370,7 +355,7 @@ class FactoryTest extends TestCase
             'name'    => 'foo',
             'filters' => [
                 [
-                    'name' => Filter\StringTrim::class
+                    'name' => Filter\StringTrim::class,
                 ],
                 $htmlEntities,
                 [
@@ -500,7 +485,7 @@ class FactoryTest extends TestCase
         $input = new Input();
 
         $inputFilter = $factory->createInputFilter([
-            'foo' => $input
+            'foo' => $input,
         ]);
 
         $this->assertInstanceOf(InputFilterInterface::class, $inputFilter);
@@ -514,7 +499,7 @@ class FactoryTest extends TestCase
         $input = new InputFilter();
 
         $inputFilter = $factory->createInputFilter([
-            'foo' => $input
+            'foo' => $input,
         ]);
 
         $this->assertInstanceOf(InputFilterInterface::class, $inputFilter);
@@ -578,7 +563,7 @@ class FactoryTest extends TestCase
                     'allow_empty' => true,
                     'filters'     => [
                         [
-                            'name' => Filter\StringTrim::class
+                            'name' => Filter\StringTrim::class,
                         ],
                         [
                             'name' => Filter\StringToLower::class,
@@ -642,7 +627,7 @@ class FactoryTest extends TestCase
     {
         $factory     = $this->createDefaultFactory();
         $inputFilter = $factory->createInputFilter([
-            ['name' => 'foo']
+            ['name' => 'foo'],
         ]);
 
         $this->assertTrue($inputFilter->has('foo'));
@@ -712,16 +697,16 @@ class FactoryTest extends TestCase
             'filters' => [
                 [
                     'name'      => 'StringTrim',
-                    'priority'  => Filter\FilterChain::DEFAULT_PRIORITY - 1 // 999
+                    'priority'  => Filter\FilterChain::DEFAULT_PRIORITY - 1, // 999
                 ],
                 [
                     'name'      => 'StringToUpper',
-                    'priority'  => Filter\FilterChain::DEFAULT_PRIORITY + 1 //1001
+                    'priority'  => Filter\FilterChain::DEFAULT_PRIORITY + 1, //1001
                 ],
                 [
-                    'name'      => 'StringToLower' // default priority 1000
-                ]
-            ]
+                    'name'      => 'StringToLower', // default priority 1000
+                ],
+            ],
         ]);
 
         // We should have 3 filters
@@ -753,7 +738,7 @@ class FactoryTest extends TestCase
         $inputFilter = $factory->createInputFilter(
             [
                 'type' => [
-                    'required' => true
+                    'required' => true,
                 ]
             ]
         );
@@ -912,7 +897,7 @@ class FactoryTest extends TestCase
         $factory = new Factory($pluginManager);
 
         $input = $factory->createInput([
-            'type' => 'bar'
+            'type' => 'bar',
         ]);
         $this->assertSame('bar', $input->getName());
     }
@@ -927,7 +912,7 @@ class FactoryTest extends TestCase
 
         $input = $factory->createInput([
             'type' => 'bar',
-            'required' => false
+            'required' => false,
         ]);
 
         $this->assertFalse($input->isRequired());
