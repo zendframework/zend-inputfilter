@@ -540,21 +540,7 @@ class BaseInputFilter implements
      */
     public function hasUnknown()
     {
-        if (null === $this->data) {
-            throw new Exception\RuntimeException(sprintf(
-                '%s: no data present!',
-                __METHOD__
-            ));
-        }
-
-        $data   = array_keys($this->data);
-        $inputs = array_keys($this->inputs);
-        $diff   = array_diff($data, $inputs);
-        if (!empty($diff)) {
-            return count(array_intersect($diff, $inputs)) == 0;
-        }
-
-        return false;
+        return count($this->getUnknown()) > 0;
     }
 
     /**
