@@ -19,6 +19,8 @@ use Zend\InputFilter\Exception\InvalidArgumentException;
 use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
+use Zend\Validator\EmailAddress;
+use Zend\Validator\NotEmpty;
 
 /**
  * @covers Zend\InputFilter\CollectionInputFilter
@@ -500,5 +502,107 @@ class CollectionInputFilterTest extends TestCase
 
         $this->setExpectedException(InvalidArgumentException::class, 'invalid collection');
         $collectionInputFilter->setData($data);
+    }
+
+    public function testValidateCollection()
+    {
+        $inputFilter = new InputFilter();
+        $inputFilter->add([
+            'name' => 'email',
+            'required' => true,
+            'validators' => [
+                ['name' => EmailAddress::class],
+                ['name' => NotEmpty::class],
+            ],
+        ]);
+        $inputFilter->add([
+            'name' => 'name',
+            'required' => true,
+            'validators' => [
+                ['name' => NotEmpty::class],
+            ],
+        ]);
+
+        $collectionInputFilter = $this->inputFilter;
+        $collectionInputFilter->setInputFilter($inputFilter);
+
+        $collectionInputFilter->setData([
+            [
+                'name' => 'Tom',
+            ],
+            [
+                'email' => 'tom@tom',
+                'name' => 'Tom',
+            ],
+        ]);
+
+        $isValid = $collectionInputFilter->isValid();
+        $messages = $collectionInputFilter->getMessages();
+
+        // @codingStandardsIgnoreStart
+        $this->assertFalse($isValid);
+        $this->assertCount(2, $messages);
+
+        $this->assertArrayHasKey('email', $messages[0]);
+        $this->assertCount(1, $messages[0]['email']);
+        $this->assertContains('Value is required and can\'t be empty', $messages[0]['email']);
+
+        $this->assertArrayHasKey('email', $messages[1]);
+        $this->assertCount(3, $messages[1]['email']);
+        $this->assertNotContains('Value is required and can\'t be empty', $messages[1]['email']);
+        $this->assertContains('\'tom\' is not a valid hostname for the email address', $messages[1]['email']);
+        $this->assertContains('The input does not match the expected structure for a DNS hostname', $messages[1]['email']);
+        $this->assertContains('The input appears to be a local network name but local network names are not allowed', $messages[1]['email']);
+        // @codingStandardsIgnoreEnd
+    }
+
+    public function testValidateCollectionWithCustomErrorMessage()
+    {
+        $inputFilter = new InputFilter();
+        $inputFilter->add([
+            'name' => 'email',
+            'required' => true,
+            'validators' => [
+                ['name' => EmailAddress::class],
+                ['name' => NotEmpty::class],
+            ],
+            'error_message' => 'CUSTOM ERROR MESSAGE',
+        ]);
+        $inputFilter->add([
+            'name' => 'name',
+            'required' => true,
+            'validators' => [
+                ['name' => NotEmpty::class],
+            ],
+        ]);
+
+        $collectionInputFilter = $this->inputFilter;
+        $collectionInputFilter->setInputFilter($inputFilter);
+
+        $collectionInputFilter->setData([
+            [
+                'name' => 'Tom',
+            ],
+            [
+                'email' => 'tom@tom',
+                'name' => 'Tom',
+            ],
+        ]);
+
+        $isValid = $collectionInputFilter->isValid();
+        $messages = $collectionInputFilter->getMessages();
+
+
+        $this->assertFalse($isValid);
+        $this->assertCount(2, $messages);
+
+        $this->assertArrayHasKey('email', $messages[0]);
+        $this->assertCount(1, $messages[0]['email']);
+        $this->assertContains('CUSTOM ERROR MESSAGE', $messages[0]['email']);
+        $this->assertNotContains('Value is required and can\'t be empty', $messages[0]['email']);
+
+        $this->assertArrayHasKey('email', $messages[1]);
+        $this->assertCount(1, $messages[1]['email']);
+        $this->assertContains('CUSTOM ERROR MESSAGE', $messages[1]['email']);
     }
 }
