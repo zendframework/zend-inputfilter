@@ -552,4 +552,54 @@ class CollectionInputFilterTest extends TestCase
         $this->assertContains('The input appears to be a local network name but local network names are not allowed', $messages[1]['email']);
         // @codingStandardsIgnoreEnd
     }
+
+    public function testValidateCollectionWithCustomErrorMessage()
+    {
+        $inputFilter = new InputFilter();
+        $inputFilter->add([
+            'name' => 'email',
+            'required' => true,
+            'validators' => [
+                ['name' => EmailAddress::class],
+                ['name' => NotEmpty::class],
+            ],
+            'error_message' => 'CUSTOM ERROR MESSAGE',
+        ]);
+        $inputFilter->add([
+            'name' => 'name',
+            'required' => true,
+            'validators' => [
+                ['name' => NotEmpty::class],
+            ],
+        ]);
+
+        $collectionInputFilter = $this->inputFilter;
+        $collectionInputFilter->setInputFilter($inputFilter);
+
+        $collectionInputFilter->setData([
+            [
+                'name' => 'Tom',
+            ],
+            [
+                'email' => 'tom@tom',
+                'name' => 'Tom',
+            ],
+        ]);
+
+        $isValid = $collectionInputFilter->isValid();
+        $messages = $collectionInputFilter->getMessages();
+
+
+        $this->assertFalse($isValid);
+        $this->assertCount(2, $messages);
+
+        $this->assertArrayHasKey('email', $messages[0]);
+        $this->assertCount(1, $messages[0]['email']);
+        $this->assertContains('CUSTOM ERROR MESSAGE', $messages[0]['email']);
+        $this->assertNotContains('Value is required and can\'t be empty', $messages[0]['email']);
+
+        $this->assertArrayHasKey('email', $messages[1]);
+        $this->assertCount(1, $messages[1]['email']);
+        $this->assertContains('CUSTOM ERROR MESSAGE', $messages[1]['email']);
+    }
 }
