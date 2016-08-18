@@ -432,7 +432,7 @@ class CollectionInputFilterTest extends TestCase
             'name' => 'foo',
         ]);
 
-        $collectionInputFilter = new CollectionInputFilter();
+        $collectionInputFilter = $this->inputFilter;
         $collectionInputFilter->setInputFilter($inputFilter);
 
         $collectionInputFilter->setData([
