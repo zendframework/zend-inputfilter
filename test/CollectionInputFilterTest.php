@@ -320,8 +320,8 @@ class CollectionInputFilterTest extends TestCase
     public function countVsDataProvider()
     {
         $data0 = [];
-        $data1 = ['A' => 'a'];
-        $data2 = ['A' => 'a', 'B' => 'b'];
+        $data1 = [['A' => 'a']];
+        $data2 = [['A' => 'a'], ['B' => 'b']];
 
         // @codingStandardsIgnoreStart
         return [
