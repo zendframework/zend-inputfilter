@@ -988,6 +988,20 @@ class FactoryTest extends TestCase
         $this->assertTrue($collectionInputFilter->has('bat'));
     }
 
+    public function testClearDefaultFilterChain()
+    {
+        $factory = $this->createDefaultFactory();
+        $factory->clearDefaultFilterChain();
+        $this->assertEquals(null, $factory->getDefaultFilterChain());
+    }
+
+    public function testClearDefaultValidatorChain()
+    {
+        $factory = $this->createDefaultFactory();
+        $factory->clearDefaultValidatorChain();
+        $this->assertEquals(null, $factory->getDefaultValidatorChain());
+    }
+
     /**
      * @return Factory
      */
