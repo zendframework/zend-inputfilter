@@ -139,6 +139,17 @@ class InputTest extends TestCase
     }
 
     /**
+     * @dataProvider setValueProvider
+     */
+    public function testClearFallbackValue($fallbackValue)
+    {
+        $input = $this->input;
+        $input->setFallbackValue($fallbackValue);
+        $input->clearFallbackValue();
+        $this->assertEquals(null, $input->getFallbackValue(), 'getFallbackValue() value not match');
+        $this->assertEquals(false, $input->hasFallback(), 'hasFallback() value not match');
+    }
+    /**
      * @dataProvider fallbackValueVsIsValidProvider
      */
     public function testFallbackValueVsIsValidRules($required, $fallbackValue, $originalValue, $isValid, $expectedValue)
