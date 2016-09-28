@@ -992,14 +992,14 @@ class FactoryTest extends TestCase
     {
         $factory = $this->createDefaultFactory();
         $factory->clearDefaultFilterChain();
-        $this->assertEquals(null, $factory->getDefaultFilterChain());
+        $this->assertNull($factory->getDefaultFilterChain());
     }
 
     public function testClearDefaultValidatorChain()
     {
         $factory = $this->createDefaultFactory();
         $factory->clearDefaultValidatorChain();
-        $this->assertEquals(null, $factory->getDefaultValidatorChain());
+        $this->assertNull($factory->getDefaultValidatorChain());
     }
 
     /**
