@@ -12,32 +12,34 @@ use Zend\InputFilter\InputFilterAbstractServiceFactory;
 use Zend\InputFilter\InputFilterPluginManager;
 use Zend\InputFilter\InputFilterPluginManagerFactory;
 
-class ConfigProviderTest extends \PHPUnit_Framework_TestCase
+final class ConfigProviderTest extends \PHPUnit_Framework_TestCase
 {
-    private $config = [
-        'abstract_factories' => [
-            InputFilterAbstractServiceFactory::class,
-        ],
-        'aliases' => [
-            'InputFilterManager' => InputFilterPluginManager::class,
-        ],
-        'factories' => [
-            InputFilterPluginManager::class => InputFilterPluginManagerFactory::class,
-        ],
-    ];
-
     public function testProvidesExpectedConfiguration()
     {
         $provider = new ConfigProvider();
-        $this->assertEquals($this->config, $provider->getDependencyConfig());
-        return $provider;
+
+        $expected = [
+            'abstract_factories' => [
+                InputFilterAbstractServiceFactory::class,
+            ],
+            'aliases' => [
+                'InputFilterManager' => InputFilterPluginManager::class,
+            ],
+            'factories' => [
+                InputFilterPluginManager::class => InputFilterPluginManagerFactory::class,
+            ],
+        ];
+
+        $this->assertEquals($expected, $provider->getDependencyConfig());
     }
 
-    /**
-     * @depends testProvidesExpectedConfiguration
-     */
-    public function testInvocationProvidesDependencyConfiguration(ConfigProvider $provider)
+    public function testInvocationProvidesDependencyConfiguration()
     {
-        $this->assertEquals(['dependencies' => $provider->getDependencyConfig()], $provider());
+        $provider = new ConfigProvider();
+
+        $expected = [
+            'dependencies' => $provider->getDependencyConfig(),
+        ];
+        $this->assertEquals($expected, $provider());
     }
 }
