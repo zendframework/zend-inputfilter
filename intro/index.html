@@ -160,7 +160,7 @@ arguments, etc.</p>
 <p>To pass input data to the <code>InputFilter</code>, use the <code>setData()</code> method; the data
 must be specified using an associative array. Below is an example on how to
 validate the data coming from a form using the POST method.</p>
-<pre class="codehilite"><code class="language-php">use Zend\InputFilter\InputFilter;
+<pre class="codehilite"><code class="language-php linenums">use Zend\InputFilter\InputFilter;
 use Zend\InputFilter\Input;
 use Zend\Validator;
 
@@ -186,7 +186,6 @@ if ($inputFilter-&gt;isValid()) {
     }
 }</code></pre>
 
-
 <p>In this example, we validated the email and password values. The email must be a
 valid address and the password must be composed of at least 8 characters. If the
 input data are not valid, we report the list of invalid input using the
@@ -196,18 +195,17 @@ validator chain. It is also possible to specify a "validation group", a subset
 of the data to be validated; this may be done using the <code>setValidationGroup()</code>
 method. You can specify the list of the input names as an array or as individual
 parameters.</p>
-<pre class="codehilite"><code class="language-php">// As individual parameters
+<pre class="codehilite"><code class="language-php linenums">// As individual parameters
 $inputFilter-&gt;setValidationGroup('email', 'password');
 
 // or as an array of names
 $inputFilter-&gt;setValidationGroup(['email', 'password']);</code></pre>
 
-
 <p>You can validate and/or filter the data using the <code>InputFilter</code>. To filter data,
 use the <code>getFilterChain()</code> method of individual <code>Input</code> instances, and attach
 filters to the returned filter chain. Below is an example that uses filtering
 without validation.</p>
-<pre class="codehilite"><code class="language-php">use Zend\InputFilter\Input;
+<pre class="codehilite"><code class="language-php linenums">use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
 
 $input = new Input('foo');
@@ -226,14 +224,13 @@ echo $inputFilter-&gt;getRawValue('foo') . &quot;\n&quot;; // the output is ' Ba
 echo &quot;After:\n&quot;;
 echo $inputFilter-&gt;getValue('foo') . &quot;\n&quot;;    // the output is 'Bar'</code></pre>
 
-
 <p>The <code>getValue()</code> method returns the filtered value of the 'foo' input, while
 <code>getRawValue()</code> returns the original value of the input.</p>
 <p>We also provide <code>Zend\InputFilter\Factory</code> to allow initialization of the
 <code>InputFilter</code> based on a configuration array or <code>Traversable</code> object. Below is
 an example where we create a password input value with the same constraints
 proposed before (a string with at least 8 characters):</p>
-<pre class="codehilite"><code class="language-php">use Zend\InputFilter\Factory;
+<pre class="codehilite"><code class="language-php linenums">use Zend\InputFilter\Factory;
 
 $factory = new Factory();
 $inputFilter = $factory-&gt;createInputFilter([
@@ -257,7 +254,6 @@ $inputFilter = $factory-&gt;createInputFilter([
 $inputFilter-&gt;setData($_POST);
 echo $inputFilter-&gt;isValid() ? 'Valid form' : 'Invalid form';</code></pre>
 
-
 <p>The factory may be used to create not only <code>Input</code> instances, but also nested
 <code>InputFilter</code>s, allowing you to create validation and filtering rules for
 hierarchical data sets.</p>
@@ -265,7 +261,7 @@ hierarchical data sets.</p>
 means that when calling <code>add()</code>, you can provide a specification that the
 <code>Factory</code> understands, and it will create the appropriate object. You may
 create either <code>Input</code> or <code>InputFilter</code> objects in this fashion.</p>
-<pre class="codehilite"><code class="language-php">use Zend\InputFilter\InputFilter;
+<pre class="codehilite"><code class="language-php linenums">use Zend\InputFilter\InputFilter;
 
 $filter = new InputFilter();
 
@@ -306,7 +302,6 @@ $filter-&gt;add([
     ],
 ]);</code></pre>
 
-
 <p>The <code>merge()</code> method may be used on an <code>InputFilterInterface</code> instance in order
 to add two or more filters to each other, effectively allowing you to create
 chains of filters. This is especially useful in object hierarchies that define a
@@ -317,7 +312,7 @@ properties, allowing them to be re-used elsewhere. When the <code>isValid()</cod
 is called on the object, all of the merged filters are run against the calling
 object in order to validate the internal properties based on our compound set of
 filters.</p>
-<pre class="codehilite"><code class="language-php">use Zend\InputFilter\InputFilter;
+<pre class="codehilite"><code class="language-php linenums">use Zend\InputFilter\InputFilter;
 
 /**
  * Filter to ensure a name property is set and &gt; 8 characters
@@ -376,7 +371,6 @@ class SimplePerson
         return $this;
     }
 }</code></pre>
-
 
 <p>Also see</p>
 <ul>

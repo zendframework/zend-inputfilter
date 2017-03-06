@@ -171,7 +171,7 @@ default.  To enable it, you must add the
 <code>Zend\InputFilter\InputFilterAbstractServiceFactory</code> abstract factory to the
 <code>Zend\InputFilter\InputFilterPluginManager</code> configuration, which is unser the
 <code>input_filters</code> configuration key.</p>
-<pre class="codehilite"><code class="language-php">return array(
+<pre class="codehilite"><code class="language-php linenums">return array(
     'input_filters' =&gt; array(
         'abstract_factories' =&gt; array(
             'Zend\InputFilter\InputFilterAbstractServiceFactory'
@@ -179,14 +179,13 @@ default.  To enable it, you must add the
     ),
 );</code></pre>
 
-
 <p>For <a href="https://zendframework.github.io/zend-expressive/">Expressive</a> when using
 the configuration manager, and for zend-mvc v3 releases, the functionality is
 enabled by default, assuming you are using the
 <a href="https://zendframework.github.io/zend-component-installer/">component installer</a>.</p>
 <h2 id="example">Example</h2>
 <p>In the following code, we define configuration for an input filter named <code>foobar</code>:</p>
-<pre class="codehilite"><code class="language-php">return [
+<pre class="codehilite"><code class="language-php linenums">return [
     'input_filter_specs' =&gt; [
         'foobar' =&gt; [
             [
@@ -207,10 +206,9 @@ enabled by default, assuming you are using the
     ],
 ];</code></pre>
 
-
 <p>When creating a controller, we might then pull the <code>InputFilterManager</code>, and
 retrieve the <code>foobar</code> input filter we've defined in order to inject it:</p>
-<pre class="codehilite"><code class="language-php">use Zend\ServiceManager\FactoryInterface;
+<pre class="codehilite"><code class="language-php linenums">use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 class MyValidatingControllerFactory implements FactoryInterface
@@ -228,9 +226,8 @@ class MyValidatingControllerFactory implements FactoryInterface
     }
 }</code></pre>
 
-
 <p>And you can use it as you already did with other input filters:</p>
-<pre class="codehilite"><code class="language-php">$inputFilter-&gt;setData([
+<pre class="codehilite"><code class="language-php linenums">$inputFilter-&gt;setData([
     'name' =&gt; 'test',
 ]);
 

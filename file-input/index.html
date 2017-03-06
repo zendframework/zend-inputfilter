@@ -161,7 +161,7 @@ files found in the <code>$_FILES</code> array.</p>
 <p>While <code>FileInput</code> uses the same interface as <code>Input</code>, it differs in a few ways:</p>
 <ol>
 <li>It expects the raw value to be in a normalized <code>$_FILES</code> array format. See
-   the <a href="http://www.php-fig.org/psr/psr-7/#1-6-uploaded-files">PSR-7 Uploaded files</a>
+   the <a href="http://www.php-fig.org/psr/psr-7/#uploaded-files">PSR-7 Uploaded files</a>
    chapter for details on how to accomplish this.
    <a href="https://zendframework.github.io/zend-diactoros/">Diactoros</a> and
    <a href="https://zendframework.github.io/zend-http/">zend-http</a> can do this for you.</li>
@@ -176,7 +176,7 @@ type="file"&gt;</code> element in your form, you will need to use the <code>File
 <strong>instead of</strong> <code>Input</code> or else you will encounter issues.</p>
 <h2 id="basic-usage">Basic Usage</h2>
 <p>Usage of <code>FileInput</code> is essentially the same as <code>Input</code>:</p>
-<pre class="codehilite"><code class="language-php">use Zend\Http\PhpEnvironment\Request;
+<pre class="codehilite"><code class="language-php linenums">use Zend\Http\PhpEnvironment\Request;
 use Zend\Filter;
 use Zend\InputFilter\InputFilter;
 use Zend\InputFilter\Input;
