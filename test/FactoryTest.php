@@ -11,7 +11,7 @@ namespace ZendTest\InputFilter;
 
 use Interop\Container\ContainerInterface;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Zend\Filter;
 use Zend\InputFilter\CollectionInputFilter;
 use Zend\InputFilter\Exception\InvalidArgumentException;
@@ -36,10 +36,8 @@ class FactoryTest extends TestCase
     {
         $factory = $this->createDefaultFactory();
 
-        $this->setExpectedException(
-            InvalidArgumentException::class,
-            'expects an array or Traversable; received "string"'
-        );
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('expects an array or Traversable; received "string"');
         /** @noinspection PhpParamsInspection */
         $factory->createInput('invalid_value');
     }
@@ -58,8 +56,8 @@ class FactoryTest extends TestCase
 
         $factory = new Factory($pluginManager);
 
-        $this->setExpectedException(
-            RuntimeException::class,
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
             'Input factory expects the "type" to be a valid class or a plugin name; received "foo"'
         );
         $factory->createInput([
@@ -92,8 +90,8 @@ class FactoryTest extends TestCase
         $pluginManager = $this->createInputFilterPluginManagerMockForPlugin($type, 'invalid_value');
         $factory = new Factory($pluginManager);
 
-        $this->setExpectedException(
-            RuntimeException::class,
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
             'Input factory expects the "type" to be a class implementing Zend\InputFilter\InputInterface; ' .
             'received "fooPlugin"'
         );
@@ -107,8 +105,8 @@ class FactoryTest extends TestCase
         $factory = $this->createDefaultFactory();
         $type = 'stdClass';
 
-        $this->setExpectedException(
-            RuntimeException::class,
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
             'Input factory expects the "type" to be a class implementing Zend\InputFilter\InputInterface; ' .
             'received "stdClass"'
         );
@@ -121,8 +119,8 @@ class FactoryTest extends TestCase
     {
         $factory = $this->createDefaultFactory();
 
-        $this->setExpectedException(
-            RuntimeException::class,
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
             'expects the value associated with "filters" to be an array/Traversable'
             . ' of filters or filter specifications, or a FilterChain; received "string"'
         );
@@ -135,10 +133,8 @@ class FactoryTest extends TestCase
     {
         $factory = $this->createDefaultFactory();
 
-        $this->setExpectedException(
-            RuntimeException::class,
-            'Invalid filter specification provided; does not include "name" key'
-        );
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Invalid filter specification provided; does not include "name" key');
         $factory->createInput([
             'filters' => [
                 [
@@ -152,8 +148,8 @@ class FactoryTest extends TestCase
     {
         $factory = $this->createDefaultFactory();
 
-        $this->setExpectedException(
-            RuntimeException::class,
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
             'Invalid filter specification provided; was neither a filter instance nor an array specification'
         );
         $factory->createInput([
@@ -167,8 +163,8 @@ class FactoryTest extends TestCase
     {
         $factory = $this->createDefaultFactory();
 
-        $this->setExpectedException(
-            RuntimeException::class,
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
             'expects the value associated with "validators" to be an array/Traversable of validators or validator ' .
             'specifications, or a ValidatorChain; received "string"'
         );
@@ -181,10 +177,8 @@ class FactoryTest extends TestCase
     {
         $factory = $this->createDefaultFactory();
 
-        $this->setExpectedException(
-            RuntimeException::class,
-            'Invalid validator specification provided; does not include "name" key'
-        );
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Invalid validator specification provided; does not include "name" key');
         $factory->createInput([
             'validators' => [
                 [
@@ -213,12 +207,12 @@ class FactoryTest extends TestCase
 
         $pluginManager = $this->createInputFilterPluginManagerMockForPlugin(
             $type,
-            $this->getMock(InputInterface::class)
+            $this->createMock(InputInterface::class)
         );
         $factory->setInputFilterManager($pluginManager);
 
-        $this->setExpectedException(
-            RuntimeException::class,
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
             sprintf('"%s" can only set to inputs of type "Zend\InputFilter\Input"', $specificationKey)
         );
         $factory->createInput([
@@ -231,8 +225,8 @@ class FactoryTest extends TestCase
     {
         $factory = $this->createDefaultFactory();
 
-        $this->setExpectedException(
-            RuntimeException::class,
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
             'Invalid validator specification provided; was neither a validator instance nor an array specification'
         );
         $factory->createInput([
@@ -246,10 +240,8 @@ class FactoryTest extends TestCase
     {
         $factory = $this->createDefaultFactory();
 
-        $this->setExpectedException(
-            InvalidArgumentException::class,
-            'expects an array or Traversable; received "string"'
-        );
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('expects an array or Traversable; received "string"');
         /** @noinspection PhpParamsInspection */
         $factory->createInputFilter('invalid_value');
     }
@@ -284,7 +276,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryUsesComposedFilterChainWhenCreatingNewInputObjects()
     {
-        $smMock = $this->getMock(ContainerInterface::class);
+        $smMock = $this->createMock(ContainerInterface::class);
 
         $factory       = $this->createDefaultFactory();
         $filterChain   = new Filter\FilterChain();
@@ -302,7 +294,7 @@ class FactoryTest extends TestCase
 
     public function testFactoryUsesComposedValidatorChainWhenCreatingNewInputObjects()
     {
-        $smMock = $this->getMock(ContainerInterface::class);
+        $smMock = $this->createMock(ContainerInterface::class);
         $factory          = $this->createDefaultFactory();
         $validatorChain   = new Validator\ValidatorChain();
         $validatorPlugins = new Validator\ValidatorPluginManager($smMock);
@@ -321,7 +313,7 @@ class FactoryTest extends TestCase
     public function testFactoryInjectsComposedFilterAndValidatorChainsIntoInputObjectsWhenCreatingNewInputFilterObjects()
     {
         // @codingStandardsIgnoreEnd
-        $smMock = $this->getMock(ContainerInterface::class);
+        $smMock = $this->createMock(ContainerInterface::class);
         $factory          = $this->createDefaultFactory();
         $filterPlugins    = new Filter\FilterPluginManager($smMock);
         $validatorPlugins = new Validator\ValidatorPluginManager($smMock);
@@ -791,7 +783,7 @@ class FactoryTest extends TestCase
 
     public function testSetInputFilterManagerWithoutServiceManager()
     {
-        $smMock = $this->getMock(ContainerInterface::class);
+        $smMock = $this->createMock(ContainerInterface::class);
         $inputFilterManager = new InputFilterPluginManager($smMock);
         $factory = new Factory($inputFilterManager);
         $this->assertSame($inputFilterManager, $factory->getInputFilterManager());
@@ -799,7 +791,7 @@ class FactoryTest extends TestCase
 
     public function testSetInputFilterManagerOnConstruct()
     {
-        $smMock = $this->getMock(ContainerInterface::class);
+        $smMock = $this->createMock(ContainerInterface::class);
         $inputFilterManager = new InputFilterPluginManager($smMock);
         $factory = new Factory($inputFilterManager);
         $this->assertSame($inputFilterManager, $factory->getInputFilterManager());
@@ -846,7 +838,9 @@ class FactoryTest extends TestCase
     public function testCanCreateInputFromProvider()
     {
         /** @var InputProviderInterface|MockObject $provider */
-        $provider = $this->getMock(InputProviderInterface::class, ['getInputSpecification']);
+        $provider = $this->getMockBuilder(InputProviderInterface::class)
+            ->setMethods(['getInputSpecification'])
+            ->getMock();
 
         $provider
             ->expects($this->any())
@@ -865,10 +859,10 @@ class FactoryTest extends TestCase
     public function testCanCreateInputFilterFromProvider()
     {
         /** @var InputFilterProviderInterface|MockObject $provider */
-        $provider = $this->getMock(
-            InputFilterProviderInterface::class,
-            ['getInputFilterSpecification']
-        );
+        $provider = $this->getMockBuilder(InputFilterProviderInterface::class)
+            ->setMethods(['getInputFilterSpecification'])
+            ->getMock();
+
         $provider
             ->expects($this->any())
             ->method('getInputFilterSpecification')

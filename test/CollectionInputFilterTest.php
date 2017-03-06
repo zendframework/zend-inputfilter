@@ -11,7 +11,7 @@ namespace ZendTest\InputFilter;
 
 use ArrayIterator;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 use Zend\InputFilter\BaseInputFilter;
 use Zend\InputFilter\CollectionInputFilter;
@@ -41,10 +41,8 @@ class CollectionInputFilterTest extends TestCase
     {
         $inputFilter = $this->inputFilter;
 
-        $this->setExpectedException(
-            RuntimeException::class,
-            'expects an instance of Zend\InputFilter\BaseInputFilter; received "stdClass"'
-        );
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('expects an instance of Zend\InputFilter\BaseInputFilter; received "stdClass"');
         /** @noinspection PhpParamsInspection */
         $inputFilter->setInputFilter(new stdClass());
     }
@@ -367,7 +365,7 @@ class CollectionInputFilterTest extends TestCase
         $getMessages = []
     ) {
         /** @var BaseInputFilter|MockObject $inputFilter */
-        $inputFilter = $this->getMock(BaseInputFilter::class);
+        $inputFilter = $this->createMock(BaseInputFilter::class);
         $inputFilter->method('getRawValues')
             ->willReturn($getRawValues)
         ;
@@ -375,7 +373,7 @@ class CollectionInputFilterTest extends TestCase
             ->willReturn($getValues)
         ;
         if (($isValid === false) || ($isValid === true)) {
-            $inputFilter->expects($this->once())
+            $inputFilter->expects($this->any())
                 ->method('isValid')
                 ->willReturn($isValid)
             ;
@@ -393,7 +391,7 @@ class CollectionInputFilterTest extends TestCase
 
     public function testGetUnknownWhenDataAreNotProvidedThrowsRuntimeException()
     {
-        $this->setExpectedException(RuntimeException::class);
+        $this->expectException(RuntimeException::class);
 
         $this->inputFilter->getUnknown();
     }
@@ -462,7 +460,8 @@ class CollectionInputFilterTest extends TestCase
     {
         $collectionInputFilter = $this->inputFilter;
 
-        $this->setExpectedException(InvalidArgumentException::class, 'invalid item in collection');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid item in collection');
         $collectionInputFilter->setData($data);
     }
 
@@ -474,7 +473,8 @@ class CollectionInputFilterTest extends TestCase
         $collectionInputFilter = $this->inputFilter;
         $data = new ArrayIterator($data);
 
-        $this->setExpectedException(InvalidArgumentException::class, 'invalid item in collection');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid item in collection');
         $collectionInputFilter->setData($data);
     }
 
@@ -500,7 +500,8 @@ class CollectionInputFilterTest extends TestCase
     {
         $collectionInputFilter = $this->inputFilter;
 
-        $this->setExpectedException(InvalidArgumentException::class, 'invalid collection');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid collection');
         $collectionInputFilter->setData($data);
     }
 

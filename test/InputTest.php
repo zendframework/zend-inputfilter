@@ -10,7 +10,7 @@
 namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 use Zend\Filter\FilterChain;
 use Zend\InputFilter\Input;
@@ -612,7 +612,7 @@ class InputTest extends TestCase
     public function testNotEmptyMessageIsTranslated()
     {
         /** @var TranslatorInterface|MockObject $translator */
-        $translator = $this->getMock(TranslatorInterface::class);
+        $translator = $this->createMock(TranslatorInterface::class);
         AbstractValidator::setDefaultTranslator($translator);
         $notEmpty = new NotEmptyValidator();
 
@@ -820,7 +820,7 @@ class InputTest extends TestCase
     protected function createInputInterfaceMock()
     {
         /** @var InputInterface|MockObject $source */
-        $source = $this->getMock(InputInterface::class);
+        $source = $this->createMock(InputInterface::class);
 
         return $source;
     }
@@ -833,7 +833,7 @@ class InputTest extends TestCase
     protected function createFilterChainMock(array $valueMap = [])
     {
         /** @var FilterChain|MockObject $filterChain */
-        $filterChain = $this->getMock(FilterChain::class);
+        $filterChain = $this->createMock(FilterChain::class);
 
         $filterChain->method('filter')
             ->willReturnMap($valueMap)
@@ -851,7 +851,7 @@ class InputTest extends TestCase
     protected function createValidatorChainMock(array $valueMap = [], $messages = [])
     {
         /** @var ValidatorChain|MockObject $validatorChain */
-        $validatorChain = $this->getMock(ValidatorChain::class);
+        $validatorChain = $this->createMock(ValidatorChain::class);
 
         if (empty($valueMap)) {
             $validatorChain->expects($this->never())
@@ -882,7 +882,7 @@ class InputTest extends TestCase
     protected function createValidatorMock($isValid, $value = 'not-set', $context = null, $messages = [])
     {
         /** @var ValidatorInterface|MockObject $validator */
-        $validator = $this->getMock(ValidatorInterface::class);
+        $validator = $this->createMock(ValidatorInterface::class);
 
         if (($isValid === false) || ($isValid === true)) {
             $isValidMethod = $validator->expects($this->once())
@@ -915,7 +915,9 @@ class InputTest extends TestCase
     protected function createNonEmptyValidatorMock($isValid, $value, $context = null)
     {
         /** @var NotEmptyValidator|MockObject $notEmptyMock */
-        $notEmptyMock = $this->getMock(NotEmptyValidator::class, ['isValid']);
+        $notEmptyMock = $this->getMockBuilder(NotEmptyValidator::class)
+            ->setMethods(['isValid'])
+            ->getMock();
         $notEmptyMock->expects($this->once())
             ->method('isValid')
             ->with($value, $context)
