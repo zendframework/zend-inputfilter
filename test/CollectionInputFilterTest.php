@@ -157,6 +157,9 @@ class CollectionInputFilterTest extends TestCase
         $validIF = function () use ($dataRaw, $dataFiltered) {
             return $this->createBaseInputFilterMock(true, $dataRaw, $dataFiltered);
         };
+        $noValidIF = function () use ($dataRaw, $dataFiltered) {
+            return $this->createBaseInputFilterMock(null, $dataRaw, $dataFiltered);
+        };
         $isRequired = true;
 
         // @codingStandardsIgnoreStart
@@ -168,8 +171,8 @@ class CollectionInputFilterTest extends TestCase
             'Required: F, Count: N, Valid: T'  => [!$isRequired, null, $colRaw, $validIF  , $colRaw, $colFiltered, true , []],
             'Required: F, Count: N, Valid: F'  => [!$isRequired, null, $colRaw, $invalidIF, $colRaw, $colFiltered, false, $colMessages],
             'Required: F, Count: +1, Valid: F' => [!$isRequired,    2, $colRaw, $invalidIF, $colRaw, $colFiltered, false, $colMessages],
-            'Required: T, Data: [], Valid: X'  => [ $isRequired, null, []     , $invalidIF, []     , []          , false, []],
-            'Required: F, Data: [], Valid: X'  => [!$isRequired, null, []     , $invalidIF, []     , []          , true , []],
+            'Required: T, Data: [], Valid: X'  => [ $isRequired, null, []     , $noValidIF, []     , []          , false, []],
+            'Required: F, Data: [], Valid: X'  => [!$isRequired, null, []     , $noValidIF, []     , []          , true , []],
         ];
         // @codingStandardsIgnoreEnd
 
@@ -373,7 +376,7 @@ class CollectionInputFilterTest extends TestCase
             ->willReturn($getValues)
         ;
         if (($isValid === false) || ($isValid === true)) {
-            $inputFilter->expects($this->any())
+            $inputFilter->expects($this->once())
                 ->method('isValid')
                 ->willReturn($isValid)
             ;
