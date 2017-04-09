@@ -200,7 +200,7 @@ class EmailInputFilter extends InputFilter
 
 class SimplePerson
 {
-    /** Member variables omitted for berevity **/
+    /** Member variables omitted for bervity **/
 
     /** @var InputFilter */
     protected $inputFilter;
