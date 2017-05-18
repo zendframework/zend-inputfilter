@@ -14,7 +14,7 @@ pulled from `Zend\Form\FormElementManager` can use these named input filters.
 When using zend-mvc version 2 releases, this functionality is disabled by
 default.  To enable it, you must add the
 `Zend\InputFilter\InputFilterAbstractServiceFactory` abstract factory to the
-`Zend\InputFilter\InputFilterPluginManager` configuration, which is unser the
+`Zend\InputFilter\InputFilterPluginManager` configuration, which is under the
 `input_filters` configuration key.
 
 ```php
