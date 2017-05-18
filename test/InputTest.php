@@ -135,9 +135,20 @@ class InputTest extends TestCase
         $this->assertSame($input, $return, 'setFallbackValue() must return it self');
 
         $this->assertEquals($fallbackValue, $input->getFallbackValue(), 'getFallbackValue() value not match');
-        $this->assertEquals(true, $input->hasFallback(), 'hasFallback() value not match');
+        $this->assertTrue($input->hasFallback(), 'hasFallback() value not match');
     }
 
+    /**
+     * @dataProvider setValueProvider
+     */
+    public function testClearFallbackValue($fallbackValue)
+    {
+        $input = $this->input;
+        $input->setFallbackValue($fallbackValue);
+        $input->clearFallbackValue();
+        $this->assertNull($input->getFallbackValue(), 'getFallbackValue() value not match');
+        $this->assertFalse($input->hasFallback(), 'hasFallback() value not match');
+    }
     /**
      * @dataProvider fallbackValueVsIsValidProvider
      */
@@ -541,8 +552,8 @@ class InputTest extends TestCase
 
         $this->assertEquals('bazInput', $target->getName(), 'getName() value not match');
         $this->assertEquals('bazErrorMessage', $target->getErrorMessage(), 'getErrorMessage() value not match');
-        $this->assertEquals(true, $target->breakOnFailure(), 'breakOnFailure() value not match');
-        $this->assertEquals(true, $target->isRequired(), 'isRequired() value not match');
+        $this->assertTrue($target->breakOnFailure(), 'breakOnFailure() value not match');
+        $this->assertTrue($target->isRequired(), 'isRequired() value not match');
         $this->assertEquals($sourceRawValue, $target->getRawValue(), 'getRawValue() value not match');
         $this->assertTrue($target->hasValue(), 'hasValue() value not match');
     }
@@ -563,7 +574,7 @@ class InputTest extends TestCase
         $return = $target->merge($source);
         $this->assertSame($target, $return, 'merge() must return it self');
 
-        $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
+        $this->assertTrue($target->continueIfEmpty(), 'continueIfEmpty() value not match');
         $this->assertFalse($target->hasValue(), 'hasValue() value not match');
     }
 
@@ -583,7 +594,7 @@ class InputTest extends TestCase
         $return = $target->merge($source);
         $this->assertSame($target, $return, 'merge() must return it self');
 
-        $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
+        $this->assertTrue($target->continueIfEmpty(), 'continueIfEmpty() value not match');
         $this->assertEquals(['foo'], $target->getRawValue(), 'getRawValue() value not match');
         $this->assertTrue($target->hasValue(), 'hasValue() value not match');
     }
@@ -604,7 +615,7 @@ class InputTest extends TestCase
         $return = $target->merge($source);
         $this->assertSame($target, $return, 'merge() must return it self');
 
-        $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
+        $this->assertTrue($target->continueIfEmpty(), 'continueIfEmpty() value not match');
         $this->assertEquals(['foo'], $target->getRawValue(), 'getRawValue() value not match');
         $this->assertTrue($target->hasValue(), 'hasValue() value not match');
     }
