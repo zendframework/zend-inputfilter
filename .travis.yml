@@ -42,7 +42,6 @@ matrix:
     - php: 5.6
       env:
         - DEPS=locked
-        - TEST_COVERAGE=true
         - DEPLOY_DOCS="$(if [[ $TRAVIS_BRANCH == 'master' && $TRAVIS_PULL_REQUEST == 'false' ]]; then echo -n 'true' ; else echo -n 'false' ; fi)"
         - PATH="$HOME/.local/bin:$PATH"
     - php: 5.6
@@ -57,6 +56,7 @@ matrix:
     - php: 7
       env:
         - DEPS=latest
+        - TEST_COVERAGE=true
     - php: hhvm
       env:
         - DEPS=lowest
@@ -80,7 +80,7 @@ before_install:
 install:
   - if [[ $DEPS == 'latest' ]]; then travis_retry composer update $COMPOSER_ARGS ; fi
   - if [[ $DEPS == 'lowest' ]]; then travis_retry composer update --prefer-lowest --prefer-stable $COMPOSER_ARGS ; fi
-  - if [[ $TEST_COVERAGE == 'true' ]]; then composer require --dev $COMPOSER_ARGS satooshi/php-coveralls ; fi
+  - if [[ $TEST_COVERAGE == 'true' ]]; then composer require --dev $COMPOSER_ARGS satooshi/php-coveralls:^1.0 ; fi
   - travis_retry composer install $COMPOSER_ARGS
   - composer show --installed
 
