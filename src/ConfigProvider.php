@@ -29,11 +29,14 @@ class ConfigProvider
     public function getDependencyConfig()
     {
         return [
+            'aliases' => [
+                'InputFilterManager' => InputFilterPluginManager::class,
+            ],
             'abstract_factories' => [
                 InputFilterAbstractServiceFactory::class,
             ],
             'factories' => [
-                'InputFilterManager' => InputFilterPluginManagerFactory::class,
+                InputFilterPluginManager::class => InputFilterPluginManagerFactory::class,
             ],
         ];
     }
