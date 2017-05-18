@@ -2,29 +2,20 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.8.0 - TBD
-
-### Added
-
-- Nothing.
-
-### Deprecated
-
-- Nothing.
-
-### Removed
-
-- Nothing.
-
-### Fixed
-
-- Nothing.
-
 ## 2.7.4 - TBD
 
 ### Added
 
 - Nothing.
+
+### Changes
+
+- [#122](https://github.com/zendframework/zend-inputfilter/pull/122) maps the
+  `Zend\InputFilter\InputFilterPluginManager` service to
+  `Zend\InputFilter\InputFilterPluginManagerFactory`, and adds an alias from
+  `InputFitlerPluginManager` to the fully qualified class name. This change
+  allows you to request the service using either the original short name, or the
+  fully qualified class name.
 
 ### Deprecated
 
