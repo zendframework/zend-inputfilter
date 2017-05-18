@@ -160,7 +160,9 @@ class FileInputTest extends InputTest
         $this->input->setValue(['tmp_name' => 'bar']);
 
         /** @var Validator\File\UploadFile|MockObject $uploadMock */
-        $uploadMock = $this->getMock(Validator\File\UploadFile::class, ['isValid']);
+        $uploadMock = $this->getMockBuilder(Validator\File\UploadFile::class)
+            ->setMethods(['isValid'])
+            ->getMock();
         $uploadMock->expects($this->exactly(1))
                      ->method('isValid')
                      ->will($this->returnValue(true));

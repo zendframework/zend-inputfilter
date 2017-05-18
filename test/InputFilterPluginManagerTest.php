@@ -9,6 +9,7 @@
 
 namespace ZendTest\InputFilter;
 
+use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Zend\Filter\FilterPluginManager;
 use Zend\InputFilter\CollectionInputFilter;
@@ -27,7 +28,7 @@ use Zend\Validator\ValidatorPluginManager;
 /**
  * @covers Zend\InputFilter\InputFilterPluginManager
  */
-class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
+class InputFilterPluginManagerTest extends TestCase
 {
     /**
      * @var InputFilterPluginManager
@@ -61,8 +62,8 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testRegisteringInvalidElementRaisesException()
     {
-        $this->setExpectedException(
-            $this->getServiceNotFoundException(),
+        $this->expectException($this->getServiceNotFoundException());
+        $this->expectExceptionMessage(
             'must implement Zend\InputFilter\InputFilterInterface or Zend\InputFilter\InputInterface'
         );
         $this->manager->setService('test', $this);
@@ -71,7 +72,7 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
     public function testLoadingInvalidElementRaisesException()
     {
         $this->manager->setInvokableClass('test', get_class($this));
-        $this->setExpectedException($this->getServiceNotFoundException());
+        $this->expectException($this->getServiceNotFoundException());
         $this->manager->get('test');
     }
 
@@ -197,7 +198,7 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
     protected function createInputFilterInterfaceMock()
     {
         /** @var InputFilterInterface|MockObject $inputFilter */
-        $inputFilter = $this->getMock(InputFilterInterface::class);
+        $inputFilter = $this->createMock(InputFilterInterface::class);
 
         return $inputFilter;
     }
@@ -208,7 +209,7 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
     protected function createInputInterfaceMock()
     {
         /** @var InputInterface|MockObject $input */
-        $input = $this->getMock(InputInterface::class);
+        $input = $this->createMock(InputInterface::class);
 
         return $input;
     }
@@ -219,7 +220,7 @@ class InputFilterPluginManagerTest extends \PHPUnit_Framework_TestCase
     protected function createServiceLocatorInterfaceMock()
     {
         /** @var ServiceLocatorInterface|MockObject $serviceLocator */
-        $serviceLocator = $this->getMock(ServiceLocatorInterface::class);
+        $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
 
         return $serviceLocator;
     }

@@ -74,7 +74,7 @@ class InputFilterTest extends BaseInputFilterTest
     protected function createFactoryMock()
     {
         /** @var Factory|MockObject $factory */
-        $factory = $this->getMock(Factory::class);
+        $factory = $this->createMock(Factory::class);
 
         return $factory;
     }
