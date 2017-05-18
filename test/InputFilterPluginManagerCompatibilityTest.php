@@ -9,7 +9,7 @@
 
 namespace ZendTest\InputFilter;
 
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\InputFilterPluginManager;
 use Zend\ServiceManager\Config;

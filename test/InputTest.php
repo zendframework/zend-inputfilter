@@ -10,7 +10,7 @@
 namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 use Zend\Filter\FilterChain;
 use Zend\InputFilter\Input;
@@ -135,9 +135,20 @@ class InputTest extends TestCase
         $this->assertSame($input, $return, 'setFallbackValue() must return it self');
 
         $this->assertEquals($fallbackValue, $input->getFallbackValue(), 'getFallbackValue() value not match');
-        $this->assertEquals(true, $input->hasFallback(), 'hasFallback() value not match');
+        $this->assertTrue($input->hasFallback(), 'hasFallback() value not match');
     }
 
+    /**
+     * @dataProvider setValueProvider
+     */
+    public function testClearFallbackValue($fallbackValue)
+    {
+        $input = $this->input;
+        $input->setFallbackValue($fallbackValue);
+        $input->clearFallbackValue();
+        $this->assertNull($input->getFallbackValue(), 'getFallbackValue() value not match');
+        $this->assertFalse($input->hasFallback(), 'hasFallback() value not match');
+    }
     /**
      * @dataProvider fallbackValueVsIsValidProvider
      */
@@ -541,8 +552,8 @@ class InputTest extends TestCase
 
         $this->assertEquals('bazInput', $target->getName(), 'getName() value not match');
         $this->assertEquals('bazErrorMessage', $target->getErrorMessage(), 'getErrorMessage() value not match');
-        $this->assertEquals(true, $target->breakOnFailure(), 'breakOnFailure() value not match');
-        $this->assertEquals(true, $target->isRequired(), 'isRequired() value not match');
+        $this->assertTrue($target->breakOnFailure(), 'breakOnFailure() value not match');
+        $this->assertTrue($target->isRequired(), 'isRequired() value not match');
         $this->assertEquals($sourceRawValue, $target->getRawValue(), 'getRawValue() value not match');
         $this->assertTrue($target->hasValue(), 'hasValue() value not match');
     }
@@ -563,7 +574,7 @@ class InputTest extends TestCase
         $return = $target->merge($source);
         $this->assertSame($target, $return, 'merge() must return it self');
 
-        $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
+        $this->assertTrue($target->continueIfEmpty(), 'continueIfEmpty() value not match');
         $this->assertFalse($target->hasValue(), 'hasValue() value not match');
     }
 
@@ -583,7 +594,7 @@ class InputTest extends TestCase
         $return = $target->merge($source);
         $this->assertSame($target, $return, 'merge() must return it self');
 
-        $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
+        $this->assertTrue($target->continueIfEmpty(), 'continueIfEmpty() value not match');
         $this->assertEquals(['foo'], $target->getRawValue(), 'getRawValue() value not match');
         $this->assertTrue($target->hasValue(), 'hasValue() value not match');
     }
@@ -604,7 +615,7 @@ class InputTest extends TestCase
         $return = $target->merge($source);
         $this->assertSame($target, $return, 'merge() must return it self');
 
-        $this->assertEquals(true, $target->continueIfEmpty(), 'continueIfEmpty() value not match');
+        $this->assertTrue($target->continueIfEmpty(), 'continueIfEmpty() value not match');
         $this->assertEquals(['foo'], $target->getRawValue(), 'getRawValue() value not match');
         $this->assertTrue($target->hasValue(), 'hasValue() value not match');
     }
@@ -612,7 +623,7 @@ class InputTest extends TestCase
     public function testNotEmptyMessageIsTranslated()
     {
         /** @var TranslatorInterface|MockObject $translator */
-        $translator = $this->getMock(TranslatorInterface::class);
+        $translator = $this->createMock(TranslatorInterface::class);
         AbstractValidator::setDefaultTranslator($translator);
         $notEmpty = new NotEmptyValidator();
 
@@ -820,7 +831,7 @@ class InputTest extends TestCase
     protected function createInputInterfaceMock()
     {
         /** @var InputInterface|MockObject $source */
-        $source = $this->getMock(InputInterface::class);
+        $source = $this->createMock(InputInterface::class);
 
         return $source;
     }
@@ -833,7 +844,7 @@ class InputTest extends TestCase
     protected function createFilterChainMock(array $valueMap = [])
     {
         /** @var FilterChain|MockObject $filterChain */
-        $filterChain = $this->getMock(FilterChain::class);
+        $filterChain = $this->createMock(FilterChain::class);
 
         $filterChain->method('filter')
             ->willReturnMap($valueMap)
@@ -851,7 +862,7 @@ class InputTest extends TestCase
     protected function createValidatorChainMock(array $valueMap = [], $messages = [])
     {
         /** @var ValidatorChain|MockObject $validatorChain */
-        $validatorChain = $this->getMock(ValidatorChain::class);
+        $validatorChain = $this->createMock(ValidatorChain::class);
 
         if (empty($valueMap)) {
             $validatorChain->expects($this->never())
@@ -882,7 +893,7 @@ class InputTest extends TestCase
     protected function createValidatorMock($isValid, $value = 'not-set', $context = null, $messages = [])
     {
         /** @var ValidatorInterface|MockObject $validator */
-        $validator = $this->getMock(ValidatorInterface::class);
+        $validator = $this->createMock(ValidatorInterface::class);
 
         if (($isValid === false) || ($isValid === true)) {
             $isValidMethod = $validator->expects($this->once())
@@ -915,7 +926,9 @@ class InputTest extends TestCase
     protected function createNonEmptyValidatorMock($isValid, $value, $context = null)
     {
         /** @var NotEmptyValidator|MockObject $notEmptyMock */
-        $notEmptyMock = $this->getMock(NotEmptyValidator::class, ['isValid']);
+        $notEmptyMock = $this->getMockBuilder(NotEmptyValidator::class)
+            ->setMethods(['isValid'])
+            ->getMock();
         $notEmptyMock->expects($this->once())
             ->method('isValid')
             ->with($value, $context)
