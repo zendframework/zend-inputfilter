@@ -29,10 +29,8 @@ class ArrayInputTest extends InputTest
 
     public function testSetValueWithInvalidInputTypeThrowsInvalidArgumentException()
     {
-        $this->setExpectedException(
-            InvalidArgumentException::class,
-            'Value must be an array, string given'
-        );
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Value must be an array, string given');
         $this->input->setValue('bar');
     }
 

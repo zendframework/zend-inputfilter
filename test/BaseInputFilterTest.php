@@ -13,7 +13,7 @@ use ArrayIterator;
 use ArrayObject;
 use FilterIterator;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 use Zend\InputFilter\BaseInputFilter;
 use Zend\InputFilter\Exception\InvalidArgumentException;
@@ -47,8 +47,8 @@ class BaseInputFilterTest extends TestCase
     {
         $inputFilter = $this->inputFilter;
 
-        $this->setExpectedException(
-            InvalidArgumentException::class,
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
             'expects an instance of Zend\InputFilter\InputInterface or Zend\InputFilter\InputFilterInterface ' .
             'as its first argument; received "stdClass"'
         );
@@ -60,10 +60,8 @@ class BaseInputFilterTest extends TestCase
     {
         $inputFilter = $this->inputFilter;
 
-        $this->setExpectedException(
-            InvalidArgumentException::class,
-            'no input found matching "not exists"'
-        );
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('no input found matching "not exists"');
         $inputFilter->get('not exists');
     }
 
@@ -72,8 +70,8 @@ class BaseInputFilterTest extends TestCase
         $inputFilter = $this->inputFilter;
         $inputFilter->add(new Input('foo'), 'replace_me');
 
-        $this->setExpectedException(
-            InvalidArgumentException::class,
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
             'expects an instance of Zend\InputFilter\InputInterface or Zend\InputFilter\InputFilterInterface ' .
             'as its first argument; received "stdClass"'
         );
@@ -85,10 +83,8 @@ class BaseInputFilterTest extends TestCase
     {
         $inputFilter = $this->inputFilter;
 
-        $this->setExpectedException(
-            InvalidArgumentException::class,
-            'no input found matching "not exists"'
-        );
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('no input found matching "not exists"');
         $inputFilter->replace(new Input('foo'), 'not exists');
     }
 
@@ -96,10 +92,8 @@ class BaseInputFilterTest extends TestCase
     {
         $inputFilter = $this->inputFilter;
 
-        $this->setExpectedException(
-            InvalidArgumentException::class,
-            '"not exists" was not found in the filter'
-        );
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('"not exists" was not found in the filter');
         $inputFilter->getValue('not exists');
     }
 
@@ -107,10 +101,8 @@ class BaseInputFilterTest extends TestCase
     {
         $inputFilter = $this->inputFilter;
 
-        $this->setExpectedException(
-            InvalidArgumentException::class,
-            '"not exists" was not found in the filter'
-        );
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('"not exists" was not found in the filter');
         $inputFilter->getRawValue('not exists');
     }
 
@@ -118,10 +110,8 @@ class BaseInputFilterTest extends TestCase
     {
         $inputFilter = $this->inputFilter;
 
-        $this->setExpectedException(
-            InvalidArgumentException::class,
-            'expects an array or Traversable argument; received stdClass'
-        );
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('expects an array or Traversable argument; received stdClass');
         /** @noinspection PhpParamsInspection */
         $inputFilter->setData(new stdClass());
     }
@@ -130,10 +120,8 @@ class BaseInputFilterTest extends TestCase
     {
         $inputFilter = $this->inputFilter;
 
-        $this->setExpectedException(
-            RuntimeException::class,
-            'no data present to validate'
-        );
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('no data present to validate');
         $inputFilter->isValid();
     }
 
@@ -142,13 +130,11 @@ class BaseInputFilterTest extends TestCase
         $inputFilter = $this->inputFilter;
 
         /** @var InputInterface|MockObject $nestedInput */
-        $nestedInput = $this->getMock(InputInterface::class);
+        $nestedInput = $this->createMock(InputInterface::class);
         $inputFilter->add($nestedInput, 'fooInput');
 
-        $this->setExpectedException(
-            InvalidArgumentException::class,
-            'Input "fooInput" must implement InputFilterInterface'
-        );
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Input "fooInput" must implement InputFilterInterface');
         $inputFilter->setValidationGroup(['fooInput' => 'foo']);
     }
 
@@ -156,8 +142,8 @@ class BaseInputFilterTest extends TestCase
     {
         $inputFilter = $this->inputFilter;
 
-        $this->setExpectedException(
-            InvalidArgumentException::class,
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
             'expects a list of valid input names; "anotherNotExistsInputFilter" was not found'
         );
         $inputFilter->setValidationGroup(['notExistInputFilter' => 'anotherNotExistsInputFilter']);
@@ -167,8 +153,8 @@ class BaseInputFilterTest extends TestCase
     {
         $inputFilter = $this->inputFilter;
 
-        $this->setExpectedException(
-            InvalidArgumentException::class,
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
             'expects a list of valid input names; "notExistInputFilter" was not found'
         );
         $inputFilter->setValidationGroup('notExistInputFilter');
@@ -178,9 +164,7 @@ class BaseInputFilterTest extends TestCase
     {
         $inputFilter = $this->inputFilter;
 
-        $this->setExpectedException(
-            RuntimeException::class
-        );
+        $this->expectException(RuntimeException::class);
         $inputFilter->hasUnknown();
     }
 
@@ -188,9 +172,7 @@ class BaseInputFilterTest extends TestCase
     {
         $inputFilter = $this->inputFilter;
 
-        $this->setExpectedException(
-            RuntimeException::class
-        );
+        $this->expectException(RuntimeException::class);
         $inputFilter->getUnknown();
     }
 
@@ -477,7 +459,7 @@ class BaseInputFilterTest extends TestCase
 
         $optionalInputName = 'fooOptionalInput';
         /** @var InputInterface|MockObject $optionalInput */
-        $optionalInput = $this->getMock(InputInterface::class);
+        $optionalInput = $this->createMock(InputInterface::class);
         $optionalInput->method('getName')
             ->willReturn($optionalInputName)
         ;
@@ -776,7 +758,7 @@ class BaseInputFilterTest extends TestCase
         $getMessages = []
     ) {
         /** @var InputFilterInterface|MockObject $inputFilter */
-        $inputFilter = $this->getMock(InputFilterInterface::class);
+        $inputFilter = $this->createMock(InputFilterInterface::class);
         $inputFilter->method('getRawValues')
             ->willReturn($getRawValues)
         ;
@@ -823,7 +805,7 @@ class BaseInputFilterTest extends TestCase
         $breakOnFailure = false
     ) {
         /** @var InputInterface|MockObject $input */
-        $input = $this->getMock(InputInterface::class);
+        $input = $this->createMock(InputInterface::class);
         $input->method('getName')
             ->willReturn($name)
         ;
@@ -840,7 +822,7 @@ class BaseInputFilterTest extends TestCase
             ->willReturn($breakOnFailure)
         ;
         if (($isValid === false) || ($isValid === true)) {
-            $input->expects($this->once())
+            $input->expects($this->any())
                 ->method('isValid')
                 ->with($context)
                 ->willReturn($isValid)

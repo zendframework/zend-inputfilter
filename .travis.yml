@@ -16,32 +16,24 @@ cache:
 
 env:
   global:
-    - COMPOSER_ARGS="--no-interaction --ignore-platform-reqs"
+    - COMPOSER_ARGS="--no-interaction"
+    - COVERAGE_DEPS="satooshi/php-coveralls"
+    - LEGACY_DEPS="phpunit/phpunit"
     - SITE_URL: https://zendframework.github.io/zend-inputfilter
     - GH_USER_NAME: "Matthew Weier O'Phinney"
     - GH_USER_EMAIL: matthew@weierophinney.net
     - GH_REF: github.com/zendframework/zend-inputfilter.git
-    - secure: "oeRMlaO4ocqpDmQMZIzn7A2ZD9+WtayFPVvHVQ5lDgSuA28acfr4XTQ+OWFvd9tv1kLCD9ZGYKscr5mYg+d5G1iCgblkPBaE9dInZpk6u+Wu2LITyererR3VrQHtK20Ge78owc2m1a+yLGOTGzVMmXm+TKGEDe6jcH+h9wGND0jlYLBF/NmrCLSef0CO2UOFKH/Q/4QvqUVPC7ndOrx6DxtqTju8Ew/qeBNGsiMog8JNwWeWGkk+ITVtXYZ4d7hGrZQAYguGG3N8wLsHCRXNoGl7ms4bBm37rgnslEJO+D+8NYBVl3zajH0HuZINkypLBe+f6m0l3xojkRyKBOrTYoqM5t3TAPfF1XVtNIDqSggG+Kn2/86BpX9l5cdAnKjCk2SGTC6fLJzDCEj2h9wo5ooaoO88WPnBuj4dgT6bJ6jtQAPEY25QqMyeRkjjbbe2LDX4bHCmoxxmtrWdrEcRweXtuLLyGajKbG3mzF8hVYaB6fB6S4/5sSk9pX1xvCthr8eQ/rn+nk31q6PtEkh4KJEJLkhd0K8N55/kwnr3TD2FzGeYzbOfqjgEzvLgmlzN7Ccq7uks9uHTy2kb9/uGET2r88R6jadDLxg/mauRkIftTW3FyrlviybWvgTT31tC4henyLedXTpJDLtrJPHRS1n0P2h7VMJymwPcbX4OEI0="
+    - secure: "BZ5FxRDnh7Q4KSjnZXBn+vrY0RjZVHUfOcOIVTLR5hIlBRFBz436GbbyyIGAO+YQ8MGPj8Ek+fm/zuDP9gTafG3fNen4dLJOR4dOYmHUNZRgXdLeCpor6W1kaXOQInEs2mpjnsIlSM5s7/IP3QCkaZcj6GBiYuYLXGrH1PJxhE047B8StV3PWpcHi3idRqsdz26oUTH0szD70QNlk0dHqtbzjr9uSk1pRrz8LZW6WuW8yFEq3X1zDEA/XICTXPBk+CEi68wnX8RhXiTvtDpYUnPF3ZkCy6m94PROmBs0UwTPr9MCQShAVSJ0OikFkvEKJgkHNaKce+FqGK5sGcR1asunx87iMsScNKmM/0FrQOqa1pNsv6/jl+n05FZRKbfoK68bnb4YZmOnNAqPiSrF/8oiBfe2tvZVtFmAIkI6uaGD7jP07ljA9JAqtOuTt4u4DX9J2dNYoNF7+F+jtI8/+Ec1wBFvsI/DF02Mw4KYfFfdz5a5+Xzc84MkaFb+hTmAlP8BPh/7RRciL86rCELvQ2zyfwDYk5q4uLJgwg5VjpS/4B2lsjqomXC3iTYUbmdF1Y9ZFE+tyEi/XlyrQOEHisdgrfIf8Itown3S+2vJh15851UtOWs2FQWtAOM/fv4ovLyZwf6adJ0tEUtHsgr+C8NLjSfeY1i6E5QuoOhG9OA="
 
 matrix:
-  fast_finish: true
   include:
-    - php: 5.5
+    - php: 5.6
       env:
         - DEPS=lowest
-    - php: 5.5
+    - php: 5.6
       env:
         - DEPS=locked
         - CS_CHECK=true
-    - php: 5.5
-      env:
-        - DEPS=latest
-    - php: 5.6
-      env:
-        - DEPS=lowest
-    - php: 5.6
-      env:
-        - DEPS=locked
         - TEST_COVERAGE=true
         - DEPLOY_DOCS="$(if [[ $TRAVIS_BRANCH == 'master' && $TRAVIS_PULL_REQUEST == 'false' ]]; then echo -n 'true' ; else echo -n 'false' ; fi)"
         - PATH="$HOME/.local/bin:$PATH"
@@ -57,6 +49,16 @@ matrix:
     - php: 7
       env:
         - DEPS=latest
+        - TEST_COVERAGE=true
+    - php: 7.1
+      env:
+        - DEPS=lowest
+    - php: 7.1
+      env:
+        - DEPS=locked
+    - php: 7.1
+      env:
+        - DEPS=latest
     - php: hhvm
       env:
         - DEPS=lowest
@@ -69,20 +71,18 @@ matrix:
   allow_failures:
     - php: hhvm
 
-notifications:
-  irc: "irc.freenode.org#zftalk.dev"
-  email: false
-
 before_install:
   - if [[ $TEST_COVERAGE != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
   - travis_retry composer self-update
 
 install:
+  - travis_retry composer install $COMPOSER_ARGS
+  - if [[ $TRAVIS_PHP_VERSION =~ ^5.6 ]]; then travis_retry composer update $COMPOSER_ARGS --with-dependencies $LEGACY_DEPS ; fi
   - if [[ $DEPS == 'latest' ]]; then travis_retry composer update $COMPOSER_ARGS ; fi
   - if [[ $DEPS == 'lowest' ]]; then travis_retry composer update --prefer-lowest --prefer-stable $COMPOSER_ARGS ; fi
-  - if [[ $TEST_COVERAGE == 'true' ]]; then composer require --dev $COMPOSER_ARGS satooshi/php-coveralls ; fi
-  - travis_retry composer install $COMPOSER_ARGS
-  - composer show --installed
+  - if [[ $TEST_COVERAGE == 'true' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $COVERAGE_DEPS ; fi
+  - stty cols 120
+  - COLUMNS=120 composer show
 
 script:
   - if [[ $TEST_COVERAGE == 'true' ]]; then composer test-coverage ; fi
@@ -95,3 +95,11 @@ after_success:
 
 after_script:
   - if [[ $TEST_COVERAGE == 'true' ]]; then travis_retry composer upload-coverage ; fi
+
+notifications:
+  email: false
+  slack:
+    rooms:
+      - secure: "Jlr0RxX9sUVOWeo8BK75JlKYnf0Pj/ZD1p3+keEvAO71iB4zVK1OKlUjdARYx8bgEX8aKSun3v6aImu8NwuCrshl3bkXBtADEiQ7ibghi+apHU3A/HGYtiUfwRMmR4+SNXB5qe7RMA5FbKu5j28acea5N4urJqJIDAgQvlZVJrUCsJDpOpwkJ0BlV/UUA7sUvHTs/N3jsUhL+YZdNjirpcrj1LVdwWBs62h25lJ8BvYkGzg4WckP808dSokbfEtAisg/TyxoBFA+GQESvmch0tvQeZBmdrgBJ/t/MRZy8L+u80oXIs26uTnuIxKWtp8p80WPiGdMsJTxyPr1JpIJXVTGYoAzhjGG8ukXXkKxpc4bbhvEm5aPLh0l1RVzzTbp+RaPSaBBqIpEBpAWzzrJMS7owaPMkZzfv/VjUPxawDK7ZIk1Q+VFdeoWdgiKnmr78VtQ8YWeiwKE2FK6JL+UmKMXNSKKJ3Fz4vnlig0tJ+UrqL3LtKLJmqn7+K8rTntPrCIoxKElruazGuKtyUFR/13l6y10mmwtdj14YmENG1OjWDuG+hzrzs0+MwthqSqIADwduyjxu2XE0AbNjCaXqjpwO72zZgfFYtJppaWAS4VF+XpLDy+Ig11RKJccX1bPbMA06Bl32pJieNCFBua2RWnFTK20NMDf/Bht66nFubs="
+    on_success: change
+    on_failure: always
