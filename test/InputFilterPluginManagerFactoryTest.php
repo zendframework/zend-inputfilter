@@ -81,4 +81,99 @@ class InputFilterPluginManagerFactoryTest extends TestCase
         $filters = $factory->createService($container->reveal());
         $this->assertSame($plugin, $filters->get('test'));
     }
+
+    public function testConfiguresInputFilterServicesWhenFound()
+    {
+        $inputFilter = $this->prophesize(InputFilterInterface::class)->reveal();
+        $config = [
+            'input_filters' => [
+                'aliases' => [
+                    'test' => 'test-too',
+                ],
+                'factories' => [
+                    'test-too' => function ($container) use ($inputFilter) {
+                        return $inputFilter;
+                    },
+                ],
+            ],
+        ];
+
+        $container = $this->prophesize(ServiceLocatorInterface::class);
+        $container->willImplement(ContainerInterface::class);
+
+        $container->has('ServiceListener')->willReturn(false);
+        $container->has('config')->willReturn(true);
+        $container->get('config')->willReturn($config);
+
+        $factory = new InputFilterPluginManagerFactory();
+        $inputFilters = $factory($container->reveal(), 'InputFilterManager');
+
+        $this->assertInstanceOf(InputFilterPluginManager::class, $inputFilters);
+        $this->assertTrue($inputFilters->has('test'));
+        $this->assertSame($inputFilter, $inputFilters->get('test'));
+        $this->assertTrue($inputFilters->has('test-too'));
+        $this->assertSame($inputFilter, $inputFilters->get('test-too'));
+    }
+
+    public function testDoesNotConfigureInputFilterServicesWhenServiceListenerPresent()
+    {
+        $inputFilter = $this->prophesize(InputFilterInterface::class)->reveal();
+        $config = [
+            'input_filters' => [
+                'aliases' => [
+                    'test' => 'test-too',
+                ],
+                'factories' => [
+                    'test-too' => function ($container) use ($inputFilter) {
+                        return $inputFilter;
+                    },
+                ],
+            ],
+        ];
+
+        $container = $this->prophesize(ServiceLocatorInterface::class);
+        $container->willImplement(ContainerInterface::class);
+
+        $container->has('ServiceListener')->willReturn(true);
+        $container->has('config')->shouldNotBeCalled();
+        $container->get('config')->shouldNotBeCalled();
+
+        $factory = new InputFilterPluginManagerFactory();
+        $inputFilters = $factory($container->reveal(), 'InputFilterManager');
+
+        $this->assertInstanceOf(InputFilterPluginManager::class, $inputFilters);
+        $this->assertFalse($inputFilters->has('test'));
+        $this->assertFalse($inputFilters->has('test-too'));
+    }
+
+    public function testDoesNotConfigureInputFilterServicesWhenConfigServiceNotPresent()
+    {
+        $container = $this->prophesize(ServiceLocatorInterface::class);
+        $container->willImplement(ContainerInterface::class);
+
+        $container->has('ServiceListener')->willReturn(false);
+        $container->has('config')->willReturn(false);
+        $container->get('config')->shouldNotBeCalled();
+
+        $factory = new InputFilterPluginManagerFactory();
+        $inputFilters = $factory($container->reveal(), 'InputFilterManager');
+
+        $this->assertInstanceOf(InputFilterPluginManager::class, $inputFilters);
+    }
+
+    public function testDoesNotConfigureInputFilterServicesWhenConfigServiceDoesNotContainInputFiltersConfig()
+    {
+        $container = $this->prophesize(ServiceLocatorInterface::class);
+        $container->willImplement(ContainerInterface::class);
+
+        $container->has('ServiceListener')->willReturn(false);
+        $container->has('config')->willReturn(true);
+        $container->get('config')->willReturn(['foo' => 'bar']);
+
+        $factory = new InputFilterPluginManagerFactory();
+        $inputFilters = $factory($container->reveal(), 'InputFilterManager');
+
+        $this->assertInstanceOf(InputFilterPluginManager::class, $inputFilters);
+        $this->assertFalse($inputFilters->has('foo'));
+    }
 }

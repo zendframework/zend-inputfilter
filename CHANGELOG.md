@@ -36,7 +36,12 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#137](https://github.com/zendframework/zend-inputfilter/pull/137) fixes how the
+  `InputFilterPluginManagerFactory` factory initializes the plugin manager
+  instance, ensuring it is injecting the relevant configuration from the
+  `config` service and thus seeding it with configured input filter services.
+  This means that the `input_filters` configuration will now be honored in
+  non-zend-mvc contexts.
 
 ## 2.7.3 - 2016-08-18
 
