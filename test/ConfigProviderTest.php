@@ -7,12 +7,13 @@
 
 namespace ZendTest\InputFilter;
 
+use PHPUnit\Framework\TestCase;
 use Zend\InputFilter\ConfigProvider;
 use Zend\InputFilter\InputFilterAbstractServiceFactory;
 use Zend\InputFilter\InputFilterPluginManager;
 use Zend\InputFilter\InputFilterPluginManagerFactory;
 
-final class ConfigProviderTest extends \PHPUnit_Framework_TestCase
+final class ConfigProviderTest extends TestCase
 {
     public function testProvidesExpectedConfiguration()
     {
