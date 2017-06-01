@@ -20,6 +20,7 @@ class Input implements
 {
     /**
      * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
+     * @TODO This cannot be removed until an alternative is provided see https://github.com/zendframework/zend-inputfilter/issues/101
      *
      * @var bool
      */
@@ -27,6 +28,7 @@ class Input implements
 
     /**
      * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
+     * @TODO This cannot be removed until an alternative is provided see https://github.com/zendframework/zend-inputfilter/issues/101
      *
      * @var bool
      */
@@ -98,6 +100,7 @@ class Input implements
 
     /**
      * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain and set this to `true`.
+     * @TODO This cannot be removed until an alternative is provided see https://github.com/zendframework/zend-inputfilter/issues/101
      *
      * @param  bool $allowEmpty
      * @return Input
@@ -120,7 +123,8 @@ class Input implements
 
     /**
      * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain and set this to `true`.
-     *
+     * @TODO This cannot be removed until an alternative is provided see https://github.com/zendframework/zend-inputfilter/issues/101
+     * 
      * @param bool $continueIfEmpty
      * @return Input
      */
@@ -227,6 +231,7 @@ class Input implements
 
     /**
      * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
+     * @TODO This cannot be removed until an alternative is provided see https://github.com/zendframework/zend-inputfilter/issues/101
      *
      * @return bool
      */
@@ -245,6 +250,7 @@ class Input implements
 
     /**
      * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain. Should always return `true`.
+     * @TODO This cannot be removed until an alternative is provided see https://github.com/zendframework/zend-inputfilter/issues/101
      *
      * @return bool
      */
