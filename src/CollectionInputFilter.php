@@ -167,7 +167,7 @@ class CollectionInputFilter extends InputFilter
     /**
      * {@inheritdoc}
      */
-    public function isValid()
+    public function isValid($context = null)
     {
         $inputFilter = $this->getInputFilter();
         $valid = true;
