@@ -393,7 +393,7 @@ class Input implements
 
         $value           = $this->getValue();
         $hasValue        = $this->hasValue();
-        $empty           = ($value === null || $value === '' || $value === []);
+        $empty           = ($value === null || $value === '' || $value === [] || $value === false);
         $required        = $this->isRequired();
         $allowEmpty      = $this->allowEmpty();
         $continueIfEmpty = $this->continueIfEmpty();
