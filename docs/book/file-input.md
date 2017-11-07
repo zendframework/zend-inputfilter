@@ -8,8 +8,8 @@ While `FileInput` uses the same interface as `Input`, it differs in a few ways:
 1. It expects the raw value to be in a normalized `$_FILES` array format. See
    the [PSR-7 Uploaded files](http://www.php-fig.org/psr/psr-7/#uploaded-files)
    chapter for details on how to accomplish this.
-   [Diactoros](https://zendframework.github.io/zend-diactoros/) and
-   [zend-http](https://zendframework.github.io/zend-http/) can do this for you.
+   [Diactoros](https://docs.zendframework.com/zend-diactoros/) and
+   [zend-http](https://docs.zendframework.com/zend-http/) can do this for you.
 2. The validators are run **before** the filters (which is the opposite behavior
    of `Input`). This is so that any `is_uploaded_file()` validation can be run
    prior to any filters that may rename/move/modify the file.

@@ -243,5 +243,5 @@ class SimplePerson
 
 Also see
 
-- [zend-filter](https://zendframework.github.io/zend-filter/)
-- [zend-validator](https://github.com/zendframework/zend-validator/)
+- [zend-filter](https://docs.zendframework.com/zend-filter/)
+- [zend-validator](https://docs.zendframework.com/zend-validator/)
