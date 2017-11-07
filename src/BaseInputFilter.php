@@ -309,17 +309,10 @@ class BaseInputFilter implements
 
                 $inputs[] = $key;
 
-                if (! $this->inputs[$key] instanceof InputFilterInterface) {
-                    throw new Exception\InvalidArgumentException(
-                        sprintf(
-                            'Input "%s" must implement InputFilterInterface',
-                            $key
-                        )
-                    );
+                if ($this->inputs[$key] instanceof InputFilterInterface) {
+                    // Recursively populate validation groups for sub input filters
+                    $this->inputs[$key]->setValidationGroup($value);
                 }
-
-                // Recursively populate validation groups for sub input filters
-                $this->inputs[$key]->setValidationGroup($value);
             }
         } else {
             $inputs = func_get_args();

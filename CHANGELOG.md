@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.7.5 - TBD
+## 2.7.5 - 2017-11-07
 
 ### Added
 
@@ -29,6 +29,14 @@ All notable changes to this project will be documented in this file, in reverse 
   issue with how error messages for collection input field items were reported;
   previously, as soon as one item in the collection failed, the same validation
   message was propagated to all other items. This is now resolved.
+
+- [#131](https://github.com/zendframework/zend-inputfilter/pull/131) fixes a
+  regression introduced in version 2.2.6 within
+  `BaseInputFilter::setValidatorGroup()` whereby it began emitting exceptions if
+  a given input was not an input filter. This raises issues when mixing input
+  filters and inputs in the same validator group specification, as you will
+  generally provide the input names as keys instead of values. The patch provide
+  ensures both styles work going forwards.
 
 ## 2.7.4 - 2017-05-18
 
