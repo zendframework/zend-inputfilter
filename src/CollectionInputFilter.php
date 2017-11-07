@@ -169,6 +169,7 @@ class CollectionInputFilter extends InputFilter
      */
     public function isValid()
     {
+        $this->collectionMessages = [];
         $inputFilter = $this->getInputFilter();
         $valid = true;
 

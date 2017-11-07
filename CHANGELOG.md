@@ -36,7 +36,10 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#149](https://github.com/zendframework/zend-inputfilter/pull/149) fixes an
+  issue with how error messages for collection input field items were reported;
+  previously, as soon as one item in the collection failed, the same validation
+  message was propagated to all other items. This is now resolved.
 
 ## 2.7.4 - 2017-05-18
 
