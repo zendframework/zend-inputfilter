@@ -313,8 +313,6 @@ class BaseInputFilter implements
                     // Recursively populate validation groups for sub input filters
                     $this->inputs[$key]->setValidationGroup($value);
                 }
-
-               
             }
         } else {
             $inputs = func_get_args();

@@ -125,7 +125,7 @@ class BaseInputFilterTest extends TestCase
         $inputFilter->isValid();
     }
 
-    public function testSetValidationGroupThrowExceptionIfInputIsNotAnInputFilter()
+    public function testSetValidationGroupSkipsRecursionWhenInputIsNotAnInputFilter()
     {
         $inputFilter = $this->inputFilter;
 
@@ -133,9 +133,30 @@ class BaseInputFilterTest extends TestCase
         $nestedInput = $this->createMock(InputInterface::class);
         $inputFilter->add($nestedInput, 'fooInput');
 
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Input "fooInput" must implement InputFilterInterface');
         $inputFilter->setValidationGroup(['fooInput' => 'foo']);
+        $this->assertAttributeEquals(['fooInput'], 'validationGroup', $inputFilter);
+    }
+
+    public function testSetValidationGroupAllowsSpecifyingArrayOfInputsToNestedInputFilter()
+    {
+        $inputFilter = $this->inputFilter;
+
+        $nestedInputFilter = new BaseInputFilter();
+
+        /** @var InputInterface|MockObject $nestedInput1 */
+        $nestedInput1 = $this->createMock(InputInterface::class);
+        $nestedInputFilter->add($nestedInput1, 'nested-input1');
+
+        /** @var InputInterface|MockObject $nestedInput2 */
+        $nestedInput2 = $this->createMock(InputInterface::class);
+        $nestedInputFilter->add($nestedInput2, 'nested-input2');
+
+        $inputFilter->add($nestedInputFilter, 'nested');
+
+        $inputFilter->setValidationGroup(['nested' => ['nested-input1', 'nested-input2']]);
+
+        $this->assertAttributeEquals(['nested'], 'validationGroup', $inputFilter);
+        $this->assertAttributeEquals(['nested-input1', 'nested-input2'], 'validationGroup', $nestedInputFilter);
     }
 
     public function testSetValidationGroupThrowExceptionIfInputFilterNotExists()
