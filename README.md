@@ -8,4 +8,4 @@ of input data. For instance, you could use it to filter `$_GET` or `$_POST`
 values, CLI arguments, etc.
 
 - File issues at https://github.com/zendframework/zend-inputfilter/issues
-- Documentation is at https://zendframework.github.io/zend-inputfilter/
+- Documentation is at https://docs.zendframework.com/zend-inputfilter/
