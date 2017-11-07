@@ -134,8 +134,8 @@ files found in the <code>$_FILES</code> array.</p>
 <li>It expects the raw value to be in a normalized <code>$_FILES</code> array format. See
    the <a href="http://www.php-fig.org/psr/psr-7/#uploaded-files">PSR-7 Uploaded files</a>
    chapter for details on how to accomplish this.
-   <a href="https://zendframework.github.io/zend-diactoros/">Diactoros</a> and
-   <a href="https://zendframework.github.io/zend-http/">zend-http</a> can do this for you.</li>
+   <a href="https://docs.zendframework.com/zend-diactoros/">Diactoros</a> and
+   <a href="https://docs.zendframework.com/zend-http/">zend-http</a> can do this for you.</li>
 <li>The validators are run <strong>before</strong> the filters (which is the opposite behavior
    of <code>Input</code>). This is so that any <code>is_uploaded_file()</code> validation can be run
    prior to any filters that may rename/move/modify the file.</li>

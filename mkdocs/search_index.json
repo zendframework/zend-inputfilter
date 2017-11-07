@@ -2,12 +2,12 @@
     "docs": [
         {
             "location": "/",
-            "text": "zend-inputfilter\n\n\n\n\n\n\nThe zend-inputfilter component can be used to filter and validate generic sets\nof input data. For instance, you could use it to filter \n$_GET\n or \n$_POST\n\nvalues, CLI arguments, etc.\n\n\n\n\nFile issues at https://github.com/zendframework/zend-inputfilter/issues\n\n\nDocumentation is at https://zendframework.github.io/zend-inputfilter/",
+            "text": "zend-inputfilter\n\n\n\n\n\n\nThe zend-inputfilter component can be used to filter and validate generic sets\nof input data. For instance, you could use it to filter \n$_GET\n or \n$_POST\n\nvalues, CLI arguments, etc.\n\n\n\n\nFile issues at https://github.com/zendframework/zend-inputfilter/issues\n\n\nDocumentation is at https://docs.zendframework.com/zend-inputfilter/",
             "title": "Home"
         },
         {
             "location": "/#zend-inputfilter",
-            "text": "The zend-inputfilter component can be used to filter and validate generic sets\nof input data. For instance, you could use it to filter  $_GET  or  $_POST \nvalues, CLI arguments, etc.   File issues at https://github.com/zendframework/zend-inputfilter/issues  Documentation is at https://zendframework.github.io/zend-inputfilter/",
+            "text": "The zend-inputfilter component can be used to filter and validate generic sets\nof input data. For instance, you could use it to filter  $_GET  or  $_POST \nvalues, CLI arguments, etc.   File issues at https://github.com/zendframework/zend-inputfilter/issues  Documentation is at https://docs.zendframework.com/zend-inputfilter/",
             "title": "zend-inputfilter"
         },
         {
