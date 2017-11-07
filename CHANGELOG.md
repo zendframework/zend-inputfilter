@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
-- Nothing.
+- [#142](https://github.com/zendframework/zend-inputfilter/pull/142) adds
+  support for PHP 7.2.
 
 ### Deprecated
 
@@ -14,7 +15,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Removed
 
-- Nothing.
+- [#142](https://github.com/zendframework/zend-inputfilter/pull/142) removes
+  support for HHVM.
 
 ### Fixed
 
