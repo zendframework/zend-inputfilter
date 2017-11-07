@@ -189,10 +189,10 @@ class Factory
             ));
         }
 
-        if ($this->defaultFilterChain) {
+        if (! $managerInstance && $this->defaultFilterChain) {
             $input->setFilterChain(clone $this->defaultFilterChain);
         }
-        if ($this->defaultValidatorChain) {
+        if (! $managerInstance && $this->defaultValidatorChain) {
             $input->setValidatorChain(clone $this->defaultValidatorChain);
         }
 
