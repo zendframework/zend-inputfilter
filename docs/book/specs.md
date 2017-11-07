@@ -27,10 +27,10 @@ return array(
 );
 ```
 
-For [Expressive](https://zendframework.github.io/zend-expressive/) when using
+For [Expressive](https://docs.zendframework.com/zend-expressive/) when using
 the configuration manager, and for zend-mvc v3 releases, the functionality is
 enabled by default, assuming you are using the
-[component installer](https://zendframework.github.io/zend-component-installer/).
+[component installer](https://docs.zendframework.com/zend-component-installer/).
 
 ## Example
 
