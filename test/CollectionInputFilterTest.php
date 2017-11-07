@@ -609,4 +609,132 @@ class CollectionInputFilterTest extends TestCase
         $this->assertCount(1, $messages[1]['email']);
         $this->assertContains('CUSTOM ERROR MESSAGE', $messages[1]['email']);
     }
+
+    public function testDuplicatedErrorMessages()
+    {
+        $factory = new \Zend\InputFilter\Factory();
+        $inputFilter = $factory->createInputFilter(
+            [
+                'element' => [
+                    'type' => InputFilter::class,
+                    'type1' => [
+                        'type' => CollectionInputFilter::class,
+                        'input_filter' => [
+                            'test_field' => [
+                                'type' => CollectionInputFilter::class,
+                                'input_filter' => [
+                                    'test_field1' => [
+                                        'required' => false,
+                                        'validators' => [
+                                            [
+                                                'name' => \Zend\Validator\Between::class,
+                                                'options' => [
+                                                    'min' => 50,
+                                                    'max' => 100,
+                                                    'message' => '%value% is incorrect',
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    'price' => [
+                                        'required' => false,
+                                        'validators' => [
+                                            [
+                                                'name' => \Zend\Validator\Between::class,
+                                                'options' => [
+                                                    'min' => 50,
+                                                    'max' => 100,
+                                                    'message' => '%value% is incorrect',
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        $inputFilter->setData(
+            [
+                'element' => [
+                    'type1' => [
+                        [
+                            'test_field' => [
+                                [
+                                    'test_field1' => -20,
+                                    'price' => 20,
+                                ],
+                                [
+                                    'test_field1' => -15,
+                                    'price' => 15,
+                                ],
+                                [
+                                    'test_field1' => -10,
+                                    'price' => 10,
+                                ],
+                            ],
+                        ],
+                        [
+                            'test_field' => [
+                                [
+                                    'test_field1' => -5,
+                                    'price' => 5,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+        $this->assertFalse($inputFilter->isValid());
+        $this->assertEquals([
+            'element' => [
+                'type1' => [
+                    [
+                        'test_field' => [
+                            [
+                                'test_field1' => [
+                                    'notBetween' => '-20 is incorrect',
+                                ],
+                                'price' => [
+                                    'notBetween' => '20 is incorrect',
+                                ],
+                            ],
+                            [
+                                'test_field1' => [
+                                    'notBetween' => '-15 is incorrect',
+                                ],
+                                'price' => [
+                                    'notBetween' => '15 is incorrect',
+                                ],
+                            ],
+                            [
+                                'test_field1' => [
+                                    'notBetween' => '-10 is incorrect',
+                                ],
+                                'price' => [
+                                    'notBetween' => '10 is incorrect',
+                                ],
+                            ],
+                        ],
+                    ],
+                    [
+                        'test_field' => [
+                            [
+                                'test_field1' => [
+                                    'notBetween' => '-5 is incorrect',
+                                ],
+                                'price' => [
+                                    'notBetween' => '5 is incorrect',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], $inputFilter->getMessages());
+    }
 }
