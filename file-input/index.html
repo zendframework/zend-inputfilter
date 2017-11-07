@@ -6,18 +6,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="zend-inputfilter">  
-    <link rel="shortcut icon" href="./img/favicon.ico">
+    <link rel="shortcut icon" href="../img/favicon.ico">
 
-    <title>Home - zend-inputfilter</title>
+    <title>Files - zend-inputfilter</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="./css/styles-482aa2add1.css">
+    <link rel="stylesheet" href="../css/styles-482aa2add1.css">
 
     
 </head>
 
-<body class="homepage" >
+<body>
 
     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
     <div class="container">
@@ -36,8 +36,8 @@
 
             <!-- Main title -->
             <span class="navbar-brand">
-                <a class="logo-link" href="https://framework.zend.com/" data-toggle="tooltip" data-placement="bottom" title="Go to the ZF homepage"><img src="./img/zf-logo-mark.svg" height="28" alt="Zend Framework" /></a>
-                <a href=".">zend-inputfilter</a>
+                <a class="logo-link" href="https://framework.zend.com/" data-toggle="tooltip" data-placement="bottom" title="Go to the ZF homepage"><img src="../img/zf-logo-mark.svg" height="28" alt="Zend Framework" /></a>
+                <a href="..">zend-inputfilter</a>
             </span>
         </div>
 
@@ -48,26 +48,26 @@
                 <ul class="nav navbar-nav">
                 
                 
+                    <li >
+                        <a href="..">Home</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../intro/">Intro</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../specs/">Specifications</a>
+                    </li>
+                
+                
+                
                     <li class="active">
-                        <a href=".">Home</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="intro/">Intro</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="specs/">Specifications</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="file-input/">Files</a>
+                        <a href="./">Files</a>
                     </li>
                 
                 
@@ -101,17 +101,101 @@
     </div>
 </div>
 
-    <div class="container">
-  <div class="jumbotron">
-    <h1>zend-inputfilter</h1>
+    <!-- content:begin -->
+    <div id="page-top" class="container docs">
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#file-upload-input">File Upload Input</a></li>
+        
+            <li><a href="#basic-usage">Basic Usage</a></li>
+        
+    
+    </ul>
 
-    <p>Normalize and validate input sets from the web, APIs, the CLI, and more, including files.</p>
+    
+</div></div>
+        <div class="col-md-9" role="main">
 
-    <pre><code class="language-bash">$ composer require zendframework/zend-inputfilter</code></pre>
-  </div>
+<ol class="breadcrumb" role="navigation" aria-label="breadcrumbs navigation">
+  <li><a href="..">zend-inputfilter</a></li>
+  
+    
+  
+  <li class="active">Files</li>
+</ol>
+
+<h1 id="file-upload-input">File Upload Input</h1>
+<p>The <code>Zend\InputFilter\FileInput</code> class is a special <code>Input</code> type for uploaded
+files found in the <code>$_FILES</code> array.</p>
+<p>While <code>FileInput</code> uses the same interface as <code>Input</code>, it differs in a few ways:</p>
+<ol>
+<li>It expects the raw value to be in a normalized <code>$_FILES</code> array format. See
+   the <a href="http://www.php-fig.org/psr/psr-7/#uploaded-files">PSR-7 Uploaded files</a>
+   chapter for details on how to accomplish this.
+   <a href="https://zendframework.github.io/zend-diactoros/">Diactoros</a> and
+   <a href="https://zendframework.github.io/zend-http/">zend-http</a> can do this for you.</li>
+<li>The validators are run <strong>before</strong> the filters (which is the opposite behavior
+   of <code>Input</code>). This is so that any <code>is_uploaded_file()</code> validation can be run
+   prior to any filters that may rename/move/modify the file.</li>
+<li>Instead of adding a <code>NotEmpty</code> validator, it will (by default) automatically
+   add a <code>Zend\Validator\File\UploadFile</code> validator.</li>
+</ol>
+<p>The biggest thing to be concerned about is that if you are using a <code>&lt;input
+type="file"&gt;</code> element in your form, you will need to use the <code>FileInput</code>
+<strong>instead of</strong> <code>Input</code> or else you will encounter issues.</p>
+<h2 id="basic-usage">Basic Usage</h2>
+<p>Usage of <code>FileInput</code> is essentially the same as <code>Input</code>:</p>
+<pre class="codehilite"><code class="language-php">use Zend\Http\PhpEnvironment\Request;
+use Zend\Filter;
+use Zend\InputFilter\InputFilter;
+use Zend\InputFilter\Input;
+use Zend\InputFilter\FileInput;
+use Zend\Validator;
+
+// Description text input
+$description = new Input('description'); // Standard Input type
+$description-&gt;getFilterChain()           // Filters are run first w/ Input
+            -&gt;attach(new Filter\StringTrim());
+$description-&gt;getValidatorChain()        // Validators are run second w/ Input
+            -&gt;attach(new Validator\StringLength(['max' =&gt; 140]));
+
+// File upload input
+$file = new FileInput('file');           // Special File Input type
+$file-&gt;getValidatorChain()               // Validators are run first w/ FileInput
+     -&gt;attach(new Validator\File\UploadFile());
+$file-&gt;getFilterChain()                  // Filters are run second w/ FileInput
+     -&gt;attach(new Filter\File\RenameUpload([
+         'target'    =&gt; './data/tmpuploads/file',
+         'randomize' =&gt; true,
+     ]));
+
+// Merge $_POST and $_FILES data together
+$request  = new Request();
+$postData = array_merge_recursive($request-&gt;getPost()-&gt;toArray(), $request-&gt;getFiles()-&gt;toArray());
+
+$inputFilter = new InputFilter();
+$inputFilter-&gt;add($description)
+            -&gt;add($file)
+            -&gt;setData($postData);
+
+if ($inputFilter-&gt;isValid()) {           // FileInput validators are run, but not the filters...
+    echo &quot;The form is valid\n&quot;;
+    $data = $inputFilter-&gt;getValues();   // This is when the FileInput filters are run.
+} else {
+    echo &quot;The form is not valid\n&quot;;
+    foreach ($inputFilter-&gt;getInvalidInput() as $error) {
+        print_r ($error-&gt;getMessages());
+    }
+}</code></pre>
+
+<hr />
+
 </div>
-
-
+        
+    </div>
+    <!-- content:end -->
 
     <div id="footerwrap">
     <div class="container">
@@ -159,9 +243,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@2.2.4/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
-    <script>var base_url = '.';</script>
-    <script src="./js/scripts-0b6185f4a5.js"></script>
-    <script data-main="./mkdocs/js/search.js" src="./mkdocs/js/require.js"></script>
+    <script>var base_url = '..';</script>
+    <script src="../js/scripts-0b6185f4a5.js"></script>
+    <script data-main="../mkdocs/js/search.js" src="../mkdocs/js/require.js"></script>
 
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
         <div class="modal-dialog">
@@ -193,7 +277,7 @@
     <div class="zf-components">
   <div class="zf-components-grid">
     <div class="zf-logo">
-      <a href="https://framework.zend.com" data-toggle="tooltip" data-placement="bottom" title="Go to the ZF homepage"><img src="./img/zf-logo-mark.svg" alt="Zend Framework" width="250" /></a>
+      <a href="https://framework.zend.com" data-toggle="tooltip" data-placement="bottom" title="Go to the ZF homepage"><img src="../img/zf-logo-mark.svg" alt="Zend Framework" width="250" /></a>
     </div>
 
     <div class="component-list"></div>
@@ -205,8 +289,3 @@
 </body>
 
 </html>
-
-<!--
-MkDocs version : 0.16.3
-Build Date UTC : 2017-11-07 16:34:44
--->
