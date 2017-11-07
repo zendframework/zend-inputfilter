@@ -12,6 +12,7 @@ namespace ZendTest\InputFilter;
 use Interop\Container\ContainerInterface;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 use Zend\Filter;
 use Zend\InputFilter\CollectionInputFilter;
 use Zend\InputFilter\Exception\InvalidArgumentException;
@@ -994,6 +995,27 @@ class FactoryTest extends TestCase
         $factory = $this->createDefaultFactory();
         $factory->clearDefaultValidatorChain();
         $this->assertNull($factory->getDefaultValidatorChain());
+    }
+
+    /**
+     * @see https://github.com/zendframework/zend-inputfilter/issues/8
+     */
+    public function testWhenCreateInputPullsInputFromThePluginManagerItMustNotOverwriteFilterAndValidatorChains()
+    {
+        $input = $this->prophesize(InputInterface::class);
+        $input->setFilterChain(Argument::any())->shouldNotBeCalled();
+        $input->setValidatorChain(Argument::any())->shouldNotBeCalled();
+
+        $pluginManager = $this->prophesize(InputFilterPluginManager::class);
+        $pluginManager->populateFactoryPluginManagers(Argument::type(Factory::class))->shouldBeCalled();
+        $pluginManager->has('Some\Test\Input')->willReturn(true);
+        $pluginManager->get('Some\Test\Input')->will([$input, 'reveal']);
+
+        $spec = ['type' => 'Some\Test\Input'];
+
+        $factory = new Factory($pluginManager->reveal());
+
+        $this->assertSame($input->reveal(), $factory->createInput($spec));
     }
 
     /**
