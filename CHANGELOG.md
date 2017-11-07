@@ -18,6 +18,13 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
+- [#151](https://github.com/zendframework/zend-inputfilter/pull/151) fixes an
+  issue in `Factory::createInput()` introduced in
+  [#2](https://github.com/zendframework/zend-inputfilter/pull/2) whereby an
+  input pulled from the input filter manager would be injected with the default
+  filter and validator chains, overwriting any chains that were set during
+  instantiation and/or `init()`. They are now never overwritten.
+
 - [#149](https://github.com/zendframework/zend-inputfilter/pull/149) fixes an
   issue with how error messages for collection input field items were reported;
   previously, as soon as one item in the collection failed, the same validation
