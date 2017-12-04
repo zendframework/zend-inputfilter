@@ -55,6 +55,17 @@ class OptionalInputFilterTest extends TestCase
         $this->assertEquals($data, $inputFilter->getValues());
     }
 
+    public function testValidatesSuccessfullyWhenNoDataProvided()
+    {
+        $data = [];
+
+        $inputFilter = $this->getNestedCarInputFilter();
+        $inputFilter->setData($data);
+
+        $this->assertTrue($inputFilter->isValid());
+        $this->assertEquals(['car' => null], $inputFilter->getValues());
+    }
+
     public function testValidationFailureWhenInvalidDataSetIsProvided()
     {
         $inputFilter = $this->getNestedCarInputFilter();
