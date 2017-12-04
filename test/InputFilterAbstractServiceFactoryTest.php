@@ -12,11 +12,14 @@ namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit\Framework\TestCase;
+use Zend\Filter;
 use Zend\Filter\FilterPluginManager;
+use Zend\InputFilter\FileInput;
 use Zend\InputFilter\InputFilterAbstractServiceFactory;
 use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputFilterPluginManager;
 use Zend\ServiceManager\ServiceManager;
+use Zend\Validator;
 use Zend\Validator\ValidatorInterface;
 use Zend\Validator\ValidatorPluginManager;
 
@@ -300,5 +303,74 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
         $this->assertTrue(call_user_func_array([$this->factory, $canCreate], $args));
         $inputFilter = call_user_func_array([$this->factory, $create], $args);
         $this->assertInstanceOf(InputFilterInterface::class, $inputFilter);
+    }
+
+    /**
+     * @see https://github.com/zendframework/zend-inputfilter/issues/155
+     */
+    public function testWillUseCustomFiltersWhenProvided()
+    {
+        $filter = $this->prophesize(Filter\FilterInterface::class)->reveal();
+
+        $filters = new FilterPluginManager($this->services);
+        $filters->setService('CustomFilter', $filter);
+
+        $validators = new ValidatorPluginManager($this->services);
+
+        $this->services->setService('FilterManager', $filters);
+        $this->services->setService('ValidatorManager', $validators);
+
+        $this->services->setService('config', [
+            'input_filter_specs' => [
+                'test' => [
+                    [
+                        'name' => 'a-file-element',
+                        'type' => FileInput::class,
+                        'required' => true,
+                        'validators' => [
+                            [
+                                'name' => Validator\File\UploadFile::class,
+                                'options' => [
+                                    'breakchainonfailure' => true,
+                                ],
+                            ],
+                            [
+                                'name' => Validator\File\Size::class,
+                                'options' => [
+                                    'breakchainonfailure' => true,
+                                    'max' => '6GB',
+                                ],
+                            ],
+                            [
+                                'name' => Validator\File\Extension::class,
+                                'options' => [
+                                    'breakchainonfailure' => true,
+                                    'extension' => 'csv,zip',
+                                ],
+                            ],
+                        ],
+                        'filters' => [
+                            ['name' => 'CustomFilter'],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->services->get('InputFilterManager')
+            ->addAbstractFactory(InputFilterAbstractServiceFactory::class);
+
+        $inputFilter = $this->services->get('InputFilterManager')->get('test');
+        $this->assertInstanceOf(InputFilterInterface::class, $inputFilter);
+
+        $input = $inputFilter->get('a-file-element');
+        $this->assertInstanceOf(FileInput::class, $input);
+
+        $filters = $input->getFilterChain();
+        $this->assertCount(1, $filters);
+
+        $callback = $filters->getFilters()->top();
+        $this->assertInternalType('array', $callback);
+        $this->assertSame($filter, $callback[0]);
     }
 }

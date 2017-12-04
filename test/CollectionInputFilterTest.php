@@ -19,7 +19,7 @@ use Zend\InputFilter\Exception\InvalidArgumentException;
 use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
-use Zend\Validator\EmailAddress;
+use Zend\Validator\Digits;
 use Zend\Validator\NotEmpty;
 
 /**
@@ -512,10 +512,10 @@ class CollectionInputFilterTest extends TestCase
     {
         $inputFilter = new InputFilter();
         $inputFilter->add([
-            'name' => 'email',
+            'name' => 'phone',
             'required' => true,
             'validators' => [
-                ['name' => EmailAddress::class],
+                ['name' => Digits::class],
                 ['name' => NotEmpty::class],
             ],
         ]);
@@ -535,7 +535,7 @@ class CollectionInputFilterTest extends TestCase
                 'name' => 'Tom',
             ],
             [
-                'email' => 'tom@tom',
+                'phone' => 'tom@tom',
                 'name' => 'Tom',
             ],
         ]);
@@ -547,16 +547,14 @@ class CollectionInputFilterTest extends TestCase
         $this->assertFalse($isValid);
         $this->assertCount(2, $messages);
 
-        $this->assertArrayHasKey('email', $messages[0]);
-        $this->assertCount(1, $messages[0]['email']);
-        $this->assertContains('Value is required and can\'t be empty', $messages[0]['email']);
+        $this->assertArrayHasKey('phone', $messages[0]);
+        $this->assertCount(1, $messages[0]['phone']);
+        $this->assertContains('Value is required and can\'t be empty', $messages[0]['phone']);
 
-        $this->assertArrayHasKey('email', $messages[1]);
-        $this->assertCount(3, $messages[1]['email']);
-        $this->assertNotContains('Value is required and can\'t be empty', $messages[1]['email']);
-        $this->assertContains('\'tom\' is not a valid hostname for the email address', $messages[1]['email']);
-        $this->assertContains('The input does not match the expected structure for a DNS hostname', $messages[1]['email']);
-        $this->assertContains('The input appears to be a local network name but local network names are not allowed', $messages[1]['email']);
+        $this->assertArrayHasKey('phone', $messages[1]);
+        $this->assertCount(1, $messages[1]['phone']);
+        $this->assertNotContains('Value is required and can\'t be empty', $messages[1]['phone']);
+        $this->assertContains('The input must contain only digits', $messages[1]['phone']);
         // @codingStandardsIgnoreEnd
     }
 
@@ -564,10 +562,10 @@ class CollectionInputFilterTest extends TestCase
     {
         $inputFilter = new InputFilter();
         $inputFilter->add([
-            'name' => 'email',
+            'name' => 'phone',
             'required' => true,
             'validators' => [
-                ['name' => EmailAddress::class],
+                ['name' => Digits::class],
                 ['name' => NotEmpty::class],
             ],
             'error_message' => 'CUSTOM ERROR MESSAGE',
@@ -588,7 +586,7 @@ class CollectionInputFilterTest extends TestCase
                 'name' => 'Tom',
             ],
             [
-                'email' => 'tom@tom',
+                'phone' => 'tom@tom',
                 'name' => 'Tom',
             ],
         ]);
@@ -600,14 +598,14 @@ class CollectionInputFilterTest extends TestCase
         $this->assertFalse($isValid);
         $this->assertCount(2, $messages);
 
-        $this->assertArrayHasKey('email', $messages[0]);
-        $this->assertCount(1, $messages[0]['email']);
-        $this->assertContains('CUSTOM ERROR MESSAGE', $messages[0]['email']);
-        $this->assertNotContains('Value is required and can\'t be empty', $messages[0]['email']);
+        $this->assertArrayHasKey('phone', $messages[0]);
+        $this->assertCount(1, $messages[0]['phone']);
+        $this->assertContains('CUSTOM ERROR MESSAGE', $messages[0]['phone']);
+        $this->assertNotContains('Value is required and can\'t be empty', $messages[0]['phone']);
 
-        $this->assertArrayHasKey('email', $messages[1]);
-        $this->assertCount(1, $messages[1]['email']);
-        $this->assertContains('CUSTOM ERROR MESSAGE', $messages[1]['email']);
+        $this->assertArrayHasKey('phone', $messages[1]);
+        $this->assertCount(1, $messages[1]['phone']);
+        $this->assertContains('CUSTOM ERROR MESSAGE', $messages[1]['phone']);
     }
 
     public function testDuplicatedErrorMessages()
