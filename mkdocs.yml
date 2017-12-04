@@ -3,8 +3,10 @@ site_dir: docs/html
 pages:
     - index.md
     - Intro: intro.md
-    - Specifications: specs.md
-    - Files: file-input.md
+    - Reference:
+      - Specifications: specs.md
+      - Files: file-input.md
+      - "Optional Input Filters": optional-input-filters.md
 site_name: zend-inputfilter
 site_description: zend-inputfilter
 repo_url: 'https://github.com/zendframework/zend-inputfilter'
