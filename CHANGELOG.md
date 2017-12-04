@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
+- [#135](https://github.com/zendframework/zend-inputfilter/pull/135) adds
+  `Zend\InputFilter\OptionalInputFilter`, which allows defining optional sets of
+  data. This acts like a standard input filter, but is considered valid if no
+  data, `null` data, or empty data sets are provided to it; if a non-empty data
+  set is provided, it will run normal validations.
+
 - [#142](https://github.com/zendframework/zend-inputfilter/pull/142) adds
   support for PHP 7.2.
 
