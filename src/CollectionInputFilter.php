@@ -166,6 +166,7 @@ class CollectionInputFilter extends InputFilter
 
     /**
      * {@inheritdoc}
+     * @param mixed $context Ignored, but present to retain signature compatibility.
      */
     public function isValid($context = null)
     {

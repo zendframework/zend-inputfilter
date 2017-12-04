@@ -189,12 +189,9 @@ class Factory
             ));
         }
 
-        if (! $managerInstance && $this->defaultFilterChain) {
-            $input->setFilterChain(clone $this->defaultFilterChain);
-        }
-        if (! $managerInstance && $this->defaultValidatorChain) {
-            $input->setValidatorChain(clone $this->defaultValidatorChain);
-        }
+        $managerInstance
+            ? $this->injectFilterAndValidatorChainsWithPluginManagers($input)
+            : $this->injectDefaultFilterAndValidatorChains($input);
 
         foreach ($inputSpecification as $key => $value) {
             switch ($key) {
@@ -432,6 +429,49 @@ class Factory
             throw new Exception\RuntimeException(
                 'Invalid validator specification provided; was neither a validator instance nor an array specification'
             );
+        }
+    }
+
+    /**
+     * Inject the default filter and validator chains into the input, if present.
+     *
+     * This ensures custom plugins are made available to the input instance.
+     *
+     * @param InputInterface $input
+     * @return void
+     */
+    protected function injectDefaultFilterAndValidatorChains(InputInterface $input)
+    {
+        if ($this->defaultFilterChain) {
+            $input->setFilterChain(clone $this->defaultFilterChain);
+        }
+
+        if ($this->defaultValidatorChain) {
+            $input->setValidatorChain(clone $this->defaultValidatorChain);
+        }
+    }
+
+    /**
+     * Inject filter and validator chains with the plugin managers from
+     * the default chains, if present.
+     *
+     * This ensures custom plugins are made available to the input instance.
+     *
+     * @param InputInterface $input
+     * @return void
+     */
+    protected function injectFilterAndValidatorChainsWithPluginManagers(InputInterface $input)
+    {
+        if ($this->defaultFilterChain) {
+            $input->getFilterChain()
+                ? $input->getFilterChain()->setPluginManager($this->defaultFilterChain->getPluginManager())
+                : $input->setFilterChain(clone $this->defaultFilterChain);
+        }
+
+        if ($this->defaultValidatorChain) {
+            $input->getValidatorChain()
+                ? $input->getValidatorChain()->setPluginManager($this->defaultValidatorChain->getPluginManager())
+                : $input->setValidatorChain(clone $this->defaultValidatorChain);
         }
     }
 }

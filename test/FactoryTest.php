@@ -13,6 +13,7 @@ use Interop\Container\ContainerInterface;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use ReflectionProperty;
 use Zend\Filter;
 use Zend\InputFilter\CollectionInputFilter;
 use Zend\InputFilter\Exception\InvalidArgumentException;
@@ -999,9 +1000,11 @@ class FactoryTest extends TestCase
 
     /**
      * @see https://github.com/zendframework/zend-inputfilter/issues/8
+     * @see https://github.com/zendframework/zend-inputfilter/issues/155
      */
     public function testWhenCreateInputPullsInputFromThePluginManagerItMustNotOverwriteFilterAndValidatorChains()
     {
+
         $input = $this->prophesize(InputInterface::class);
         $input->setFilterChain(Argument::any())->shouldNotBeCalled();
         $input->setValidatorChain(Argument::any())->shouldNotBeCalled();
@@ -1014,6 +1017,23 @@ class FactoryTest extends TestCase
         $spec = ['type' => 'Some\Test\Input'];
 
         $factory = new Factory($pluginManager->reveal());
+
+        $r = new ReflectionProperty($factory, 'defaultFilterChain');
+        $r->setAccessible(true);
+        $defaultFilterChain = $r->getValue($factory);
+
+        $filterChain = $this->prophesize(Filter\FilterChain::class);
+        $filterChain->setPluginManager($defaultFilterChain->getPluginManager())->shouldBeCalled();
+
+        $r = new ReflectionProperty($factory, 'defaultValidatorChain');
+        $r->setAccessible(true);
+        $defaultValidatorChain = $r->getValue($factory);
+
+        $validatorChain = $this->prophesize(Validator\ValidatorChain::class);
+        $validatorChain->setPluginManager($defaultValidatorChain->getPluginManager())->shouldBeCalled();
+
+        $input->getFilterChain()->will([$filterChain, 'reveal'])->shouldBeCalled();
+        $input->getValidatorChain()->will([$validatorChain, 'reveal'])->shouldBeCalled();
 
         $this->assertSame($input->reveal(), $factory->createInput($spec));
     }

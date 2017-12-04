@@ -9,6 +9,10 @@ All notable changes to this project will be documented in this file, in reverse 
 - [#142](https://github.com/zendframework/zend-inputfilter/pull/142) adds
   support for PHP 7.2.
 
+### Changed
+
+- Nothing.
+
 ### Deprecated
 
 - Nothing.
@@ -21,6 +25,29 @@ All notable changes to this project will be documented in this file, in reverse 
 ### Fixed
 
 - Nothing.
+
+## 2.7.6 - 2017-12-04
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#156](https://github.com/zendframework/zend-inputfilter/pull/156) fixes an
+  issue introduced in 2.7.5 whereby the filter and validator chains composed in
+  inputs pulled from the `InputFilterPluginManager` were not receiving the
+  default filter and validator plugin manager instances. A solution was created
+  that preserves the original behavior as well as the bugfix that created the
+  regression.
 
 ## 2.7.5 - 2017-11-07
 
