@@ -8,7 +8,7 @@
     <meta name="description" content="zend-inputfilter">  
     <link rel="shortcut icon" href="../img/favicon.ico">
 
-    <title>Files - zend-inputfilter</title>
+    <title>Optional Input Filters - zend-inputfilter</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
@@ -71,14 +71,14 @@
 
                         
                             
-<li class="active">
-    <a href="./">Files</a>
+<li >
+    <a href="../file-input/">Files</a>
 </li>
 
                         
                             
-<li >
-    <a href="../optional-input-filters/">Optional Input Filters</a>
+<li class="active">
+    <a href="./">Optional Input Filters</a>
 </li>
 
                         
@@ -122,22 +122,11 @@
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#file-upload-input">File Upload Input</a></li>
-        
-            <li><a href="#basic-usage">Basic Usage</a></li>
+        <li class="main active"><a href="#optional-input-filters">Optional Input Filters</a></li>
         
     
     </ul>
 
-    
-    <ul class="pager hidden-print">
-      <li class="previous">
-        <a rel="prev" href="../specs/"><i class="fa fa-arrow-left"></i> Previous</a>
-      </li>
-      <li class="next">
-        <a rel="next" href="../optional-input-filters/">Next <i class="fa fa-arrow-right"></i></a>
-      </li>
-    </ul>
     
 </div></div>
         <div class="col-md-9" role="main">
@@ -151,86 +140,96 @@
       
     
   
-  <li class="active">Files</li>
+  <li class="active">Optional Input Filters</li>
 </ol>
 
-<h1 id="file-upload-input">File Upload Input</h1>
-<p>The <code>Zend\InputFilter\FileInput</code> class is a special <code>Input</code> type for uploaded
-files found in the <code>$_FILES</code> array.</p>
-<p>While <code>FileInput</code> uses the same interface as <code>Input</code>, it differs in a few ways:</p>
-<ol>
-<li>It expects the raw value to be in a normalized <code>$_FILES</code> array format. See
-   the <a href="http://www.php-fig.org/psr/psr-7/#uploaded-files">PSR-7 Uploaded files</a>
-   chapter for details on how to accomplish this.
-   <a href="https://docs.zendframework.com/zend-diactoros/">Diactoros</a> and
-   <a href="https://docs.zendframework.com/zend-http/">zend-http</a> can do this for you.</li>
-<li>The validators are run <strong>before</strong> the filters (which is the opposite behavior
-   of <code>Input</code>). This is so that any <code>is_uploaded_file()</code> validation can be run
-   prior to any filters that may rename/move/modify the file.</li>
-<li>Instead of adding a <code>NotEmpty</code> validator, it will (by default) automatically
-   add a <code>Zend\Validator\File\UploadFile</code> validator.</li>
-</ol>
-<p>The biggest thing to be concerned about is that if you are using a <code>&lt;input
-type="file"&gt;</code> element in your form, you will need to use the <code>FileInput</code>
-<strong>instead of</strong> <code>Input</code> or else you will encounter issues.</p>
-<h2 id="basic-usage">Basic Usage</h2>
-<p>Usage of <code>FileInput</code> is essentially the same as <code>Input</code>:</p>
-<pre class="codehilite"><code class="language-php">use Zend\Http\PhpEnvironment\Request;
-use Zend\Filter;
-use Zend\InputFilter\InputFilter;
-use Zend\InputFilter\Input;
-use Zend\InputFilter\FileInput;
-use Zend\Validator;
+<h1 id="optional-input-filters">Optional Input Filters</h1>
+<ul>
+<li>Since 2.8.0</li>
+</ul>
+<p>Normally, input filters are <em>required</em>, which means that if you compose them as
+a subset of another input filter (e.g., to validate a subset of a larger set of
+data), and no data is provided for that item, or an empty set of data is
+provided, then the input filter will consider the data invalid.</p>
+<p>If you want to allow a set of data to be empty, you can use 
+<code>Zend\InputFilter\OptionalInputFilter</code>.</p>
+<p>To illustrate this, let's consider a form where a user provides profile
+information. The user can provide an optional "title" and a required "email",
+and <em>optionally</em> details about a project they lead, which will include the
+project title and a URL, both of which are required if present.</p>
+<p>First, let's create an <code>OptionalInputFilter</code> instance for the project data:</p>
+<pre class="codehilite"><code class="language-php">$projectFilter = new OptionalInputFilter();
+$projectFilter-&gt;add([
+    'name' =&gt; 'project_name',
+    'required' =&gt; true,
+]);
+$projectFilter-&gt;add([
+    'name' =&gt; 'url',
+    'required' =&gt; true,
+    'validators' =&gt; [
+        ['type' =&gt; 'uri'],
+    ],
+]);</code></pre>
 
-// Description text input
-$description = new Input('description'); // Standard Input type
-$description-&gt;getFilterChain()           // Filters are run first w/ Input
-            -&gt;attach(new Filter\StringTrim());
-$description-&gt;getValidatorChain()        // Validators are run second w/ Input
-            -&gt;attach(new Validator\StringLength(['max' =&gt; 140]));
+<p>Now, we'll create our primary input filter:</p>
+<pre class="codehilite"><code class="language-php">$profileFilter = new InputFilter();
+$profileFilter-&gt;add([
+    'name' =&gt; 'title',
+    'required' =&gt; false,
+]);
+$profileFilter-&gt;add([
+    'name' =&gt; 'email',
+    'required' =&gt; true,
+    'validators' =&gt; [
+        ['type' =&gt; 'EmailAddress'],
+    ],
+]);
 
-// File upload input
-$file = new FileInput('file');           // Special File Input type
-$file-&gt;getValidatorChain()               // Validators are run first w/ FileInput
-     -&gt;attach(new Validator\File\UploadFile());
-$file-&gt;getFilterChain()                  // Filters are run second w/ FileInput
-     -&gt;attach(new Filter\File\RenameUpload([
-         'target'    =&gt; './data/tmpuploads/file',
-         'randomize' =&gt; true,
-     ]));
+// And, finally, compose our project sub-filter:
+$profileFilter-&gt;add($projectFilter, 'project');</code></pre>
 
-// Merge $_POST and $_FILES data together
-$request  = new Request();
-$postData = array_merge_recursive($request-&gt;getPost()-&gt;toArray(), $request-&gt;getFiles()-&gt;toArray());
+<p>With this defined, we can now validate the following sets of data, presented in
+JSON for readability:</p>
+<ul>
+<li>Just profile information:</li>
+</ul>
+<pre class="codehilite"><code class="language-json">{
+  &quot;email&quot;: &quot;user@example.com&quot;,
+  &quot;title&quot;: &quot;Software Developer&quot;
+}</code></pre>
 
-$inputFilter = new InputFilter();
-$inputFilter-&gt;add($description)
-            -&gt;add($file)
-            -&gt;setData($postData);
+<ul>
+<li><code>null</code> project provided:</li>
+</ul>
+<pre class="codehilite"><code class="language-json">{
+  &quot;email&quot;: &quot;user@example.com&quot;,
+  &quot;title&quot;: &quot;Software Developer&quot;,
+  &quot;project&quot;: null
+}</code></pre>
 
-if ($inputFilter-&gt;isValid()) {           // FileInput validators are run, but not the filters...
-    echo &quot;The form is valid\n&quot;;
-    $data = $inputFilter-&gt;getValues();   // This is when the FileInput filters are run.
-} else {
-    echo &quot;The form is not valid\n&quot;;
-    foreach ($inputFilter-&gt;getInvalidInput() as $error) {
-        print_r ($error-&gt;getMessages());
-    }
+<ul>
+<li>Empty project provided:</li>
+</ul>
+<pre class="codehilite"><code class="language-json">{
+  &quot;email&quot;: &quot;user@example.com&quot;,
+  &quot;title&quot;: &quot;Software Developer&quot;,
+  &quot;project&quot;: {}
+}</code></pre>
+
+<ul>
+<li>Valid project provided:</li>
+</ul>
+<pre class="codehilite"><code class="language-json">{
+  &quot;email&quot;: &quot;user@example.com&quot;,
+  &quot;title&quot;: &quot;Software Developer&quot;,
+  &quot;project&quot;: {
+    &quot;project_name&quot;: &quot;zend-inputfilter&quot;,
+    &quot;url&quot;: &quot;https://github.com/zend-inputfilter&quot;,
+  }
 }</code></pre>
 
 <hr />
 
-
-<nav>
-  <ul class="pager hidden-print">
-    <li class="previous">
-      <a rel="prev" href="../specs/"><i class="fa fa-arrow-left"></i> Previous</a>
-    </li>
-    <li class="next">
-      <a rel="next" href="../optional-input-filters/">Next <i class="fa fa-arrow-right"></i></a>
-    </li>
-  </ul>
-</nav>
 </div>
         
     </div>
