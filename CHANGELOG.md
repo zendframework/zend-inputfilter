@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.8.0 - TBD
+## 2.8.0 - 2017-12-04
 
 ### Added
 
@@ -35,6 +35,10 @@ All notable changes to this project will be documented in this file, in reverse 
 ## 2.7.6 - 2017-12-04
 
 ### Added
+
+- Nothing.
+
+### Changed
 
 - Nothing.
 
