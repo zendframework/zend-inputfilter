@@ -322,6 +322,15 @@ class InputTest extends TestCase
         $this->assertEmpty($validators);
     }
 
+    public function testFalseIsAllowedAsOptionalValue()
+    {
+        $input = $this->input;
+        $input->setRequired(false);
+        $input->setValue([false]);
+        $input->isValid();
+        $this->assertEmpty($input->getMessages());
+    }
+
     public function testDefaultGetValue()
     {
         $this->assertNull($this->input->getValue());
