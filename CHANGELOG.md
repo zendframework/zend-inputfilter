@@ -44,6 +44,11 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
+- [#160](https://github.com/zendframework/zend-inputfilter/pull/160) adds
+  zend-servicemanager as a direct requirement, rather than a suggestion. The
+  package has not worked without it since [#67](https://github.com/zendframework/zend-inputfilter/pull/67)
+  was merged for the 2.6.1 release.
+
 - [#161](https://github.com/zendframework/zend-inputfilter/pull/161) fixes an
   issue whereby an input filter receiving a `null` value to `setData()` would
   raise an exception, instead of being treated as an empty data set.
