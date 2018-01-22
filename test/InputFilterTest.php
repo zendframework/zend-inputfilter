@@ -78,4 +78,30 @@ class InputFilterTest extends BaseInputFilterTest
 
         return $factory;
     }
+
+    /**
+     * Particularly in APIs, a null value may be passed for a set of data
+     * rather than an object or array. This ensures that doing so will
+     * work consistently with passing an empty array.
+     *
+     * @see https://github.com/zendframework/zend-inputfilter/issues/159
+     */
+    public function testNestedInputFilterShouldAllowNullValueForData()
+    {
+        $filter1 = new InputFilter();
+        $filter1->add([
+            'type' => InputFilter::class,
+            'nestedField1' => [
+                'required' => false
+            ]
+        ], 'nested');
+
+        // Empty set of data
+        $filter1->setData([]);
+        self::assertNull($filter1->getValues()['nested']['nestedField1']);
+
+        // null provided for nested filter
+        $filter1->setData(['nested' => null]);
+        self::assertNull($filter1->getValues()['nested']['nestedField1']);
+    }
 }

@@ -44,7 +44,9 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#161](https://github.com/zendframework/zend-inputfilter/pull/161) fixes an
+  issue whereby an input filter receiving a `null` value to `setData()` would
+  raise an exception, instead of being treated as an empty data set.
 
 ## 2.8.0 - 2017-12-04
 
