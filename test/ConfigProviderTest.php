@@ -20,9 +20,6 @@ final class ConfigProviderTest extends TestCase
         $provider = new ConfigProvider();
 
         $expected = [
-            'abstract_factories' => [
-                InputFilterAbstractServiceFactory::class,
-            ],
             'aliases' => [
                 'InputFilterManager' => InputFilterPluginManager::class,
             ],
@@ -34,12 +31,26 @@ final class ConfigProviderTest extends TestCase
         $this->assertEquals($expected, $provider->getDependencyConfig());
     }
 
+    public function testProvidesExpectedInputFilterConfiguration()
+    {
+        $provider = new ConfigProvider();
+
+        $expected = [
+            'abstract_factories' => [
+                InputFilterAbstractServiceFactory::class,
+            ],
+        ];
+
+        $this->assertEquals($expected, $provider->getInputFilterConfig());
+    }
+
     public function testInvocationProvidesDependencyConfiguration()
     {
         $provider = new ConfigProvider();
 
         $expected = [
             'dependencies' => $provider->getDependencyConfig(),
+            'input_filters' => $provider->getInputFilterConfig(),
         ];
         $this->assertEquals($expected, $provider());
     }
