@@ -11,6 +11,7 @@ namespace ZendTest\InputFilter;
 
 use ArrayIterator;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use stdClass;
 use Zend\InputFilter\Factory;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
@@ -104,4 +105,45 @@ class InputFilterTest extends BaseInputFilterTest
         $filter1->setData(['nested' => null]);
         self::assertNull($filter1->getValues()['nested']['nestedField1']);
     }
+
+    public function testNestedInputFilterShouldAllowNonArrayValueForData()
+    {
+        $filter1 = new InputFilter();
+        $filter1->add([
+            'type' => InputFilter::class,
+            'nestedField1' => [
+                'required' => false
+            ]
+        ], 'nested');
+
+        // non scalar and non null value
+        $filter1->setData(['nested' => false]);
+        self::assertNull($filter1->getValues()['nested']['nestedField1']);
+
+        $filter1->setData(['nested' => 123]);
+        self::assertNull($filter1->getValues()['nested']['nestedField1']);
+
+        $filter1->setData(['nested' => new stdClass()]);
+        self::assertNull($filter1->getValues()['nested']['nestedField1']);
+    }
+
+    public function testInputFilterShouldAllowNonArrayValueForData() {
+        $filter1 = new InputFilter();
+        $filter1->add([
+            'type' => Input::class,
+            'required' => true
+        ], 'filter');
+
+        // non scalar and non null value
+        $filter1->setData(false);
+        self::assertNull($filter1->getValues()['filter']);
+
+        $filter1->setData(['nested' => 123]);
+        self::assertNull($filter1->getValues()['filter']);
+
+        $filter1->setData(['nested' => new stdClass()]);
+        self::assertNull($filter1->getValues()['filter']);
+    }
+
+
 }
