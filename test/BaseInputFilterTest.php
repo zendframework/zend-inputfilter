@@ -106,6 +106,16 @@ class BaseInputFilterTest extends TestCase
         $inputFilter->getRawValue('not exists');
     }
 
+    public function testSetDataWithInvalidDataTypeThrowsInvalidArgumentException()
+    {
+        $inputFilter = $this->inputFilter;
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('expects an array or Traversable argument; received stdClass');
+        /** @noinspection PhpParamsInspection */
+        $inputFilter->setData(new stdClass());
+    }
+
     public function testIsValidThrowExceptionIfDataWasNotSetYet()
     {
         $inputFilter = $this->inputFilter;
