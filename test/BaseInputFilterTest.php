@@ -106,6 +106,15 @@ class BaseInputFilterTest extends TestCase
         $inputFilter->getRawValue('not exists');
     }
 
+    public function testIsValidThrowExceptionIfDataWasNotSetYet()
+    {
+        $inputFilter = $this->inputFilter;
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('no data present to validate');
+        $inputFilter->isValid();
+    }
+
     public function testSetValidationGroupSkipsRecursionWhenInputIsNotAnInputFilter()
     {
         $inputFilter = $this->inputFilter;

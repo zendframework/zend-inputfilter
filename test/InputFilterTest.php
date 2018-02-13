@@ -126,24 +126,4 @@ class InputFilterTest extends BaseInputFilterTest
         $filter1->setData(['nested' => new stdClass()]);
         self::assertNull($filter1->getValues()['nested']['nestedField1']);
     }
-
-    public function testInputFilterShouldAllowNonArrayValueForData() {
-        $filter1 = new InputFilter();
-        $filter1->add([
-            'type' => Input::class,
-            'required' => true
-        ], 'filter');
-
-        // non scalar and non null value
-        $filter1->setData(false);
-        self::assertNull($filter1->getValues()['filter']);
-
-        $filter1->setData(['nested' => 123]);
-        self::assertNull($filter1->getValues()['filter']);
-
-        $filter1->setData(['nested' => new stdClass()]);
-        self::assertNull($filter1->getValues()['filter']);
-    }
-
-
 }
