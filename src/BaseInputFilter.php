@@ -524,7 +524,7 @@ class BaseInputFilter implements
 
             if ($input instanceof InputFilterInterface) {
                 // Fixes #159
-                if (! is_array($value) && !$value instanceof Traversable) {
+                if (! is_array($value) && ! $value instanceof Traversable) {
                     $value = [];
                 }
 
