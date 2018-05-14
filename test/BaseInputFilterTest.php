@@ -585,6 +585,24 @@ class BaseInputFilterTest extends TestCase
         );
     }
 
+    public function testNestedInputFilterShouldAllowNonArrayValueForData()
+    {
+        $filter1 = new BaseInputFilter();
+        $nestedFilter = new BaseInputFilter();
+        $nestedFilter->add(new Input('nestedField1'));
+        $filter1->add($nestedFilter, 'nested');
+
+        // non scalar and non null value
+        $filter1->setData(['nested' => false]);
+        self::assertNull($filter1->getValues()['nested']['nestedField1']);
+
+        $filter1->setData(['nested' => 123]);
+        self::assertNull($filter1->getValues()['nested']['nestedField1']);
+
+        $filter1->setData(['nested' => new stdClass()]);
+        self::assertNull($filter1->getValues()['nested']['nestedField1']);
+    }
+
     public function addMethodArgumentsProvider()
     {
         $inputTypes = $this->inputProvider();
