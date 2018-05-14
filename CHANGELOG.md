@@ -22,6 +22,12 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
+- [#163](https://github.com/zendframework/zend-inputfilter/pull/163) adds code to `BaseInputFilter::populate()` to detect non-iterable,
+  non-null values passed as a value for a composed input filter. Previously, these would trigger
+  an exception; they now instead result in an empty array being used to populate the
+  input filter, which will generally result in invalidation without causing an
+  exception.
+
 - [#162](https://github.com/zendframework/zend-inputfilter/pull/162) fixes incorrect abstract service factory registration in `ConfigProvider`as per
   the [latest documentation](https://docs.zendframework.com/zend-inputfilter/specs/#setup).  In particular, it ensures that the `InputFilterAbstractFactory`
   is registered under the `input_filters` configuration instead of the
