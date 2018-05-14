@@ -11,6 +11,7 @@ namespace ZendTest\InputFilter;
 
 use ArrayIterator;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use stdClass;
 use Zend\InputFilter\Factory;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;

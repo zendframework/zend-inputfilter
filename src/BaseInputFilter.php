@@ -523,6 +523,11 @@ class BaseInputFilter implements
             $value = $this->data[$name];
 
             if ($input instanceof InputFilterInterface) {
+                // Fixes #159
+                if (! is_array($value) && ! $value instanceof Traversable) {
+                    $value = [];
+                }
+
                 $input->setData($value);
                 continue;
             }
