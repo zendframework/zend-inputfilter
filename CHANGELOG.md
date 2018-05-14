@@ -44,7 +44,10 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#162](https://github.com/zendframework/zend-inputfilter/pull/162) fixes incorrect abstract service factory registration in `ConfigProvider`as per
+  the [latest documentation](https://docs.zendframework.com/zend-inputfilter/specs/#setup).  In particular, it ensures that the `InputFilterAbstractFactory`
+  is registered under the `input_filters` configuration instead of the
+  `dependencies` configuration.
 
 ## 2.8.1 - 2018-01-22
 
