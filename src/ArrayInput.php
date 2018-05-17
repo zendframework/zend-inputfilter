@@ -83,6 +83,14 @@ class ArrayInput extends Input
         $validator = $this->getValidatorChain();
         $values    = $this->getValue();
         $result    = true;
+        
+        if ($required && empty($values)) {
+            if ($this->errorMessage === null) {
+                $this->errorMessage = $this->prepareRequiredValidationFailureMessage();
+            }
+            return false;
+        }
+        
         foreach ($values as $value) {
             $empty = ($value === null || $value === '' || $value === []);
             if ($empty && ! $this->isRequired() && ! $this->continueIfEmpty()) {
