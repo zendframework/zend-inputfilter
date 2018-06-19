@@ -147,6 +147,8 @@ class CollectionInputFilter extends InputFilter
             ));
         }
 
+        $this->collectionRawValues = $data;
+
         foreach ($data as $item) {
             if (is_array($item) || $item instanceof Traversable) {
                 continue;
