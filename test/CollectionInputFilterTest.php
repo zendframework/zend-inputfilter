@@ -300,6 +300,51 @@ class CollectionInputFilterTest extends TestCase
         $this->assertSame($expectedIsValid, $mainInputFilter->isValid());
     }
 
+    public function testNestedCollectionRawValues()
+    {
+        $firstInputFilter = new InputFilter();
+
+        $firstCollection = new CollectionInputFilter();
+        $firstCollection->setInputFilter($firstInputFilter);
+
+        $someInput = new Input('input');
+        $secondInputFilter = new InputFilter();
+        $secondInputFilter->add($someInput, 'input');
+
+        $secondCollection = new CollectionInputFilter();
+        $secondCollection->setInputFilter($secondInputFilter);
+
+        $firstInputFilter->add($secondCollection, 'second_collection');
+
+        $mainInputFilter = new InputFilter();
+        $mainInputFilter->add($firstCollection, 'first_collection');
+
+        $data = [
+            'first_collection' => [
+                [
+                    'second_collection' => [
+                        [
+                            'input' => 'some value',
+                        ],
+                        [
+                            'input' => 'some value',
+                        ],
+                    ],
+                ],
+                [
+                    'second_collection' => [
+                        [
+                            'input' => 'some value',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $mainInputFilter->setData($data);
+        $this->assertEquals($data, $mainInputFilter->getRawValues(), 'getRawValues() value not match');
+    }
+
     public function inputFilterProvider()
     {
         $baseInputFilter = new BaseInputFilter();
