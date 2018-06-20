@@ -209,7 +209,6 @@ class CollectionInputFilter extends InputFilter
             }
 
             $this->collectionValues[$key] = $inputFilter->getValues();
-            $this->collectionRawValues[$key] = $inputFilter->getRawValues();
         }
 
         return $valid;
