@@ -314,6 +314,14 @@ class CollectionInputFilterTest extends TestCase
         $secondCollection = new CollectionInputFilter();
         $secondCollection->setInputFilter($secondInputFilter);
 
+        $thirdInputFilter = new InputFilter();
+        $thirdInputFilter->add($someInput, 'input');
+
+        $thirdCollection = new CollectionInputFilter();
+        $thirdCollection->setInputFilter($thirdInputFilter);
+
+        $secondInputFilter->add($thirdCollection, 'third_collection');
+
         $firstInputFilter->add($secondCollection, 'second_collection');
 
         $mainInputFilter = new InputFilter();
@@ -336,13 +344,30 @@ class CollectionInputFilterTest extends TestCase
                         [
                             'input' => 'some value',
                         ],
+                        [
+                            'third_collection' => [
+                                [
+                                    'input' => 'some value',
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ],
         ];
 
+        // Set data before cloning (so we don't have to set it more than once and so we test with the same data)
         $mainInputFilter->setData($data);
-        $this->assertEquals($data, $mainInputFilter->getRawValues(), 'getRawValues() value not match');
+
+        // Clone it
+        $testCollectionRawValuesAfterIsValid = clone $mainInputFilter;
+
+        // Test equality of data before running is`Valid
+        $this->assertEquals($data, $mainInputFilter->getRawValues(), 'getRawValues() value does not match after setData');
+
+        // Test if collectionRawValues data is equal to getRawValues after running isValid
+        $testCollectionRawValuesAfterIsValid->isValid();
+        $this->assertEquals($data, $testCollectionRawValuesAfterIsValid->getRawValues(), 'getRawValues() value does not match after running isValid');
     }
 
     public function inputFilterProvider()
