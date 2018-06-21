@@ -336,6 +336,7 @@ class CollectionInputFilterTest extends TestCase
                         ],
                         [
                             'input' => 'some value',
+                            'raw_only' => 'not in filters - should be in raw data',
                         ],
                     ],
                 ],
@@ -363,11 +364,19 @@ class CollectionInputFilterTest extends TestCase
         $testCollectionRawValuesAfterIsValid = clone $mainInputFilter;
 
         // Test equality of data before running is`Valid
-        $this->assertEquals($data, $mainInputFilter->getRawValues(), 'getRawValues() value does not match after setData');
+        $this->assertEquals(
+            $data,
+            $mainInputFilter->getRawValues(),
+            'getRawValues() value does not match after setData'
+        );
 
         // Test if collectionRawValues data is equal to getRawValues after running isValid
         $testCollectionRawValuesAfterIsValid->isValid();
-        $this->assertEquals($data, $testCollectionRawValuesAfterIsValid->getRawValues(), 'getRawValues() value does not match after running isValid');
+        $this->assertEquals(
+            $data,
+            $testCollectionRawValuesAfterIsValid->getRawValues(),
+            'getRawValues() value does not match after running isValid'
+        );
     }
 
     public function inputFilterProvider()
