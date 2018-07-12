@@ -32,10 +32,9 @@ class ArrayInputTest extends InputTest
         $input = $this->input;
         $input->setRequired(true);
         $input->setValue([]);
-        
         $this->assertFalse(
             $input->isValid(),
-            'isValid() should be return always false when no fallback value, is required, and not data is set.'
+            'isValid() should be return always false when no fallback value, is required, and value is empty array.'
         );
         $this->assertRequiredValidationErrorMessage($input);
     }
