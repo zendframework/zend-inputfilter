@@ -26,7 +26,7 @@ class ArrayInputTest extends InputTest
     {
         $this->assertCount(0, $this->input->getValue());
     }
-    
+
     public function testRequiredWithoutFallbackAndValueIsEmptyArrayThenFail()
     {
         $input = $this->input;
