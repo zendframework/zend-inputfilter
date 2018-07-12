@@ -26,6 +26,19 @@ class ArrayInputTest extends InputTest
     {
         $this->assertCount(0, $this->input->getValue());
     }
+    
+    public function testRequiredWithoutFallbackAndValueIsEmptyArrayThenFail()
+    {
+        $input = $this->input;
+        $input->setRequired(true);
+        $input->setValue([]);
+        
+        $this->assertFalse(
+            $input->isValid(),
+            'isValid() should be return always false when no fallback value, is required, and not data is set.'
+        );
+        $this->assertRequiredValidationErrorMessage($input);
+    }
 
     public function testSetValueWithInvalidInputTypeThrowsInvalidArgumentException()
     {
