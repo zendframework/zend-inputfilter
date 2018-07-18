@@ -10,6 +10,7 @@
 namespace Zend\InputFilter;
 
 use Traversable;
+use Zend\Validator\NotEmpty;
 
 class CollectionInputFilter extends InputFilter
 {
@@ -42,6 +43,11 @@ class CollectionInputFilter extends InputFilter
      * @var BaseInputFilter
      */
     protected $inputFilter;
+
+    /**
+     * @var NotEmpty
+     */
+    protected $notEmptyValidator;
 
     /**
      * Set the input filter to use when looping the data
@@ -165,6 +171,30 @@ class CollectionInputFilter extends InputFilter
     }
 
     /**
+     * @return NotEmpty
+     */
+    public function getNotEmptyValidator()
+    {
+        if ($this->notEmptyValidator === null) {
+            $this->notEmptyValidator = new NotEmpty();
+        }
+
+        return $this->notEmptyValidator;
+    }
+
+    /**
+     * @param NotEmpty $notEmptyValidator
+     *
+     * @return $this
+     */
+    public function setNotEmptyValidator(NotEmpty $notEmptyValidator)
+    {
+        $this->notEmptyValidator = $notEmptyValidator;
+
+        return $this;
+    }
+
+    /**
      * {@inheritdoc}
      * @param mixed $context Ignored, but present to retain signature compatibility.
      */
@@ -176,6 +206,7 @@ class CollectionInputFilter extends InputFilter
 
         if ($this->getCount() < 1) {
             if ($this->isRequired) {
+                $this->collectionMessages[] = $this->prepareRequiredValidationFailureMessage();
                 $valid = false;
             }
         }
@@ -294,5 +325,24 @@ class CollectionInputFilter extends InputFilter
         }
 
         return $unknownInputs;
+    }
+
+    /**
+     * @return array
+     */
+    protected function prepareRequiredValidationFailureMessage()
+    {
+        $notEmptyValidator = $this->getNotEmptyValidator();
+        $templates  = $notEmptyValidator->getOption('messageTemplates');
+        $message    = $templates[NotEmpty::IS_EMPTY];
+        $translator = $notEmptyValidator->getTranslator();
+
+        if ($translator) {
+            $message = $translator->translate($message, $notEmptyValidator->getTranslatorTextDomain());
+        }
+
+        return [
+            NotEmpty::IS_EMPTY => $message,
+        ];
     }
 }

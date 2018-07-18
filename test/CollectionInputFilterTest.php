@@ -171,7 +171,7 @@ class CollectionInputFilterTest extends TestCase
             'Required: F, Count: N, Valid: T'  => [!$isRequired, null, $colRaw, $validIF  , $colRaw, $colFiltered, true , []],
             'Required: F, Count: N, Valid: F'  => [!$isRequired, null, $colRaw, $invalidIF, $colRaw, $colFiltered, false, $colMessages],
             'Required: F, Count: +1, Valid: F' => [!$isRequired,    2, $colRaw, $invalidIF, $colRaw, $colFiltered, false, $colMessages],
-            'Required: T, Data: [], Valid: X'  => [ $isRequired, null, []     , $noValidIF, []     , []          , false, []],
+            'Required: T, Data: [], Valid: X'  => [ $isRequired, null, []     , $noValidIF, []     , []          , false, [['isEmpty' => 'Value is required and can\'t be empty']]],
             'Required: F, Data: [], Valid: X'  => [!$isRequired, null, []     , $noValidIF, []     , []          , true , []],
         ];
         // @codingStandardsIgnoreEnd
@@ -734,5 +734,40 @@ class CollectionInputFilterTest extends TestCase
                 ],
             ],
         ], $inputFilter->getMessages());
+    }
+
+    public function testSetNotEmptyValidator()
+    {
+        $notEmptyValidator = new NotEmpty();
+        $this->inputFilter->setNotEmptyValidator($notEmptyValidator);
+        $this->assertEquals(
+            $notEmptyValidator->getMessageTemplates()[NotEmpty::IS_EMPTY],
+            $this->inputFilter->getNotEmptyValidator()->getMessageTemplates()[NotEmpty::IS_EMPTY]
+        );
+
+        $value = 'foo';
+        $notEmptyValidator = new NotEmpty();
+        $notEmptyValidator->setMessage($value);
+        $this->inputFilter->setNotEmptyValidator($notEmptyValidator);
+        $this->assertEquals(
+            $value,
+            $this->inputFilter->getNotEmptyValidator()->getMessageTemplates()[NotEmpty::IS_EMPTY]
+        );
+    }
+
+    public function testGetNotEmptyValidator()
+    {
+        $notEmptyValidator = new NotEmpty();
+        $this->assertEquals(
+            $notEmptyValidator->getMessageTemplates()[NotEmpty::IS_EMPTY],
+            $this->inputFilter->getNotEmptyValidator()->getMessageTemplates()[NotEmpty::IS_EMPTY]
+        );
+
+        $value = 'foo';
+        $this->inputFilter->getNotEmptyValidator()->setMessage($value);
+        $this->assertEquals(
+            $value,
+            $this->inputFilter->getNotEmptyValidator()->getMessageTemplates()[NotEmpty::IS_EMPTY]
+        );
     }
 }
