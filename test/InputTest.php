@@ -329,8 +329,7 @@ class InputTest extends TestCase
 
     public function testValueMayBeInjected()
     {
-        $valueRaw = $this->
-            ();
+        $valueRaw = $this->getDummyValue();
 
         $this->input->setValue($valueRaw);
         $this->assertEquals($valueRaw, $this->input->getValue());
@@ -942,7 +941,7 @@ class InputTest extends TestCase
     protected function getDummyValue($raw = true)
     {
         if ($raw) {
-            return 'foo1';
+            return 'foo';
         } else {
             return 'filtered';
         }
