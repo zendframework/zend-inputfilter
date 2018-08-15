@@ -10,11 +10,12 @@
 namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use Zend\Diactoros\UploadedFile;
 use Zend\InputFilter\PsrFileInput;
 use Zend\Validator;
 
 /**
- * @covers Zend\InputFilter\PsrFileInput
+ * @covers \Zend\InputFilter\PsrFileInput
  */
 class PsrFileInputTest extends InputTest
 {
@@ -35,10 +36,10 @@ class PsrFileInputTest extends InputTest
 
     public function testRetrievingValueFiltersTheValueOnlyAfterValidating()
     {
-        $value = ['tmp_name' => 'bar'];
+        $value = new UploadedFile('bar', 1, 0);
         $this->input->setValue($value);
 
-        $newValue = ['tmp_name' => 'foo'];
+        $newValue = new UploadedFile('foo', 1, 0);
         $this->input->setFilterChain($this->createFilterChainMock([[$value, $newValue]]));
 
         $this->assertEquals($value, $this->input->getValue());
@@ -52,13 +53,13 @@ class PsrFileInputTest extends InputTest
     public function testCanFilterArrayOfMultiFileData()
     {
         $values = [
-            ['tmp_name' => 'foo'],
-            ['tmp_name' => 'bar'],
-            ['tmp_name' => 'baz'],
+            new UploadedFile('foo', 1, 0),
+            new UploadedFile('bar', 1, 0),
+            new UploadedFile('baz', 1, 0),
         ];
         $this->input->setValue($values);
 
-        $newValue = ['tmp_name' => 'new'];
+        $newValue = new UploadedFile('new', 1, 0);
         $filteredValue = [$newValue, $newValue, $newValue];
         $this->input->setFilterChain($this->createFilterChainMock([
             [$values[0], $newValue],
@@ -79,10 +80,10 @@ class PsrFileInputTest extends InputTest
 
     public function testCanRetrieveRawValue()
     {
-        $value = ['tmp_name' => 'bar'];
+        $value = new UploadedFile('bar', 1, 0);
         $this->input->setValue($value);
 
-        $newValue = ['tmp_name' => 'new'];
+        $newValue = new UploadedFile('new', 1, 0);
         $this->input->setFilterChain($this->createFilterChainMock([[$value, $newValue]]));
 
         $this->assertEquals($value, $this->input->getRawValue());
@@ -95,15 +96,15 @@ class PsrFileInputTest extends InputTest
 
     public function testValidationOperatesBeforeFiltering()
     {
-        $badValue = [
-            'tmp_name' => ' ' . __FILE__ . ' ',
-            'name'     => 'foo',
-            'size'     => 1,
-            'error'    => 0,
-        ];
+        $badValue = new UploadedFile(
+            ' ' . __FILE__ . ' ',
+            1,
+            0,
+            'foo'
+        );
         $this->input->setValue($badValue);
 
-        $filteredValue = ['tmp_name' => 'new'];
+        $filteredValue = new UploadedFile('new', 1, 0);
         $this->input->setFilterChain($this->createFilterChainMock([[$badValue, $filteredValue]]));
         $this->input->setValidatorChain($this->createValidatorChainMock([[$badValue, null, false]]));
 
@@ -122,18 +123,18 @@ class PsrFileInputTest extends InputTest
         $this->input->setAutoPrependUploadValidator(true);
         $this->assertTrue($this->input->getAutoPrependUploadValidator());
         $this->assertTrue($this->input->isRequired());
-        $this->input->setValue([
-            'tmp_name' => __FILE__,
-            'name'     => 'foo',
-            'size'     => 1,
-            'error'    => 0,
-        ]);
+        $this->input->setValue(new UploadedFile(
+            __FILE__,
+            1,
+            0,
+            'foo'
+        ));
         $validatorChain = $this->input->getValidatorChain();
-        $this->assertEquals(0, count($validatorChain->getValidators()));
+        $this->assertCount(0, $validatorChain->getValidators());
 
         $this->assertFalse($this->input->isValid());
         $validators = $validatorChain->getValidators();
-        $this->assertEquals(1, count($validators));
+        $this->assertCount(1, $validators);
         $this->assertInstanceOf(Validator\File\UploadFile::class, $validators[0]['instance']);
     }
 
@@ -141,7 +142,7 @@ class PsrFileInputTest extends InputTest
     {
         $this->assertFalse($this->input->getAutoPrependUploadValidator());
         $this->assertTrue($this->input->isRequired());
-        $this->input->setValue(['tmp_name' => 'bar']);
+        $this->input->setValue(new UploadedFile('bar', 1, 0));
         $validatorChain = $this->input->getValidatorChain();
         $this->assertEquals(0, count($validatorChain->getValidators()));
 
@@ -157,7 +158,7 @@ class PsrFileInputTest extends InputTest
         $this->input->setAutoPrependUploadValidator(true);
         $this->assertTrue($this->input->getAutoPrependUploadValidator());
         $this->assertTrue($this->input->isRequired());
-        $this->input->setValue(['tmp_name' => 'bar']);
+        $this->input->setValue(new UploadedFile('bar', 1, 0));
 
         /** @var Validator\File\UploadFile|MockObject $uploadMock */
         $uploadMock = $this->getMockBuilder(Validator\File\UploadFile::class)
@@ -177,24 +178,6 @@ class PsrFileInputTest extends InputTest
         $validators = $validatorChain->getValidators();
         $this->assertEquals(1, count($validators));
         $this->assertEquals($uploadMock, $validators[0]['instance']);
-    }
-
-    public function testValidationsRunWithoutFileArrayDueToAjaxPost()
-    {
-        $this->input->setAutoPrependUploadValidator(true);
-        $this->assertTrue($this->input->getAutoPrependUploadValidator());
-        $this->assertTrue($this->input->isRequired());
-        $this->input->setValue('');
-
-        $expectedNormalizedValue = [
-            'tmp_name' => '',
-            'name' => '',
-            'size' => 0,
-            'type' => '',
-            'error' => UPLOAD_ERR_NO_FILE,
-        ];
-        $this->input->setValidatorChain($this->createValidatorChainMock([[$expectedNormalizedValue, null, false]]));
-        $this->assertFalse($this->input->isValid());
     }
 
     public function testNotEmptyValidatorAddedWhenIsValidIsCalled($value = null)
@@ -225,50 +208,49 @@ class PsrFileInputTest extends InputTest
         $this->markTestSkipped('Input::setFallbackValue is not implemented on PsrFileInput');
     }
 
-    public function testIsEmptyFileNotArray()
-    {
-        $rawValue = 'file';
-        $this->assertTrue($this->input->isEmptyFile($rawValue));
-    }
-
     public function testIsEmptyFileUploadNoFile()
     {
-        $rawValue = [
-            'tmp_name' => '',
-            'error' => \UPLOAD_ERR_NO_FILE,
-        ];
+        $rawValue = new UploadedFile(
+            '',
+            0,
+            UPLOAD_ERR_NO_FILE
+        );
         $this->assertTrue($this->input->isEmptyFile($rawValue));
     }
 
     public function testIsEmptyFileOk()
     {
-        $rawValue = [
-            'tmp_name' => 'name',
-            'error' => \UPLOAD_ERR_OK,
-        ];
+        $rawValue = new UploadedFile(
+            'name',
+            1,
+            UPLOAD_ERR_OK
+        );
         $this->assertFalse($this->input->isEmptyFile($rawValue));
     }
 
     public function testIsEmptyMultiFileUploadNoFile()
     {
-        $rawValue = [[
-            'tmp_name' => 'foo',
-            'error'    => \UPLOAD_ERR_NO_FILE,
-        ]];
+        $rawValue = [new UploadedFile(
+            'foo',
+            0,
+            UPLOAD_ERR_NO_FILE
+         )];
         $this->assertTrue($this->input->isEmptyFile($rawValue));
     }
 
     public function testIsEmptyFileMultiFileOk()
     {
         $rawValue = [
-            [
-                'tmp_name' => 'foo',
-                'error'    => \UPLOAD_ERR_OK,
-            ],
-            [
-                'tmp_name' => 'bar',
-                'error'    => \UPLOAD_ERR_OK,
-            ],
+            new UploadedFile(
+                'foo',
+                1,
+                UPLOAD_ERR_OK
+            ),
+            new UploadedFile(
+                'bar',
+                1,
+                UPLOAD_ERR_OK
+            ),
         ];
         $this->assertFalse($this->input->isEmptyFile($rawValue));
     }
@@ -309,47 +291,42 @@ class PsrFileInputTest extends InputTest
     public function emptyValueProvider()
     {
         return [
-            'tmp_name' => [
-                'raw' => 'file',
-                'filtered' => [
-                    'tmp_name' => 'file',
-                    'name' => 'file',
-                    'size' => 0,
-                    'type' => '',
-                    'error' => UPLOAD_ERR_NO_FILE,
-                ],
-            ],
             'single' => [
-                'raw' => [
-                    'tmp_name' => '',
-                    'error' => UPLOAD_ERR_NO_FILE,
-                ],
-                'filtered' => [
-                    'tmp_name' => '',
-                    'error' => UPLOAD_ERR_NO_FILE,
-                ],
+                'raw' => new UploadedFile(
+                    '',
+                    0,
+                    UPLOAD_ERR_NO_FILE
+                ),
+                'filtered' => new UploadedFile(
+                    '',
+                    0,
+                    UPLOAD_ERR_NO_FILE
+                ),
             ],
             'multi' => [
                 'raw' => [
-                    [
-                        'tmp_name' => 'foo',
-                        'error' => UPLOAD_ERR_NO_FILE,
-                    ],
+                    new UploadedFile(
+                        'foo',
+                        0,
+                        UPLOAD_ERR_NO_FILE
+                    ),
                 ],
-                'filtered' => [
-                    'tmp_name' => 'foo',
-                    'error' => UPLOAD_ERR_NO_FILE,
-                ],
+                'filtered' => new UploadedFile(
+                    'foo',
+                    0,
+                    UPLOAD_ERR_NO_FILE
+                ),
             ],
         ];
     }
 
     public function mixedValueProvider()
     {
-        $fooUploadErrOk = [
-            'tmp_name' => 'foo',
-            'error' => UPLOAD_ERR_OK,
-        ];
+        $fooUploadErrOk = new UploadedFile(
+            'foo',
+            1,
+            UPLOAD_ERR_OK
+        );
 
         return [
             'single' => [
@@ -367,6 +344,6 @@ class PsrFileInputTest extends InputTest
 
     protected function getDummyValue($raw = true)
     {
-        return ['tmp_name' => 'bar'];
+        return new UploadedFile('bar', 0, 0);
     }
 }

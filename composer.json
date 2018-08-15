@@ -28,16 +28,24 @@
         "slack": "https://zendframework-slack.herokuapp.com",
         "forum": "https://discourse.zendframework.com/c/questions/expressive"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/alextech/zend-validator"
+        }
+    ],
     "require": {
         "php": "^5.6 || ^7.0",
+        "psr/http-message": "^1.0",
         "zendframework/zend-filter": "^2.6",
+        "zendframework/zend-servicemanager": "^2.7.10 || ^3.3.1",
         "zendframework/zend-stdlib": "^2.7 || ^3.0",
-        "zendframework/zend-validator": "^2.10.1",
-        "zendframework/zend-servicemanager": "^2.7.10 || ^3.3.1"
+        "zendframework/zend-validator": "dev-feature/psr-uploadfile"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.7.23 || ^6.4.3",
-        "zendframework/zend-coding-standard": "~1.0.0"
+        "zendframework/zend-coding-standard": "~1.0.0",
+        "zendframework/zend-diactoros": "^1.8"
     },
     "autoload": {
         "psr-4": {

@@ -9,6 +9,8 @@
 
 namespace Zend\InputFilter;
 
+use Psr\Http\Message\UploadedFileInterface;
+use Zend\Diactoros\UploadedFile;
 use Zend\Validator\File\UploadFile as UploadValidator;
 
 /**
@@ -61,23 +63,23 @@ class PsrFileInput extends Input
     public function getValue()
     {
         $value = $this->value;
-        if ($this->isValid && is_array($value)) {
+        if ($this->isValid && $value instanceof UploadedFileInterface) {
+            // Single file input
+
             // Run filters ~after~ validation, so that is_uploaded_file()
             // validation is not affected by filters.
             $filter = $this->getFilterChain();
-            if (isset($value['tmp_name'])) {
-                // Single file input
-                $value = $filter->filter($value);
-            } else {
-                // Multi file input (multiple attribute set)
-                $newValue = [];
-                foreach ($value as $fileData) {
-                    if (is_array($fileData) && isset($fileData['tmp_name'])) {
-                        $newValue[] = $filter->filter($fileData);
-                    }
-                }
-                $value = $newValue;
+
+            $value = $filter->filter($value);
+        } elseif ($this->isValid && \is_array($value)) {
+            // Multi file input (multiple attribute set)
+            $filter = $this->getFilterChain();
+
+            $newValue = [];
+            foreach ($value as $fileData) {
+                $newValue[] = $filter->filter($fileData);
             }
+            $value = $newValue;
         }
 
         return $value;
@@ -86,21 +88,17 @@ class PsrFileInput extends Input
     /**
      * Checks if the raw input value is an empty file input eg: no file was uploaded
      *
-     * @param $rawValue
+     * @param UploadedFile|array $rawValue
      * @return bool
      */
     public function isEmptyFile($rawValue)
     {
-        if (! is_array($rawValue)) {
-            return true;
-        }
-
-        if (isset($rawValue['error']) && $rawValue['error'] === UPLOAD_ERR_NO_FILE) {
-            return true;
-        }
-
-        if (count($rawValue) === 1 && isset($rawValue[0])) {
+        if (\is_array($rawValue) && $rawValue[0] instanceof UploadedFile) {
             return $this->isEmptyFile($rawValue[0]);
+        }
+
+        if ($rawValue instanceof UploadedFile && $rawValue->getError() === UPLOAD_ERR_NO_FILE) {
+            return true;
         }
 
         return false;
@@ -142,20 +140,10 @@ class PsrFileInput extends Input
         $validator = $this->getValidatorChain();
         //$value   = $this->getValue(); // Do not run the filters yet for File uploads (see getValue())
 
-        if (! is_array($rawValue)) {
-            // This can happen in an AJAX POST, where the input comes across as a string
-            $rawValue = [
-                'tmp_name' => $rawValue,
-                'name'     => $rawValue,
-                'size'     => 0,
-                'type'     => '',
-                'error'    => UPLOAD_ERR_NO_FILE,
-            ];
-        }
-        if (is_array($rawValue) && isset($rawValue['tmp_name'])) {
+        if ($rawValue instanceof UploadedFileInterface) {
             // Single file input
             $this->isValid = $validator->isValid($rawValue, $context);
-        } elseif (is_array($rawValue) && isset($rawValue[0]['tmp_name'])) {
+        } elseif (\is_array($rawValue) && $rawValue[0] instanceof UploadedFileInterface) {
             // Multi file input (multiple attribute set)
             $this->isValid = true;
             foreach ($rawValue as $value) {
