@@ -14,11 +14,11 @@ use Zend\Diactoros\UploadedFile;
 use Zend\Validator\File\UploadFile as UploadValidator;
 
 /**
- * FileInput is a special Input type for handling uploaded files.
+ * PsrFileInput is a special Input type for handling uploaded files through  PSR-7 middlware.
  *
  * It differs from Input in a few ways:
  *
- * 1. It expects the raw value to be in the $_FILES array format.
+ * 1. It expects the raw value to be instance of UploadedFileInterface object type.
  *
  * 2. The validators are run **before** the filters (the opposite behavior of Input).
  *    This is so is_uploaded_file() validation can be run prior to any filters that
