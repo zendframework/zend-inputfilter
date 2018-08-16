@@ -31,13 +31,19 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/alextech/zend-validator"
+            "url": "https://github.com/alextech/zend-validator",
+            "no-api": true
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/alextech/zend-filter",
+            "no-api": true
         }
     ],
     "require": {
         "php": "^5.6 || ^7.0",
         "psr/http-message": "^1.0",
-        "zendframework/zend-filter": "^2.6",
+        "zendframework/zend-filter": "dev-feature/psr-uploadfile",
         "zendframework/zend-servicemanager": "^2.7.10 || ^3.3.1",
         "zendframework/zend-stdlib": "^2.7 || ^3.0",
         "zendframework/zend-validator": "dev-feature/psr-uploadfile"
