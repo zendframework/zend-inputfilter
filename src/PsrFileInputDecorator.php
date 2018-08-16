@@ -37,20 +37,19 @@ class PsrFileInputDecorator extends FileInput implements FileInputDecoratorInter
     }
 
     /**
-     * @return mixed
+     * @return UploadedFileInterface|array
      */
     public function getValue()
     {
         $value = $this->subject->value;
-        if ($this->subject->isValid && $value instanceof UploadedFileInterface) {
-            // Single file input
 
-            // Run filters ~after~ validation, so that is_uploaded_file()
-            // validation is not affected by filters.
-            $filter = $this->subject->getFilterChain();
+        // Run filters ~after~ validation, so that is_uploaded_file()
+        // validation is not affected by filters.
+        if (! $this->subject->isValid) {
+            return $value;
+        }
 
-            $value = $filter->filter($value);
-        } elseif ($this->subject->isValid && \is_array($value)) {
+        if (\is_array($value)) {
             // Multi file input (multiple attribute set)
             $filter = $this->subject->getFilterChain();
 
@@ -59,6 +58,11 @@ class PsrFileInputDecorator extends FileInput implements FileInputDecoratorInter
                 $newValue[] = $filter->filter($fileData);
             }
             $value = $newValue;
+        } else {
+            // Single file input
+
+            $filter = $this->subject->getFilterChain();
+            $value = $filter->filter($value);
         }
 
         return $value;
@@ -92,10 +96,7 @@ class PsrFileInputDecorator extends FileInput implements FileInputDecoratorInter
 
         //$value   = $this->getValue(); // Do not run the filters yet for File uploads (see getValue())
 
-        if ($rawValue instanceof UploadedFileInterface) {
-            // Single file input
-            $this->subject->isValid = $validator->isValid($rawValue, $context);
-        } elseif (\is_array($rawValue)) {
+        if (\is_array($rawValue)) {
             // Multi file input (multiple attribute set)
             $this->subject->isValid = true;
             foreach ($rawValue as $value) {
@@ -104,6 +105,9 @@ class PsrFileInputDecorator extends FileInput implements FileInputDecoratorInter
                     break; // Do not continue processing files if validation fails
                 }
             }
+        } else {
+            // Single file input
+            $this->subject->isValid = $validator->isValid($rawValue, $context);
         }
 
         return $this->subject->isValid;
