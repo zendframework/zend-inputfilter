@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
+- [#172](https://github.com/zendframework/zend-inputfilter/pull/172) adds support for PSR-7 `UploadedFileInterface` to `Zend\InputFilter\FileInput`.
+  It adds a new interface, `Zend\InputFilter\FileInput\FileInputDecoratorInterface`, 
+  which defines methods required for validating and filtering file uploads. It
+  also provides two implementations of it, one for standard SAPI file uploads,
+  and the other for PSR-7 uploads. The `FileInput` class does detection on the
+  value being tested and decorates itself using the appropriate decorator, which
+  then performs the work of validating and filtering the upload or uploads.
+
 - [#170](https://github.com/zendframework/zend-inputfilter/pull/170) adds the ability to set a "required" message on a `CollectionInputFilter`.
   By default, such instances will lazy-load a `NotEmpty` validator, and use its
   messages to report that the collection was empty if it is marked as required.
