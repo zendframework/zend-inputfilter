@@ -11,20 +11,23 @@ namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Zend\Diactoros\UploadedFile;
-use Zend\InputFilter\PsrFileInput;
+use Zend\InputFilter\FileInput;
+use Zend\InputFilter\PsrFileInputDecorator;
 use Zend\Validator;
 
 /**
- * @covers \Zend\InputFilter\PsrFileInput
+ * @covers \Zend\InputFilter\PsrFileInputDecorator
+ * @covers \Zend\InputFilter\FileInput
  */
-class PsrFileInputTest extends InputTest
+class PsrFileInputDecoratorTest extends InputTest
 {
-    /** @var PsrFileInput */
+    /** @var PsrFileInputDecorator */
     protected $input;
 
     public function setUp()
     {
-        $this->input = new PsrFileInput('foo');
+
+        $this->input = new FileInput('foo');
         // Upload validator does not work in CLI test environment, disable
         $this->input->setAutoPrependUploadValidator(false);
     }
@@ -114,7 +117,7 @@ class PsrFileInputTest extends InputTest
 
     public function testAutoPrependUploadValidatorIsOnByDefault()
     {
-        $input = new PsrFileInput('foo');
+        $input = new FileInput('foo');
         $this->assertTrue($input->getAutoPrependUploadValidator());
     }
 
@@ -260,7 +263,7 @@ class PsrFileInputTest extends InputTest
      */
     public function testPsrFileInputMerge()
     {
-        $source = new PsrFileInput();
+        $source = new FileInput();
         $source->setAutoPrependUploadValidator(true);
 
         $target = $this->input;

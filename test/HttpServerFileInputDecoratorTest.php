@@ -11,14 +11,15 @@ namespace ZendTest\InputFilter;
 
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Zend\InputFilter\FileInput;
+use Zend\InputFilter\HttpServerFileInputDecorator;
 use Zend\Validator;
 
 /**
- * @covers Zend\InputFilter\FileInput
+ * @covers \Zend\InputFilter\FileInput
  */
-class FileInputTest extends InputTest
+class HttpServerFileInputDecoratorTest extends InputTest
 {
-    /** @var FileInput */
+    /** @var HttpServerFileInputDecorator */
     protected $input;
 
     public function setUp()
