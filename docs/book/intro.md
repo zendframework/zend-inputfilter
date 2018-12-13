@@ -70,7 +70,7 @@ $input->getFilterChain()
       ->attachByName('alpha');
 
 $inputFilter = new InputFilter();
-$inputFilter->add($input)
+$inputFilter->add($input);
 $inputFilter->setData([
     'foo' => ' Bar3 ',
 ]);
