@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.8.3 - TBD
+## 2.8.3 - 2018-12-13
 
 ### Added
 
@@ -22,7 +22,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#167](https://github.com/zendframework/zend-inputfilter/pull/167) fixes the combination of marking an `ArrayInput` required, and passing an
+  empty array for validation; it now correctly detects these as invalid.
 
 ## 2.8.2 - 2018-05-14
 
