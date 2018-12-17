@@ -319,6 +319,9 @@ class Factory
             if (isset($inputFilterSpecification['required'])) {
                 $inputFilter->setIsRequired($inputFilterSpecification['required']);
             }
+            if (isset($inputFilterSpecification['required_message'])) {
+                $inputFilter->getNotEmptyValidator()->setMessage($inputFilterSpecification['required_message']);
+            }
             return $inputFilter;
         }
 
