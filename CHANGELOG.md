@@ -6,7 +6,17 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
-- Nothing.
+- [#170](https://github.com/zendframework/zend-inputfilter/pull/170) adds the ability to set a "required" message on a `CollectionInputFilter`.
+  By default, such instances will lazy-load a `NotEmpty` validator, and use its
+  messages to report that the collection was empty if it is marked as required.
+  If you wish to set a different message, you have two options:
+
+  - provide a custom `NotEmpty` validator via the new method
+    `setNotEmptyValidator()`.
+
+  - if using a factory, provide the key `required_message` as a sibling to
+    `required`, containing the custom message. This will replace the typical
+    `IS_EMPTY` message.
 
 ### Changed
 
