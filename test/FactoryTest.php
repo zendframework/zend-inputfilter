@@ -1038,6 +1038,28 @@ class FactoryTest extends TestCase
         $this->assertSame($input->reveal(), $factory->createInput($spec));
     }
 
+    public function testFactoryCanCreateCollectionInputFilterWithRequiredMessage()
+    {
+        $factory = $this->createDefaultFactory();
+        $message = 'this is the validation message';
+
+        /** @var CollectionInputFilter $inputFilter */
+        $inputFilter = $factory->createInputFilter([
+            'type'             => CollectionInputFilter::class,
+            'required'         => true,
+            'required_message' => $message,
+            'inputfilter'      => new InputFilter(),
+            'count'            => 3,
+        ]);
+
+        $this->assertInstanceOf(CollectionInputFilter::class, $inputFilter);
+
+        $notEmptyValidator = $inputFilter->getNotEmptyValidator();
+        $messageTemplates  = $notEmptyValidator->getMessageTemplates();
+        $this->assertArrayHasKey(Validator\NotEmpty::IS_EMPTY, $messageTemplates);
+        $this->assertSame($message, $messageTemplates[Validator\NotEmpty::IS_EMPTY]);
+    }
+
     /**
      * @return Factory
      */
