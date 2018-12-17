@@ -1,18 +1,21 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-inputfilter for the canonical source repository
+ * @copyright Copyright (c) 2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-inputfilter/blob/master/LICENSE.md New BSD License
  */
 
-namespace Zend\InputFilter;
+namespace Zend\InputFilter\FileInput;
 
+use Zend\InputFilter\FileInput;
 use Zend\Validator\File\UploadFile as UploadValidator;
+use Zend\Validator\ValidatorChain;
+
+use function count;
+use function is_array;
 
 /**
- * FileInput is a special Input type for handling uploaded files.
+ * Decorator for filtering standard SAPI file uploads.
  *
  * It differs from Input in a few ways:
  *
@@ -29,39 +32,6 @@ class HttpServerFileInputDecorator extends FileInput implements FileInputDecorat
 {
     /** @var FileInput */
     private $subject;
-
-    public function __construct(FileInput $subject)
-    {
-        $this->subject = $subject;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getValue()
-    {
-        $value = $this->subject->value;
-        if ($this->subject->isValid && is_array($value)) {
-            // Run filters ~after~ validation, so that is_uploaded_file()
-            // validation is not affected by filters.
-            $filter = $this->subject->getFilterChain();
-            if (isset($value['tmp_name'])) {
-                // Single file input
-                $value = $filter->filter($value);
-            } else {
-                // Multi file input (multiple attribute set)
-                $newValue = [];
-                foreach ($value as $fileData) {
-                    if (is_array($fileData) && isset($fileData['tmp_name'])) {
-                        $newValue[] = $filter->filter($fileData);
-                    }
-                }
-                $value = $newValue;
-            }
-        }
-
-        return $value;
-    }
 
     /**
      * Checks if the raw input value is an empty file input eg: no file was uploaded
@@ -86,17 +56,50 @@ class HttpServerFileInputDecorator extends FileInput implements FileInputDecorat
         return false;
     }
 
+    public function __construct(FileInput $subject)
+    {
+        $this->subject = $subject;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        $value = $this->subject->value;
+
+        if (! $this->subject->isValid || ! is_array($value)) {
+            return $value;
+        }
+
+        // Run filters ~after~ validation, so that is_uploaded_file()
+        // validation is not affected by filters.
+        $filter = $this->subject->getFilterChain();
+        if (isset($value['tmp_name'])) {
+            // Single file input
+            $value = $filter->filter($value);
+            return $value;
+        }
+
+        // Multi file input (multiple attribute set)
+        $newValue = [];
+        foreach ($value as $fileData) {
+            if (is_array($fileData) && isset($fileData['tmp_name'])) {
+                $newValue[] = $filter->filter($fileData);
+            }
+        }
+
+        return $newValue;
+    }
+
     /**
      * @param  mixed $context Extra "context" to provide the validator
      * @return bool
      */
     public function isValid($context = null)
     {
-        $rawValue        = $this->subject->getRawValue();
-        $validator       = $this->subject->getValidatorChain();
-        $this->injectUploadValidator();
-
-        //$value   = $this->getValue(); // Do not run the filters yet for File uploads (see getValue())
+        $rawValue  = $this->subject->getRawValue();
+        $validator = $this->injectUploadValidator($this->subject->getValidatorChain());
 
         if (! is_array($rawValue)) {
             // This can happen in an AJAX POST, where the input comes across as a string
@@ -108,32 +111,38 @@ class HttpServerFileInputDecorator extends FileInput implements FileInputDecorat
                 'error'    => UPLOAD_ERR_NO_FILE,
             ];
         }
+
         if (is_array($rawValue) && isset($rawValue['tmp_name'])) {
             // Single file input
             $this->subject->isValid = $validator->isValid($rawValue, $context);
-        } elseif (is_array($rawValue) && isset($rawValue[0]['tmp_name'])) {
+            return $this->subject->isValid;
+        }
+
+        if (is_array($rawValue) && isset($rawValue[0]['tmp_name'])) {
             // Multi file input (multiple attribute set)
             $this->subject->isValid = true;
+
             foreach ($rawValue as $value) {
                 if (! $validator->isValid($value, $context)) {
                     $this->subject->isValid = false;
-                    break; // Do not continue processing files if validation fails
+                    return false; // Do not continue processing files if validation fails
                 }
             }
+
+            return true; // We return early from the loop if validation fails
         }
 
         return $this->subject->isValid;
     }
 
     /**
-     * @return void
+     * @return ValidatorChain
      */
-    protected function injectUploadValidator()
+    protected function injectUploadValidator(ValidatorChain $chain)
     {
         if (! $this->subject->autoPrependUploadValidator) {
-            return;
+            return $chain;
         }
-        $chain = $this->subject->getValidatorChain();
 
         // Check if Upload validator is already first in chain
         $validators = $chain->getValidators();
@@ -141,10 +150,12 @@ class HttpServerFileInputDecorator extends FileInput implements FileInputDecorat
             && $validators[0]['instance'] instanceof UploadValidator
         ) {
             $this->subject->autoPrependUploadValidator = false;
-            return;
+            return $chain;
         }
 
-        $chain->prependByName('fileuploadfile', [], true);
+        $chain->prependByName(UploadValidator::class, [], true);
         $this->subject->autoPrependUploadValidator = false;
+
+        return $chain;
     }
 }

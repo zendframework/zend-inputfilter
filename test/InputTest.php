@@ -1,14 +1,13 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-inputfilter for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-inputfilter/blob/master/LICENSE.md New BSD License
  */
 
 namespace ZendTest\InputFilter;
 
+use Iterator;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -664,6 +663,9 @@ class InputTest extends TestCase
         $emptyValues = $this->emptyValueProvider();
         $mixedValues = $this->mixedValueProvider();
 
+        $emptyValues = $emptyValues instanceof Iterator ? iterator_to_array($emptyValues) : $emptyValues;
+        $mixedValues = $mixedValues instanceof Iterator ? iterator_to_array($mixedValues) : $mixedValues;
+
         $values = array_merge($emptyValues, $mixedValues);
 
         return $values;
@@ -672,7 +674,10 @@ class InputTest extends TestCase
     public function isRequiredVsAllowEmptyVsContinueIfEmptyVsIsValidProvider()
     {
         $allValues = $this->setValueProvider();
+
         $emptyValues = $this->emptyValueProvider();
+        $emptyValues = $emptyValues instanceof Iterator ? iterator_to_array($emptyValues) : $emptyValues;
+
         $nonEmptyValues = array_diff_key($allValues, $emptyValues);
 
         $isRequired = true;
@@ -694,7 +699,7 @@ class InputTest extends TestCase
         };
 
         // @codingStandardsIgnoreStart
-        $dataTemplates=[
+        $dataTemplates = [
             // Description => [$isRequired, $allowEmpty, $continueIfEmpty, $validator, [$values], $expectedIsValid, $expectedMessages]
             'Required: T; AEmpty: T; CIEmpty: T; Validator: T'                   => [ $isRequired,  $aEmpty,  $cIEmpty, $validatorValid  , $allValues     ,  $isValid, []],
             'Required: T; AEmpty: T; CIEmpty: T; Validator: F'                   => [ $isRequired,  $aEmpty,  $cIEmpty, $validatorInvalid, $allValues     , !$isValid, $validatorMsg],

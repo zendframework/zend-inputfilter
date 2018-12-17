@@ -1,27 +1,27 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-inputfilter for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-inputfilter/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\InputFilter;
 
 use Psr\Http\Message\UploadedFileInterface;
-use Zend\Diactoros\UploadedFile;
+
+use function is_array;
 
 /**
  * FileInput is a special Input type for handling uploaded files.
  *
  * It differs from Input in a few ways:
  *
- * 1. It expects the raw value to be in the $_FILES array format.
+ * 1. It expects the raw value to either be in the $_FILES array format, or an
+ *    array of PSR-7 UploadedFileInterface instances.
  *
  * 2. The validators are run **before** the filters (the opposite behavior of Input).
- *    This is so is_uploaded_file() validation can be run prior to any filters that
- *    may rename/move/modify the file.
+ *    This is so validation can be run prior to any filters that may
+ *    rename/move/modify the file.
  *
  * 3. Instead of adding a NotEmpty validator, it will (by default) automatically add
  *    a Zend\Validator\File\Upload validator.
@@ -38,8 +38,8 @@ class FileInput extends Input
      */
     protected $autoPrependUploadValidator = true;
 
-    /** @var FileInputDecoratorInterface */
-    private $filterImpl;
+    /** @var FileInput\FileInputDecoratorInterface */
+    private $implementation;
 
     /**
      * @param array|UploadedFile $value
@@ -48,31 +48,16 @@ class FileInput extends Input
      */
     public function setValue($value)
     {
-        if(\is_array($value)) {
-            if (isset($value[0]) && $value[0] instanceof UploadedFileInterface) {
-                $this->filterImpl = new PsrFileInputDecorator($this);
-            } else {
-                $this->filterImpl = new HttpServerFileInputDecorator($this);
-            }
-        } elseif ($value instanceof UploadedFileInterface) {
-            $this->filterImpl = new PsrFileInputDecorator($this);
-        } else {
-            // ajax case
-            $this->filterImpl = new HttpServerFileInputDecorator($this);
-        }
-
-
+        $this->implementation = $this->createDecoratorImplementation($value);
         parent::setValue($value);
-
         return $this;
     }
 
     public function resetValue()
     {
-        $this->filterImpl = null;
+        $this->implementation = null;
         return parent::resetValue();
     }
-
 
     /**
      * @param  bool $value Enable/Disable automatically prepending an Upload validator
@@ -98,10 +83,10 @@ class FileInput extends Input
      */
     public function getValue()
     {
-        if ($this->filterImpl === null) {
+        if ($this->implementation === null) {
             return $this->value;
         }
-        return $this->filterImpl->getValue();
+        return $this->implementation->getValue();
     }
 
     /**
@@ -112,16 +97,16 @@ class FileInput extends Input
      */
     public function isEmptyFile($rawValue)
     {
-        if (\is_array($rawValue)) {
-            if (isset($rawValue[0]) && $rawValue[0] instanceof UploadedFileInterface) {
-                return PsrFileInputDecorator::isEmptyFileDecorator($rawValue);
-            }
-
-            return HttpServerFileInputDecorator::isEmptyFileDecorator($rawValue);
+        if ($rawValue instanceof UploadedFileInterface) {
+            return FileInput\PsrFileInputDecorator::isEmptyFileDecorator($rawValue);
         }
 
-        if($rawValue instanceof UploadedFileInterface) {
-            return PsrFileInputDecorator::isEmptyFileDecorator($rawValue);
+        if (is_array($rawValue)) {
+            if (isset($rawValue[0]) && $rawValue[0] instanceof UploadedFileInterface) {
+                return FileInput\PsrFileInputDecorator::isEmptyFileDecorator($rawValue);
+            }
+
+            return FileInput\HttpServerFileInputDecorator::isEmptyFileDecorator($rawValue);
         }
 
         return true;
@@ -159,7 +144,7 @@ class FileInput extends Input
             return true;
         }
 
-        return $this->filterImpl->isValid($context);
+        return $this->implementation->isValid($context);
     }
 
     /**
@@ -187,5 +172,30 @@ class FileInput extends Input
     protected function injectNotEmptyValidator()
     {
         $this->notEmptyValidator = true;
+    }
+
+    /**
+     * @param mixed $value
+     * @return FileInput\FileInputDecoratorInterface
+     */
+    private function createDecoratorImplementation($value)
+    {
+        // Single PSR-7 instance
+        if ($value instanceof UploadedFileInterface) {
+            return new FileInput\PsrFileInputDecorator($this);
+        }
+
+        if (is_array($value)) {
+            if (isset($value[0]) && $value[0] instanceof UploadedFileInterface) {
+                // Array of PSR-7 instances
+                return new FileInput\PsrFileInputDecorator($this);
+            }
+
+            // Single or multiple SAPI file upload arrays
+            return new FileInput\HttpServerFileInputDecorator($this);
+        }
+
+        // AJAX/XHR/Fetch case
+        return new FileInput\HttpServerFileInputDecorator($this);
     }
 }
