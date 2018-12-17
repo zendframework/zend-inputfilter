@@ -171,6 +171,11 @@ class CollectionInputFilter extends InputFilter
     }
 
     /**
+     * Retrieve the NotEmpty validator to use for failed "required" validations.
+     *
+     * This validator will be used to produce a validation failure message in
+     * cases where the collection is empty but required.
+     *
      * @return NotEmpty
      */
     public function getNotEmptyValidator()
@@ -183,8 +188,12 @@ class CollectionInputFilter extends InputFilter
     }
 
     /**
-     * @param NotEmpty $notEmptyValidator
+     * Set the NotEmpty validator to use for failed "required" validations.
      *
+     * This validator will be used to produce a validation failure message in
+     * cases where the collection is empty but required.
+     *
+     * @param NotEmpty $notEmptyValidator
      * @return $this
      */
     public function setNotEmptyValidator(NotEmpty $notEmptyValidator)
@@ -204,11 +213,9 @@ class CollectionInputFilter extends InputFilter
         $inputFilter = $this->getInputFilter();
         $valid = true;
 
-        if ($this->getCount() < 1) {
-            if ($this->isRequired) {
-                $this->collectionMessages[] = $this->prepareRequiredValidationFailureMessage();
-                $valid = false;
-            }
+        if ($this->getCount() < 1 && $this->isRequired) {
+            $this->collectionMessages[] = $this->prepareRequiredValidationFailureMessage();
+            $valid = false;
         }
 
         if (count($this->data) < $this->getCount()) {
@@ -328,21 +335,19 @@ class CollectionInputFilter extends InputFilter
     }
 
     /**
-     * @return array
+     * @return array<string, string>
      */
     protected function prepareRequiredValidationFailureMessage()
     {
         $notEmptyValidator = $this->getNotEmptyValidator();
-        $templates  = $notEmptyValidator->getOption('messageTemplates');
-        $message    = $templates[NotEmpty::IS_EMPTY];
-        $translator = $notEmptyValidator->getTranslator();
-
-        if ($translator) {
-            $message = $translator->translate($message, $notEmptyValidator->getTranslatorTextDomain());
-        }
+        $templates         = $notEmptyValidator->getOption('messageTemplates');
+        $message           = $templates[NotEmpty::IS_EMPTY];
+        $translator        = $notEmptyValidator->getTranslator();
 
         return [
-            NotEmpty::IS_EMPTY => $message,
+            NotEmpty::IS_EMPTY => $translator
+                ? $translator->translate($message, $notEmptyValidator->getTranslatorTextDomain())
+                : $message,
         ];
     }
 }
