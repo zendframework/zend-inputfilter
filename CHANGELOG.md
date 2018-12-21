@@ -22,14 +22,15 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#175](https://github.com/zendframework/zend-inputfilter/pull/175) fixes a regression introduced in 2.9.0 when
+  overriding FileUpload default validator.
 
 ## 2.9.0 - 2018-12-17
 
 ### Added
 
 - [#172](https://github.com/zendframework/zend-inputfilter/pull/172) adds support for PSR-7 `UploadedFileInterface` to `Zend\InputFilter\FileInput`.
-  It adds a new interface, `Zend\InputFilter\FileInput\FileInputDecoratorInterface`, 
+  It adds a new interface, `Zend\InputFilter\FileInput\FileInputDecoratorInterface`,
   which defines methods required for validating and filtering file uploads. It
   also provides two implementations of it, one for standard SAPI file uploads,
   and the other for PSR-7 uploads. The `FileInput` class does detection on the
