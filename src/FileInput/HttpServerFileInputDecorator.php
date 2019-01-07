@@ -153,7 +153,7 @@ class HttpServerFileInputDecorator extends FileInput implements FileInputDecorat
             return $chain;
         }
 
-        $chain->prependByName(UploadValidator::class, [], true);
+        $chain->prependByName('fileuploadfile', [], true);
         $this->subject->autoPrependUploadValidator = false;
 
         return $chain;

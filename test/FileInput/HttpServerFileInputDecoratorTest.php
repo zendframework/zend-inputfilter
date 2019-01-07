@@ -272,6 +272,17 @@ class HttpServerFileInputDecoratorTest extends InputTest
         $this->assertFalse($this->input->isEmptyFile($rawValue));
     }
 
+    public function testDefaultInjectedUploadValidatorRespectsRelease2Convention()
+    {
+        $input = new FileInput('foo');
+        $validatorChain = $input->getValidatorChain();
+        $pluginManager = $validatorChain->getPluginManager();
+        $pluginManager->setInvokableClass('fileuploadfile', TestAsset\FileUploadMock::class);
+        $input->setValue('');
+
+        $this->assertTrue($input->isValid());
+    }
+
     /**
      * Specific FileInput::merge extras
      */
