@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.9.1 - TBD
+## 2.9.1 - 2019-01-07
 
 ### Added
 
@@ -22,8 +22,11 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- [#175](https://github.com/zendframework/zend-inputfilter/pull/175) fixes a regression introduced in 2.9.0 when
-  overriding FileUpload default validator.
+- [#175](https://github.com/zendframework/zend-inputfilter/pull/175) fixes a regression introduced in 2.9.0 when overriding the default
+  validator of a `FileInput`. 2.9.0 changed the default to use the
+  fully-qualified class name of `Zend\Validator\File\Upload` as the service,
+  instead of the previous 'fileuploadfile`; this release returns to the original
+  behavior.
 
 ## 2.9.0 - 2018-12-17
 
