@@ -5,3 +5,4 @@ clover.xml
 coveralls-upload.json
 phpunit.xml
 zf-mkdoc-theme.tgz
+.idea/
