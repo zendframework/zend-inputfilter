@@ -11,6 +11,7 @@ namespace Zend\InputFilter;
 
 use ArrayAccess;
 use Traversable;
+use TypeError;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Stdlib\InitializableInterface;
 
@@ -25,6 +26,11 @@ class BaseInputFilter implements
      * @var null|array
      */
     protected $data;
+
+    /**
+     * @var array
+     */
+    protected $unfilteredData = [];
 
     /**
      * @var InputInterface[]|InputFilterInterface[]
@@ -604,17 +610,27 @@ class BaseInputFilter implements
         return $this;
     }
 
+    /**
+     * @return array
+     */
     // TODO replace functions when upgrading to > PHP 7.2 as minimum requirement
     //    public function getUnfilteredData() : array;
     public function getUnfilteredData()
     {
-        return [];
+        return $this->unfilteredData;
     }
 
+    /**
+     * @param array $data
+     *
+     * @return $this
+     */
     // TODO replace functions when upgrading to > PHP 7.2 as minimum requirement
-    //    public function setUnfilteredData(array $data) : array;
+    //    public function setUnfilteredData(array $data) : UnfilteredDataInterface;
     public function setUnfilteredData($data)
     {
+        $this->unfilteredData = $data;
+
         return $this;
     }
 }
