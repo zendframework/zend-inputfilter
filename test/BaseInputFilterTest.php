@@ -629,6 +629,18 @@ class BaseInputFilterTest extends TestCase
         self::assertInstanceOf(BaseInputFilter::class, $baseInputFilter->setUnfilteredData([]));
     }
 
+    public function testSettingAndReturningDataArrayUnfilteredDataInterface()
+    {
+        $testArray = [
+            'foo' => 'bar',
+        ];
+
+        $baseInputFilter = new BaseInputFilter();
+        $baseInputFilter->setUnfilteredData($testArray);
+
+        self::assertSame($testArray, $baseInputFilter->getUnfilteredData());
+    }
+
     public function addMethodArgumentsProvider()
     {
         $inputTypes = $this->inputProvider();
