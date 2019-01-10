@@ -18,7 +18,8 @@ class BaseInputFilter implements
     InputFilterInterface,
     UnknownInputsCapableInterface,
     InitializableInterface,
-    ReplaceableInputInterface
+    ReplaceableInputInterface,
+    UnfilteredDataInterface
 {
     /**
      * @var null|array
@@ -601,5 +602,19 @@ class BaseInputFilter implements
         }
 
         return $this;
+    }
+
+    // TODO replace functions when upgrading to > PHP 7.2 as minimum requirement
+    //    public function getUnfilteredData() : array;
+    public function getUnfilteredData()
+    {
+        // TODO: Implement getUnfilteredData() method.
+    }
+
+    // TODO replace functions when upgrading to > PHP 7.2 as minimum requirement
+    //    public function setUnfilteredData(array $data) : array;
+    public function setUnfilteredData($data)
+    {
+        // TODO: Implement setUnfilteredData() method.
     }
 }
