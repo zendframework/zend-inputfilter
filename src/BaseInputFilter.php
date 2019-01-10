@@ -608,13 +608,13 @@ class BaseInputFilter implements
     //    public function getUnfilteredData() : array;
     public function getUnfilteredData()
     {
-        // TODO: Implement getUnfilteredData() method.
+        return [];
     }
 
     // TODO replace functions when upgrading to > PHP 7.2 as minimum requirement
     //    public function setUnfilteredData(array $data) : array;
     public function setUnfilteredData($data)
     {
-        // TODO: Implement setUnfilteredData() method.
+        return $this;
     }
 }
