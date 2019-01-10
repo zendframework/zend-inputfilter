@@ -653,6 +653,28 @@ class BaseInputFilterTest extends TestCase
         self::assertSame($testArray, $baseInputFilter->getUnfilteredData());
     }
 
+    public function testSetDataUsingSetDataAndApplyFiltersReturningSameAsOriginalForUnfilteredData()
+    {
+        $filteredArray = [
+            'bar' => 'foo',
+        ];
+
+        $unfilteredArray = array_merge(
+            $filteredArray,
+            [
+                'foo' => 'bar',
+            ]
+        );
+
+        /** @var BaseInputFilter $baseInputFilter */
+        $baseInputFilter = (new BaseInputFilter())
+            ->add(new Input(), 'bar')
+            ->setData($unfilteredArray);
+
+        self::assertSame($unfilteredArray, $baseInputFilter->getUnfilteredData());
+        self::assertSame($filteredArray, $baseInputFilter->getValues());
+    }
+
     public function addMethodArgumentsProvider()
     {
         $inputTypes = $this->inputProvider();
