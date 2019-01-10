@@ -615,6 +615,20 @@ class BaseInputFilterTest extends TestCase
         );
     }
 
+    public function testGetUnfilteredDataReturnsArray()
+    {
+        $baseInputFilter = new BaseInputFilter();
+
+        self::assertInternalType('array', $baseInputFilter->getUnfilteredData());
+    }
+
+    public function testSetUnfilteredDataReturnsBaseInputFilter()
+    {
+        $baseInputFilter = new BaseInputFilter();
+
+        self::assertInstanceOf(BaseInputFilter::class, $baseInputFilter->setUnfilteredData([]));
+    }
+
     public function addMethodArgumentsProvider()
     {
         $inputTypes = $this->inputProvider();
