@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2019 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -11,7 +11,6 @@ namespace Zend\InputFilter;
 
 use ArrayAccess;
 use Traversable;
-use TypeError;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Stdlib\InitializableInterface;
 
@@ -201,8 +200,12 @@ class BaseInputFilter implements
                 (is_object($data) ? get_class($data) : gettype($data))
             ));
         }
+
+        $this->setUnfilteredData($data);
+
         $this->data = $data;
         $this->populate();
+
         return $this;
     }
 
