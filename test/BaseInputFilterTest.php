@@ -673,6 +673,7 @@ class BaseInputFilterTest extends TestCase
 
         self::assertSame($unfilteredArray, $baseInputFilter->getUnfilteredData());
         self::assertSame($filteredArray, $baseInputFilter->getValues());
+        self::assertSame($filteredArray, $baseInputFilter->getRawValues());
     }
 
     public function addMethodArgumentsProvider()
