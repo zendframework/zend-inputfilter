@@ -9,7 +9,7 @@
     <meta name="description" content="zend-inputfilter">  
     <link rel="shortcut icon" href="../img/favicon.ico">
 
-    <title>Optional Input Filters - zend-inputfilter</title>
+    <title>Unfiltered Data - zend-inputfilter</title>
 
     <link rel="stylesheet" href="../css/styles-e95dab66f8.css">
 </head>
@@ -97,14 +97,14 @@
 
                             
                                 
-    <li class="subnavigation__list-item subnavigation__list-item--active">
-        <a href="./" class="subnavigation__link">Optional Input Filters</a>
+    <li class="subnavigation__list-item ">
+        <a href="../optional-input-filters/" class="subnavigation__link">Optional Input Filters</a>
     </li>
 
                             
                                 
-    <li class="subnavigation__list-item ">
-        <a href="../unfiltered-data/" class="subnavigation__link">Unfiltered Data</a>
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">Unfiltered Data</a>
     </li>
 
                             
@@ -185,7 +185,7 @@
                 
             
 
-            <li class="active">Optional Input Filters</li>
+            <li class="active">Unfiltered Data</li>
         
     
 </ol>
@@ -198,90 +198,51 @@
     
 
 
-    <h1 id="optional-input-filters">Optional Input Filters</h1>
+    <h1 id="unfiltered-data">Unfiltered Data</h1>
+<blockquote>
+<p>Since 2.10.0</p>
+</blockquote>
+<p>On input filters, there are several methods for retrieving the data:</p>
 <ul>
-<li>Since 2.8.0</li>
+<li><code>getValues()</code> will return all known values after filtering them.</li>
+<li><code>getRawValues()</code> will return all known values with no filtering applied.</li>
+<li><code>getUnknown()</code> returns the set of all unknown values (values with no
+  corresponding input or input filter).</li>
 </ul>
-<p>Normally, input filters are <em>required</em>, which means that if you compose them as
-a subset of another input filter (e.g., to validate a subset of a larger set of
-data), and no data is provided for that item, or an empty set of data is
-provided, then the input filter will consider the data invalid.</p>
-<p>If you want to allow a set of data to be empty, you can use 
-<code>Zend\InputFilter\OptionalInputFilter</code>.</p>
-<p>To illustrate this, let's consider a form where a user provides profile
-information. The user can provide an optional "title" and a required "email",
-and <em>optionally</em> details about a project they lead, which will include the
-project title and a URL, both of which are required if present.</p>
-<p>First, let's create an <code>OptionalInputFilter</code> instance for the project data:</p>
-<pre class="codehilite"><code class="language-php">$projectFilter = new OptionalInputFilter();
-$projectFilter-&gt;add([
-    'name' =&gt; 'project_name',
-    'required' =&gt; true,
-]);
-$projectFilter-&gt;add([
-    'name' =&gt; 'url',
-    'required' =&gt; true,
-    'validators' =&gt; [
-        ['type' =&gt; 'uri'],
-    ],
-]);</code></pre>
+<p>At times, particularly when working with collections, you may want access to the
+complete set of original data provided to the input filter. This can be
+accomplished by merging the sets returned by <code>getRawValues()</code> and
+<code>getUnknown()</code> when working with normal input filters, but this approach breaks
+down when working with collections.</p>
+<p>Version 2.10.0 introduces a new interface, <code>Zend\InputFilter\UnfilteredDataInterface</code>,
+for dealing with this situation. <code>Zend\InputFilter\BaseInputFilter</code>, which
+forms the parent class for all shipped input filter implementations, implements
+the interface, which consists of the following methods:</p>
+<pre class="codehilite"><code class="language-php">interface UnfilteredDataInterface
+{
+    /**
+     * @return array|object
+     */
+    public function getUnfilteredData()
+    {
+        return $this-&gt;unfilteredData;
+    }
 
-<p>Now, we'll create our primary input filter:</p>
-<pre class="codehilite"><code class="language-php">$profileFilter = new InputFilter();
-$profileFilter-&gt;add([
-    'name' =&gt; 'title',
-    'required' =&gt; false,
-]);
-$profileFilter-&gt;add([
-    'name' =&gt; 'email',
-    'required' =&gt; true,
-    'validators' =&gt; [
-        ['type' =&gt; 'EmailAddress'],
-    ],
-]);
-
-// And, finally, compose our project sub-filter:
-$profileFilter-&gt;add($projectFilter, 'project');</code></pre>
-
-<p>With this defined, we can now validate the following sets of data, presented in
-JSON for readability:</p>
-<ul>
-<li>Just profile information:</li>
-</ul>
-<pre class="codehilite"><code class="language-json">{
-  &quot;email&quot;: &quot;user@example.com&quot;,
-  &quot;title&quot;: &quot;Software Developer&quot;
+    /**
+     * @param array|object $data
+     * @return $this
+     */
+    public function setUnfilteredData($data)
+    {
+        $this-&gt;unfilteredData = $data;
+        return $this;
+    }
 }</code></pre>
 
-<ul>
-<li><code>null</code> project provided:</li>
-</ul>
-<pre class="codehilite"><code class="language-json">{
-  &quot;email&quot;: &quot;user@example.com&quot;,
-  &quot;title&quot;: &quot;Software Developer&quot;,
-  &quot;project&quot;: null
-}</code></pre>
-
-<ul>
-<li>Empty project provided:</li>
-</ul>
-<pre class="codehilite"><code class="language-json">{
-  &quot;email&quot;: &quot;user@example.com&quot;,
-  &quot;title&quot;: &quot;Software Developer&quot;,
-  &quot;project&quot;: {}
-}</code></pre>
-
-<ul>
-<li>Valid project provided:</li>
-</ul>
-<pre class="codehilite"><code class="language-json">{
-  &quot;email&quot;: &quot;user@example.com&quot;,
-  &quot;title&quot;: &quot;Software Developer&quot;,
-  &quot;project&quot;: {
-    &quot;project_name&quot;: &quot;zend-inputfilter&quot;,
-    &quot;url&quot;: &quot;https://github.com/zend-inputfilter&quot;,
-  }
-}</code></pre>
+<p>The <code>setUnfilteredData()</code> method is called by <code>setData()</code> with the full <code>$data</code>
+provided to that method, ensuring that <code>getUnfilteredData()</code> will always provide
+the original data with which the input filter was initialized, with no filtering
+applied.</p>
 
 
 
@@ -291,7 +252,7 @@ JSON for readability:</p>
         
         <li class="page-nav__item">
             
-                <a rel="prev" class="page-nav__link page-nav__link--prev" href="../file-input/">
+                <a rel="prev" class="page-nav__link page-nav__link--prev" href="../optional-input-filters/">
                     <i class="fa fa-chevron-left"></i> Previous
                 </a>
             
@@ -299,10 +260,6 @@ JSON for readability:</p>
 
         
         <li class="page-nav__item">
-            
-                <a rel="next" class="page-nav__link page-nav__link--next" href="../unfiltered-data/">
-                    Next <i class="fa fa-chevron-right"></i>
-                </a>
             
         </li>
     </ul>
@@ -313,7 +270,7 @@ JSON for readability:</p>
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-inputfilter/edit/master/docs/book/optional-input-filters.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-inputfilter/edit/master/docs/book/unfiltered-data.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>
@@ -366,14 +323,14 @@ JSON for readability:</p>
 
                             
                                 
-    <li class="subnavigation__list-item subnavigation__list-item--active">
-        <a href="./" class="subnavigation__link">Optional Input Filters</a>
+    <li class="subnavigation__list-item ">
+        <a href="../optional-input-filters/" class="subnavigation__link">Optional Input Filters</a>
     </li>
 
                             
                                 
-    <li class="subnavigation__list-item ">
-        <a href="../unfiltered-data/" class="subnavigation__link">Unfiltered Data</a>
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">Unfiltered Data</a>
     </li>
 
                             
