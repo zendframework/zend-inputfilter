@@ -27,7 +27,7 @@ class BaseInputFilter implements
     protected $data;
 
     /**
-     * @var array
+     * @var array|object
      */
     protected $unfilteredData = [];
 
@@ -614,7 +614,7 @@ class BaseInputFilter implements
     }
 
     /**
-     * @return array
+     * @return array|object
      */
     public function getUnfilteredData()
     {
@@ -622,14 +622,12 @@ class BaseInputFilter implements
     }
 
     /**
-     * @param array $data
-     *
+     * @param array|object $data
      * @return $this
      */
     public function setUnfilteredData($data)
     {
         $this->unfilteredData = $data;
-
         return $this;
     }
 }

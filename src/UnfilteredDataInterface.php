@@ -13,14 +13,13 @@ namespace Zend\InputFilter;
 interface UnfilteredDataInterface
 {
     /**
-     * @return array
+     * @return array|object
      */
     public function getUnfilteredData();
 
     /**
-     * @param array  $data
-     *
-     * @return array
+     * @param array|object $data
+     * @return $this
      */
     public function setUnfilteredData($data);
 }
