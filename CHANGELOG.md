@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.10.0 - TBD
+## 2.10.0 - 2019-01-30
 
 ### Added
 
@@ -18,28 +18,6 @@ All notable changes to this project will be documented in this file, in reverse 
   The primary purpose of the interface is to allow the ability to access ALL
   original raw data, and not just the data the input filter knows about. This is
   particularly useful with collections.
-
-### Changed
-
-- Nothing.
-
-### Deprecated
-
-- Nothing.
-
-### Removed
-
-- Nothing.
-
-### Fixed
-
-- Nothing.
-
-## 2.9.2 - TBD
-
-### Added
-
-- Nothing.
 
 ### Changed
 
