@@ -6,7 +6,18 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
-- Nothing.
+- [#176](https://github.com/zendframework/zend-inputfilter/pull/176) adds the interface `UnfilteredDataInterface`, with the following methods:
+
+  ```php
+  public function getUnfilteredData() : array|object;
+  public function setUnfilteredData(array|object $data) : $this;
+  ```
+
+  By default, the `BaseInputFilter` now implements this interface.
+
+  The primary purpose of the interface is to allow the ability to access ALL
+  original raw data, and not just the data the input filter knows about. This is
+  particularly useful with collections.
 
 ### Changed
 
