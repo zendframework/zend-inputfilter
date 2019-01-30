@@ -1,13 +1,14 @@
 docs_dir: docs/book
 site_dir: docs/html
 pages:
-    - index.md
-    - Intro: intro.md
+    - Home: index.md
+    - Introduction: intro.md
     - Reference:
       - Specifications: specs.md
       - Files: file-input.md
       - "Optional Input Filters": optional-input-filters.md
+      - "Unfiltered Data": unfiltered-data.md
 site_name: zend-inputfilter
 site_description: zend-inputfilter
 repo_url: 'https://github.com/zendframework/zend-inputfilter'
-copyright: 'Copyright (c) 2016-2017 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a>'
+copyright: 'Copyright (c) 2016-2019 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a>'
