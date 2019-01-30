@@ -616,8 +616,6 @@ class BaseInputFilter implements
     /**
      * @return array
      */
-    // TODO replace functions when upgrading to > PHP 7.2 as minimum requirement
-    //    public function getUnfilteredData() : array;
     public function getUnfilteredData()
     {
         return $this->unfilteredData;
@@ -628,8 +626,6 @@ class BaseInputFilter implements
      *
      * @return $this
      */
-    // TODO replace functions when upgrading to > PHP 7.2 as minimum requirement
-    //    public function setUnfilteredData(array $data) : UnfilteredDataInterface;
     public function setUnfilteredData($data)
     {
         $this->unfilteredData = $data;

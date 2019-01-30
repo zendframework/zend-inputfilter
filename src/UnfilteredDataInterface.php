@@ -25,8 +25,4 @@ interface UnfilteredDataInterface
      * @return array
      */
     public function setUnfilteredData($data);
-
-    // TODO replace functions when upgrading to > PHP 7.2 as minimum requirement
-    //    public function getUnfilteredData() : array;
-    //    public function setUnfilteredData(array $data) : UnfilteredDataInterface;
 }
