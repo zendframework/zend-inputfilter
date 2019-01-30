@@ -12,8 +12,8 @@ namespace ZendTest\InputFilter;
 use ArrayIterator;
 use ArrayObject;
 use FilterIterator;
-use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit\Framework\TestCase;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use stdClass;
 use Zend\InputFilter\BaseInputFilter;
 use Zend\InputFilter\Exception\InvalidArgumentException;
@@ -21,6 +21,7 @@ use Zend\InputFilter\Exception\RuntimeException;
 use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilterInterface;
 use Zend\InputFilter\InputInterface;
+use Zend\InputFilter\UnfilteredDataInterface;
 
 /**
  * @covers Zend\InputFilter\BaseInputFilter
@@ -601,6 +602,78 @@ class BaseInputFilterTest extends TestCase
 
         $filter1->setData(['nested' => new stdClass()]);
         self::assertNull($filter1->getValues()['nested']['nestedField1']);
+    }
+
+    public function testInstanceOfUnfilteredDataInterface()
+    {
+        $baseInputFilter = new BaseInputFilter();
+
+        self::assertInstanceOf(
+            UnfilteredDataInterface::class,
+            $baseInputFilter,
+            sprintf('%s should implement %s', BaseInputFilter::class, UnfilteredDataInterface::class)
+        );
+    }
+
+    public function testGetUnfilteredDataReturnsArray()
+    {
+        $baseInputFilter = new BaseInputFilter();
+
+        self::assertInternalType('array', $baseInputFilter->getUnfilteredData());
+    }
+
+    public function testSetUnfilteredDataReturnsBaseInputFilter()
+    {
+        $baseInputFilter = new BaseInputFilter();
+
+        self::assertInstanceOf(BaseInputFilter::class, $baseInputFilter->setUnfilteredData([]));
+    }
+
+    public function testSettingAndReturningDataArrayUnfilteredDataInterface()
+    {
+        $testArray = [
+            'foo' => 'bar',
+        ];
+
+        $baseInputFilter = new BaseInputFilter();
+        $baseInputFilter->setUnfilteredData($testArray);
+
+        self::assertSame($testArray, $baseInputFilter->getUnfilteredData());
+    }
+
+    public function testSettingAndReturnDataArrayUsingSetDataForUnfilteredDataInterface()
+    {
+        $testArray = [
+            'foo' => 'bar',
+        ];
+
+        $baseInputFilter = new BaseInputFilter();
+        $baseInputFilter->setData($testArray);
+
+        self::assertSame($testArray, $baseInputFilter->getUnfilteredData());
+    }
+
+    public function testSetDataUsingSetDataAndApplyFiltersReturningSameAsOriginalForUnfilteredData()
+    {
+        $filteredArray = [
+            'bar' => 'foo',
+        ];
+
+        $unfilteredArray = array_merge(
+            $filteredArray,
+            [
+                'foo' => 'bar',
+            ]
+        );
+
+        /** @var BaseInputFilter $baseInputFilter */
+        $baseInputFilter = (new BaseInputFilter())
+            ->add(new Input(), 'bar')
+            ->setData($unfilteredArray);
+
+        self::assertSame($unfilteredArray, $baseInputFilter->getUnfilteredData());
+        self::assertSame($filteredArray, $baseInputFilter->getValues());
+        self::assertSame($filteredArray, $baseInputFilter->getRawValues());
     }
 
     public function addMethodArgumentsProvider()

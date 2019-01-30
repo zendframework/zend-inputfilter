@@ -765,4 +765,35 @@ class CollectionInputFilterTest extends TestCase
             [NotEmpty::IS_EMPTY => $message],
         ], $this->inputFilter->getMessages());
     }
+
+    public function testSetDataUsingSetDataAndRunningIsValidReturningSameAsOriginalForUnfilteredData()
+    {
+        $filteredArray = [
+            [
+                'bar' => 'foo',
+                'foo' => 'bar',
+            ],
+        ];
+
+        $unfilteredArray = array_merge(
+            $filteredArray,
+            [
+                [
+                    'foo' => 'bar',
+                ],
+            ]
+        );
+
+        /** @var BaseInputFilter $baseInputFilter */
+        $baseInputFilter = (new BaseInputFilter())
+            ->add(new Input(), 'bar');
+
+        /** @var CollectionInputFilter $collectionInputFilter */
+        $collectionInputFilter = (new CollectionInputFilter())->setInputFilter($baseInputFilter);
+        $collectionInputFilter->setData($unfilteredArray);
+
+        $collectionInputFilter->isValid();
+
+        self::assertSame($unfilteredArray, $collectionInputFilter->getUnfilteredData());
+    }
 }
