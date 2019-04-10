@@ -407,7 +407,8 @@ class FactoryTest extends TestCase
         $this->assertEquals('foo', $input->getName());
         $chain = $input->getValidatorChain();
         $index = 0;
-        foreach ($chain as $validator) {
+        foreach ($chain->getValidators() as $validator) {
+            $validator = $validator['instance'];
             switch ($index) {
                 case 0:
                     $this->assertInstanceOf(Validator\NotEmpty::class, $validator);
@@ -425,6 +426,8 @@ class FactoryTest extends TestCase
             }
             $index++;
         }
+        // Assure that previous foreach has been run
+        $this->assertEquals(3, $index);
     }
 
     public function testFactoryWillCreateInputWithSuggestedRequiredFlagAndAlternativeAllowEmptyFlag()
