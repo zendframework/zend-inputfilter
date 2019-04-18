@@ -7,11 +7,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="zend-inputfilter">  
-    <link rel="shortcut icon" href="../img/favicon.ico">
+    <link rel="shortcut icon" href="//img/favicon.ico">
 
-    <title>Optional Input Filters - zend-inputfilter - Zend Framework Docs</title>
+    <title>zend-inputfilter - Zend Framework Docs</title>
 
-    <link rel="stylesheet" href="../css/styles-f3b53f5ceb.css">
+    <link rel="stylesheet" href="//css/styles-f3b53f5ceb.css">
 </head>
 <body id="page-top">
 
@@ -31,7 +31,7 @@
             
             <span class="navbar-brand">
                 <a class="logo-link" href="https://framework.zend.com/" data-tooltip data-placement="bottom" title="Go to the ZF homepage">
-                    <img src="../img/zend-framework-logo.svg" height="28" alt="Zend Framework">
+                    <img src="//img/zend-framework-logo.svg" height="28" alt="Zend Framework">
                 </a>
             </span>
         </div>
@@ -66,7 +66,7 @@
                     
     <div class="subnavigation hidden-print">
         <h4 class="subnavigation__title">
-            <a href="..">zend-inputfilter</a>
+            <a href="/.">zend-inputfilter</a>
         </h4>
 
         <h5 class="subnavigation__subtitle">Table of Contents</h5>
@@ -75,7 +75,7 @@
             
                 
                     <li class="subnavigation__list-item ">
-                        <a href="../intro/" class="subnavigation__link">Introduction</a>
+                        <a href="/intro/" class="subnavigation__link">Introduction</a>
                     </li>
                 
             
@@ -86,25 +86,25 @@
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../specs/" class="subnavigation__link">Specifications</a>
+        <a href="/specs/" class="subnavigation__link">Specifications</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../file-input/" class="subnavigation__link">Files</a>
-    </li>
-
-                            
-                                
-    <li class="subnavigation__list-item subnavigation__list-item--active">
-        <a href="./" class="subnavigation__link">Optional Input Filters</a>
+        <a href="/file-input/" class="subnavigation__link">Files</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../unfiltered-data/" class="subnavigation__link">Unfiltered Data</a>
+        <a href="/optional-input-filters/" class="subnavigation__link">Optional Input Filters</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="/unfiltered-data/" class="subnavigation__link">Unfiltered Data</a>
     </li>
 
                             
@@ -181,160 +181,18 @@
             <div class="col-md-9 col-xs-12 content" role="main">
             <!-- content:begin -->
                 
-                    <ol class="breadcrumb" role="navigation" aria-label="breadcrumbs navigation">
-    <li><a href="https://framework.zend.com/">Home</a></li>
 
-    
-        <li><a href="https://docs.zendframework.com/">Documentation</a></li>
+<h1 class="content__title">404</h1>
+<blockquote>
+    <h3>Something went wrong!</h3>
+    <p>
+        We're sorry, but the page you are looking for does not exist.
+    </p>
+</blockquote>
 
-        
-            <li><a href="..">zend-inputfilter</a></li>
-
-            
-                
-                    <li>Reference</li>
-                
-            
-
-            <li class="active">Optional Input Filters</li>
-        
-    
-</ol>
+<a href="/" class="btn btn-default" role="button">Go to homepage</a>
 
 
-    
-        <h2 class="chapter__headline">Reference</h2>
-    
-
-    
-    
-
-    
-    
-
-
-    <h1 id="optional-input-filters">Optional Input Filters</h1>
-<ul>
-<li>Since 2.8.0</li>
-</ul>
-<p>Normally, input filters are <em>required</em>, which means that if you compose them as
-a subset of another input filter (e.g., to validate a subset of a larger set of
-data), and no data is provided for that item, or an empty set of data is
-provided, then the input filter will consider the data invalid.</p>
-<p>If you want to allow a set of data to be empty, you can use 
-<code>Zend\InputFilter\OptionalInputFilter</code>.</p>
-<p>To illustrate this, let's consider a form where a user provides profile
-information. The user can provide an optional "title" and a required "email",
-and <em>optionally</em> details about a project they lead, which will include the
-project title and a URL, both of which are required if present.</p>
-<p>First, let's create an <code>OptionalInputFilter</code> instance for the project data:</p>
-<pre class="codehilite"><code class="language-php">$projectFilter = new OptionalInputFilter();
-$projectFilter-&gt;add([
-    'name' =&gt; 'project_name',
-    'required' =&gt; true,
-]);
-$projectFilter-&gt;add([
-    'name' =&gt; 'url',
-    'required' =&gt; true,
-    'validators' =&gt; [
-        ['type' =&gt; 'uri'],
-    ],
-]);</code></pre>
-
-<p>Now, we'll create our primary input filter:</p>
-<pre class="codehilite"><code class="language-php">$profileFilter = new InputFilter();
-$profileFilter-&gt;add([
-    'name' =&gt; 'title',
-    'required' =&gt; false,
-]);
-$profileFilter-&gt;add([
-    'name' =&gt; 'email',
-    'required' =&gt; true,
-    'validators' =&gt; [
-        ['type' =&gt; 'EmailAddress'],
-    ],
-]);
-
-// And, finally, compose our project sub-filter:
-$profileFilter-&gt;add($projectFilter, 'project');</code></pre>
-
-<p>With this defined, we can now validate the following sets of data, presented in
-JSON for readability:</p>
-<ul>
-<li>Just profile information:</li>
-</ul>
-<pre class="codehilite"><code class="language-json">{
-  "email": "user@example.com",
-  "title": "Software Developer"
-}</code></pre>
-
-<ul>
-<li><code>null</code> project provided:</li>
-</ul>
-<pre class="codehilite"><code class="language-json">{
-  "email": "user@example.com",
-  "title": "Software Developer",
-  "project": null
-}</code></pre>
-
-<ul>
-<li>Empty project provided:</li>
-</ul>
-<pre class="codehilite"><code class="language-json">{
-  "email": "user@example.com",
-  "title": "Software Developer",
-  "project": {}
-}</code></pre>
-
-<ul>
-<li>Valid project provided:</li>
-</ul>
-<pre class="codehilite"><code class="language-json">{
-  "email": "user@example.com",
-  "title": "Software Developer",
-  "project": {
-    "project_name": "zend-inputfilter",
-    "url": "https://github.com/zend-inputfilter",
-  }
-}</code></pre>
-
-
-
-    <nav>
-    <ul class="page-nav hidden-print">
-
-        
-        <li class="page-nav__item">
-            
-                <a rel="prev" class="page-nav__link page-nav__link--prev" href="../file-input/">
-                    <i class="fa fa-chevron-left"></i> Previous
-                </a>
-            
-        </li>
-
-        
-        <li class="page-nav__item">
-            
-                <a rel="next" class="page-nav__link page-nav__link--next" href="../unfiltered-data/">
-                    Next <i class="fa fa-chevron-right"></i>
-                </a>
-            
-        </li>
-    </ul>
-</nav>
-
-
-
-    <div class="help-wanted">
-        <p>
-            Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-inputfilter/edit/master/docs/book/optional-input-filters.md" target="_blank" class="help-wanted__link">
-                Edit this page on GitHub!
-            </a>
-        </p>
-    </div>
-
-                
             <!-- content:end -->
             </div>
             <div class="col-md-3 col-xs-12 sidebar">
@@ -350,7 +208,7 @@ JSON for readability:</p>
                     
     <div class="subnavigation hidden-print">
         <h4 class="subnavigation__title">
-            <a href="..">zend-inputfilter</a>
+            <a href="/.">zend-inputfilter</a>
         </h4>
 
         <h5 class="subnavigation__subtitle">Table of Contents</h5>
@@ -359,7 +217,7 @@ JSON for readability:</p>
             
                 
                     <li class="subnavigation__list-item ">
-                        <a href="../intro/" class="subnavigation__link">Introduction</a>
+                        <a href="/intro/" class="subnavigation__link">Introduction</a>
                     </li>
                 
             
@@ -370,25 +228,25 @@ JSON for readability:</p>
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../specs/" class="subnavigation__link">Specifications</a>
+        <a href="/specs/" class="subnavigation__link">Specifications</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../file-input/" class="subnavigation__link">Files</a>
-    </li>
-
-                            
-                                
-    <li class="subnavigation__list-item subnavigation__list-item--active">
-        <a href="./" class="subnavigation__link">Optional Input Filters</a>
+        <a href="/file-input/" class="subnavigation__link">Files</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../unfiltered-data/" class="subnavigation__link">Unfiltered Data</a>
+        <a href="/optional-input-filters/" class="subnavigation__link">Optional Input Filters</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="/unfiltered-data/" class="subnavigation__link">Unfiltered Data</a>
     </li>
 
                             
@@ -467,11 +325,11 @@ JSON for readability:</p>
 </footer>
 
     <script>
-        var base_url = '..',
+        var base_url = '/',
             siteName = 'zend-inputfilter';
     </script>
-    <script src="../js/scripts-8d7ae56abf.js"></script>
-        <script src="../search/main.js"></script>
+    <script src="//js/scripts-8d7ae56abf.js"></script>
+        <script src="/search/main.js"></script>
 
     
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
