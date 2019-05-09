@@ -18,6 +18,7 @@ class Module
 
         return [
             'service_manager' => $provider->getDependencyConfig(),
+            'input_filters'   => $provider->getInputFilterConfig(),
         ];
     }
 
