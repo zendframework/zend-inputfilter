@@ -65,8 +65,7 @@ class ModuleTest extends TestCase
         );
     }
 
-    public function testInitMethodShouldRegisterPluginManagerSpecificationWithServiceListener(
-    )
+    public function testInitMethodShouldRegisterPluginManagerSpecificationWithServiceListener()
     {
         // Service listener
         $serviceListener = $this->prophesize(
