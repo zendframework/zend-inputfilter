@@ -8,6 +8,9 @@ pages:
       - Files: file-input.md
       - "Optional Input Filters": optional-input-filters.md
       - "Unfiltered Data": unfiltered-data.md
+    - "Application Integration":
+        - "Usage in a zend-mvc application": application-integration/usage-in-a-zend-mvc-application.md
+        - "Usage in a zend-expressive application": application-integration/usage-in-a-zend-expressive-application.md
 site_name: zend-inputfilter
 site_description: zend-inputfilter
 repo_url: 'https://github.com/zendframework/zend-inputfilter'
