@@ -171,7 +171,7 @@ class CollectionInputFilterTest extends TestCase
             'Required: F, Count: N, Valid: T'  => [!$isRequired, null, $colRaw, $validIF  , $colRaw, $colFiltered, true , []],
             'Required: F, Count: N, Valid: F'  => [!$isRequired, null, $colRaw, $invalidIF, $colRaw, $colFiltered, false, $colMessages],
             'Required: F, Count: +1, Valid: F' => [!$isRequired,    2, $colRaw, $invalidIF, $colRaw, $colFiltered, false, $colMessages],
-            'Required: T, Data: [], Valid: X'  => [ $isRequired, null, []     , $noValidIF, []     , []          , false, []],
+            'Required: T, Data: [], Valid: X'  => [ $isRequired, null, []     , $noValidIF, []     , []          , false, [['isEmpty' => 'Value is required and can\'t be empty']]],
             'Required: F, Data: [], Valid: X'  => [!$isRequired, null, []     , $noValidIF, []     , []          , true , []],
         ];
         // @codingStandardsIgnoreEnd
@@ -734,5 +734,66 @@ class CollectionInputFilterTest extends TestCase
                 ],
             ],
         ], $inputFilter->getMessages());
+    }
+
+    public function testLazyLoadsANotEmptyValidatorWhenNoneProvided()
+    {
+        $this->assertInstanceOf(NotEmpty::class, $this->inputFilter->getNotEmptyValidator());
+    }
+
+    public function testAllowsComposingANotEmptyValidator()
+    {
+        $notEmptyValidator = new NotEmpty();
+        $this->inputFilter->setNotEmptyValidator($notEmptyValidator);
+        $this->assertSame($notEmptyValidator, $this->inputFilter->getNotEmptyValidator());
+    }
+
+    public function testUsesMessageFromComposedNotEmptyValidatorWhenRequiredButCollectionIsEmpty()
+    {
+        $message = 'this is the validation message';
+        $notEmptyValidator = new NotEmpty();
+        $notEmptyValidator->setMessage($message);
+
+        $this->inputFilter->setIsRequired(true);
+        $this->inputFilter->setNotEmptyValidator($notEmptyValidator);
+
+        $this->inputFilter->setData([]);
+
+        $this->assertFalse($this->inputFilter->isValid());
+
+        $this->assertEquals([
+            [NotEmpty::IS_EMPTY => $message],
+        ], $this->inputFilter->getMessages());
+    }
+
+    public function testSetDataUsingSetDataAndRunningIsValidReturningSameAsOriginalForUnfilteredData()
+    {
+        $filteredArray = [
+            [
+                'bar' => 'foo',
+                'foo' => 'bar',
+            ],
+        ];
+
+        $unfilteredArray = array_merge(
+            $filteredArray,
+            [
+                [
+                    'foo' => 'bar',
+                ],
+            ]
+        );
+
+        /** @var BaseInputFilter $baseInputFilter */
+        $baseInputFilter = (new BaseInputFilter())
+            ->add(new Input(), 'bar');
+
+        /** @var CollectionInputFilter $collectionInputFilter */
+        $collectionInputFilter = (new CollectionInputFilter())->setInputFilter($baseInputFilter);
+        $collectionInputFilter->setData($unfilteredArray);
+
+        $collectionInputFilter->isValid();
+
+        self::assertSame($unfilteredArray, $collectionInputFilter->getUnfilteredData());
     }
 }
