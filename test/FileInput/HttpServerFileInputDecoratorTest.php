@@ -212,7 +212,7 @@ class HttpServerFileInputDecoratorTest extends InputTest
         $this->input->setValidatorChain($this->createValidatorChainMock([[$expectedNormalizedValue, null, false]]));
         $this->assertFalse($this->input->isValid());
     }
-    
+
     public function testNotEmptyValidatorAddedWhenIsValidIsCalled($value = null)
     {
         $this->markTestSkipped('Test is not enabled in FileInputTest');
