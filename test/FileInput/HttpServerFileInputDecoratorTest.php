@@ -196,6 +196,23 @@ class HttpServerFileInputDecoratorTest extends InputTest
         $this->assertFalse($this->input->isValid());
     }
 
+    public function testValidationsRunWithoutFileArrayIsSend()
+    {
+        $this->input->setAutoPrependUploadValidator(true);
+        $this->assertTrue($this->input->getAutoPrependUploadValidator());
+        $this->assertTrue($this->input->isRequired());
+        $this->input->setValue([]);
+        $expectedNormalizedValue = [
+            'tmp_name' => '',
+            'name'     => '',
+            'size'     => 0,
+            'type'     => '',
+            'error'    => UPLOAD_ERR_NO_FILE,
+        ];
+        $this->input->setValidatorChain($this->createValidatorChainMock([[$expectedNormalizedValue, null, false]]));
+        $this->assertFalse($this->input->isValid());
+    }
+    
     public function testNotEmptyValidatorAddedWhenIsValidIsCalled($value = null)
     {
         $this->markTestSkipped('Test is not enabled in FileInputTest');
