@@ -110,7 +110,7 @@ class HttpServerFileInputDecorator extends FileInput implements FileInputDecorat
                 'type'     => '',
                 'error'    => UPLOAD_ERR_NO_FILE,
             ];
-        } elseif(!isset($rawValue['tmp_name']) && !isset($rawValue[0]['tmp_name'])) {
+        } elseif (! isset($rawValue['tmp_name']) && ! isset($rawValue[0]['tmp_name'])) {
             // This can happen when sent not file and just array
             $rawValue = [
                 'tmp_name' => '',
