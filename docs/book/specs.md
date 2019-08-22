@@ -1,4 +1,4 @@
-# Input filter specifications
+# Specifications
 
 `Zend\InputFilter` allows configuration-driven creation of input filters via
 `Zend\InputFilter\InputFilterAbstractServiceFactory`. This abstract factory is
