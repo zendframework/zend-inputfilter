@@ -1,6 +1,6 @@
 # Unfiltered Data
 
-> Since 2.10.0
+> Available since version 2.10.0
 
 On input filters, there are several methods for retrieving the data:
 
