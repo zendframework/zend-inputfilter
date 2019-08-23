@@ -21,7 +21,7 @@ class HttpServerFileInputDecoratorTest extends InputTest
     /** @var HttpServerFileInputDecorator */
     protected $input;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->input = new FileInput('foo');
         // Upload validator does not work in CLI test environment, disable

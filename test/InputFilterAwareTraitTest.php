@@ -15,7 +15,7 @@ use Zend\InputFilter\InputFilterAwareTrait;
 
 /**
  * @requires PHP 5.4
- * @covers Zend\InputFilter\InputFilterAwareTrait
+ * @covers \Zend\InputFilter\InputFilterAwareTrait
  */
 class InputFilterAwareTraitTest extends TestCase
 {

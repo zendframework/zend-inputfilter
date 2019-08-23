@@ -23,7 +23,7 @@ use Zend\Validator\Digits;
 use Zend\Validator\NotEmpty;
 
 /**
- * @covers Zend\InputFilter\CollectionInputFilter
+ * @covers \Zend\InputFilter\CollectionInputFilter
  */
 class CollectionInputFilterTest extends TestCase
 {
@@ -32,7 +32,7 @@ class CollectionInputFilterTest extends TestCase
      */
     protected $inputFilter;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->inputFilter = new CollectionInputFilter();
     }

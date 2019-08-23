@@ -13,11 +13,11 @@ use Zend\InputFilter\ArrayInput;
 use Zend\InputFilter\Exception\InvalidArgumentException;
 
 /**
- * @covers Zend\InputFilter\ArrayInput
+ * @covers \Zend\InputFilter\ArrayInput
  */
 class ArrayInputTest extends InputTest
 {
-    public function setUp()
+    protected function setUp()
     {
         $this->input = new ArrayInput('foo');
     }

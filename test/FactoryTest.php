@@ -30,7 +30,7 @@ use Zend\ServiceManager;
 use Zend\Validator;
 
 /**
- * @covers Zend\InputFilter\Factory
+ * @covers \Zend\InputFilter\Factory
  */
 class FactoryTest extends TestCase
 {
