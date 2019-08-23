@@ -9,6 +9,5 @@ pages:
       - "Optional Input Filters": optional-input-filters.md
       - "Unfiltered Data": unfiltered-data.md
 site_name: zend-inputfilter
-site_description: zend-inputfilter
+site_description: 'Normalize and validate input sets from the web, APIs, the CLI, and more, including files.'
 repo_url: 'https://github.com/zendframework/zend-inputfilter'
-copyright: 'Copyright (c) 2016-2019 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a>'
