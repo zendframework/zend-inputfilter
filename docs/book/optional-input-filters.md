@@ -7,7 +7,7 @@ a subset of another input filter (e.g., to validate a subset of a larger set of
 data), and no data is provided for that item, or an empty set of data is
 provided, then the input filter will consider the data invalid.
 
-If you want to allow a set of data to be empty, you can use 
+If you want to allow a set of data to be empty, you can use
 `Zend\InputFilter\OptionalInputFilter`.
 
 To illustrate this, let's consider a form where a user provides profile
