@@ -37,31 +37,33 @@ class ModuleTest extends TestCase
         $this->assertArrayHasKey('input_filters', $config);
     }
 
-    public function testGetConfigMethodShouldReturnExpectedValues()
+    public function testServiceManagerConfigShouldContainInputFilterManager()
     {
         $config = $this->module->getConfig();
 
-        // Service manager
-        $this->assertSame(
-            [
-                'aliases'   => [
-                    'InputFilterManager' => InputFilterPluginManager::class,
-                ],
-                'factories' => [
-                    InputFilterPluginManager::class => InputFilterPluginManagerFactory::class,
-                ],
-            ],
-            $config['service_manager']
+        $this->assertArrayHasKey(
+            InputFilterPluginManager::class,
+            $config['service_manager']['factories']
         );
+    }
 
-        // Input filters
-        $this->assertSame(
-            [
-                'abstract_factories' => [
-                    InputFilterAbstractServiceFactory::class,
-                ],
-            ],
-            $config['input_filters']
+    public function testServiceManagerConfigShouldContainAliasForInputFilterManager()
+    {
+        $config = $this->module->getConfig();
+
+        $this->assertArrayHasKey(
+            'InputFilterManager',
+            $config['service_manager']['aliases']
+        );
+    }
+
+    public function testInputFilterConfigShouldContainAbstractServiceFactory()
+    {
+        $config = $this->module->getConfig();
+
+        $this->assertContains(
+            InputFilterAbstractServiceFactory::class,
+            $config['input_filters']['abstract_factories']
         );
     }
 
