@@ -4,20 +4,7 @@ The following example shows _one_ usage of zend-inputfilter in a zend-mvc
 based application. The example uses a module, a controller and the
 zend-inputfilter plugin manager.
 
-## Register Module
-
-Add zend-inputfilter as module to your configuration file,
-e.g. `config/modules.config.php`:
-
-```php
-return [
-    'Zend\Router',
-    'Zend\Session',
-    'Zend\Validator',
-    'Zend\InputFilter', // <-- Add this line
-    'Application',
-];
-```
+Before starting, make sure zend-inputfilter is installed and configured.
 
 ## Create Input-Filter
 
