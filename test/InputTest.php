@@ -21,7 +21,7 @@ use Zend\Validator\ValidatorChain;
 use Zend\Validator\ValidatorInterface;
 
 /**
- * @covers Zend\InputFilter\Input
+ * @covers \Zend\InputFilter\Input
  */
 class InputTest extends TestCase
 {
@@ -30,7 +30,7 @@ class InputTest extends TestCase
      */
     protected $input;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->input = new Input('foo');
     }

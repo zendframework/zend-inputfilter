@@ -24,7 +24,7 @@ use Zend\Validator\ValidatorInterface;
 use Zend\Validator\ValidatorPluginManager;
 
 /**
- * @covers Zend\InputFilter\InputFilterAbstractServiceFactory
+ * @covers \Zend\InputFilter\InputFilterAbstractServiceFactory
  */
 class InputFilterAbstractServiceFactoryTest extends TestCase
 {
@@ -43,7 +43,7 @@ class InputFilterAbstractServiceFactoryTest extends TestCase
      */
     protected $factory;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->services = new ServiceManager();
         $this->filters  = new InputFilterPluginManager($this->services);
