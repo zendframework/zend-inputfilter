@@ -24,7 +24,7 @@ use Zend\InputFilter\InputInterface;
 use Zend\InputFilter\UnfilteredDataInterface;
 
 /**
- * @covers Zend\InputFilter\BaseInputFilter
+ * @covers \Zend\InputFilter\BaseInputFilter
  */
 class BaseInputFilterTest extends TestCase
 {
@@ -33,7 +33,7 @@ class BaseInputFilterTest extends TestCase
      */
     protected $inputFilter;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->inputFilter = new BaseInputFilter();
     }

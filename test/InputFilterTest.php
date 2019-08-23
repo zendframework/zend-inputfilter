@@ -17,7 +17,7 @@ use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
 
 /**
- * @covers Zend\InputFilter\InputFilter
+ * @covers \Zend\InputFilter\InputFilter
  */
 class InputFilterTest extends BaseInputFilterTest
 {
@@ -26,7 +26,7 @@ class InputFilterTest extends BaseInputFilterTest
      */
     protected $inputFilter;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->inputFilter = new InputFilter();
     }
