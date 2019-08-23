@@ -1,6 +1,6 @@
 # Optional Input Filters
 
-- Since 2.8.0
+> Available since version 2.8.0
 
 Normally, input filters are _required_, which means that if you compose them as
 a subset of another input filter (e.g., to validate a subset of a larger set of
