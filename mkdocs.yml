@@ -5,7 +5,7 @@ pages:
     - Introduction: intro.md
     - Reference:
       - Specifications: specs.md
-      - Files: file-input.md
+      - "File Upload Input": file-input.md
       - "Optional Input Filters": optional-input-filters.md
       - "Unfiltered Data": unfiltered-data.md
 site_name: zend-inputfilter
