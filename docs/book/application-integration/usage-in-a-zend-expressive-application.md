@@ -5,20 +5,7 @@ based application. The example uses a module, config provider configuration,
 zend-servicemanager as dependency injection container, the zend-inputfilter
 plugin manager and a request handler.
 
-## Register Configuration Provider
-
-Add the configuration provider of zend-inputfilter to your configuration file,
-e.g. `config/config.php`:
-
-```php
-$aggregator = new Zend\ConfigAggregator\ConfigAggregator([
-    // …
-    Zend\Expressive\ConfigProvider::class,
-    Zend\Expressive\Router\ConfigProvider::class,
-    Zend\InputFilter\ConfigProvider::class, // <-- Add this line
-    // …
-]);
-```
+Before starting, make sure zend-inputfilter is installed and configured.
 
 ## Create Input-Filter
 
