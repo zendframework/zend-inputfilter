@@ -143,6 +143,8 @@ class ListHandlerFactory
 }
 ```
 
+> ### Instantiating the Input-Filter
+>
 > The `InputFilterPluginManager` calls the `init` method _after_ instantiating
 the input-filter and injecting it with a factory composing all the various 
 plugin-manager services.
