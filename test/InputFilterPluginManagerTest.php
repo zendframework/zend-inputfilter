@@ -26,7 +26,7 @@ use Zend\Stdlib\InitializableInterface;
 use Zend\Validator\ValidatorPluginManager;
 
 /**
- * @covers Zend\InputFilter\InputFilterPluginManager
+ * @covers \Zend\InputFilter\InputFilterPluginManager
  */
 class InputFilterPluginManagerTest extends TestCase
 {
@@ -40,7 +40,7 @@ class InputFilterPluginManagerTest extends TestCase
      */
     protected $services;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->services = new ServiceManager();
         $this->manager = new InputFilterPluginManager($this->services);
