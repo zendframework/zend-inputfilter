@@ -425,7 +425,8 @@ class Factory
                 if (isset($validator['break_chain_on_failure'])) {
                     $breakChainOnFailure = $validator['break_chain_on_failure'];
                 }
-                $chain->attachByName($name, $options, $breakChainOnFailure);
+                $priority = isset($validator['priority']) ? $validator['priority'] : ValidatorChain::DEFAULT_PRIORITY;
+                $chain->attachByName($name, $options, $breakChainOnFailure, $priority);
                 continue;
             }
 
