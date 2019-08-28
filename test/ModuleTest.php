@@ -11,7 +11,6 @@ use Interop\Container\ContainerInterface;
 use PHPUnit\Framework\TestCase;
 use Zend\InputFilter\InputFilterAbstractServiceFactory;
 use Zend\InputFilter\InputFilterPluginManager;
-use Zend\InputFilter\InputFilterPluginManagerFactory;
 use Zend\InputFilter\Module;
 
 class ModuleTest extends TestCase
@@ -19,7 +18,7 @@ class ModuleTest extends TestCase
     /** @var Module */
     private $module;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->module = new Module();
     }
@@ -70,9 +69,7 @@ class ModuleTest extends TestCase
     public function testInitMethodShouldRegisterPluginManagerSpecificationWithServiceListener()
     {
         // Service listener
-        $serviceListener = $this->prophesize(
-            TestAsset\ServiceListenerInterface::class
-        );
+        $serviceListener = $this->prophesize(TestAsset\ServiceListenerInterface::class);
         $serviceListener->addServiceManager(
             'InputFilterManager',
             'input_filters',
@@ -82,19 +79,15 @@ class ModuleTest extends TestCase
 
         // Container
         $container = $this->prophesize(ContainerInterface::class);
-        $container->get('ServiceListener')->willReturn(
-            $serviceListener->reveal()
-        );
+        $container->get('ServiceListener')->will([$serviceListener, 'reveal']);
 
         // Event
         $event = $this->prophesize(TestAsset\ModuleEventInterface::class);
-        $event->getParam('ServiceManager')->willReturn($container->reveal());
+        $event->getParam('ServiceManager')->will([$container, 'reveal']);
 
         // Module manager
-        $moduleManager = $this->prophesize(
-            TestAsset\ModuleManagerInterface::class
-        );
-        $moduleManager->getEvent()->willReturn($event->reveal());
+        $moduleManager = $this->prophesize(TestAsset\ModuleManagerInterface::class);
+        $moduleManager->getEvent()->will([$event, 'reveal']);
 
         $this->assertNull($this->module->init($moduleManager->reveal()));
     }
