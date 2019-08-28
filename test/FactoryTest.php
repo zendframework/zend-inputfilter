@@ -407,7 +407,8 @@ class FactoryTest extends TestCase
         $this->assertEquals('foo', $input->getName());
         $chain = $input->getValidatorChain();
         $index = 0;
-        foreach ($chain as $validator) {
+        foreach ($chain->getValidators() as $validator) {
+            $validator = $validator['instance'];
             switch ($index) {
                 case 0:
                     $this->assertInstanceOf(Validator\NotEmpty::class, $validator);
@@ -425,6 +426,8 @@ class FactoryTest extends TestCase
             }
             $index++;
         }
+        // Assure that previous foreach has been run
+        $this->assertEquals(3, $index);
     }
 
     public function testFactoryWillCreateInputWithSuggestedRequiredFlagAndAlternativeAllowEmptyFlag()
@@ -723,6 +726,62 @@ class FactoryTest extends TestCase
             }
             $index++;
         }
+
+        $this->assertSame(3, $index);
+    }
+
+    public function testFactoryValidatorsPriority()
+    {
+        $order = 0;
+
+        //Reminder: Priority at which to enqueue validator; defaults to 1 (higher executes earlier)
+        $factory = $this->createDefaultFactory();
+        $input   = $factory->createInput([
+            'name'       => 'foo',
+            'validators' => [
+                [
+                    'name'     => 'Callback',
+                    'priority' => Validator\ValidatorChain::DEFAULT_PRIORITY - 1, // 0
+                    'options' => [
+                        'callback' => static function ($value) use (&$order) {
+                            static::assertSame(2, $order);
+                            ++$order;
+
+                            return true;
+                        },
+                    ],
+                ],
+                [
+                    'name'     => 'Callback',
+                    'priority' => Validator\ValidatorChain::DEFAULT_PRIORITY + 1, // 2
+                    'options'  => [
+                        'callback' => static function ($value) use (&$order) {
+                            static::assertSame(0, $order);
+                            ++$order;
+
+                            return true;
+                        },
+                    ],
+                ],
+                [
+                    'name'     => 'Callback', // default priority 1
+                    'options'  => [
+                        'callback' => static function ($value) use (&$order) {
+                            static::assertSame(1, $order);
+                            ++$order;
+
+                            return true;
+                        },
+                    ],
+                ],
+            ],
+        ]);
+
+        // We should have 3 validators
+        $this->assertEquals(3, $input->getValidatorChain()->count());
+
+        $input->setValue(['foo' => false]);
+        self::assertTrue($input->isValid());
     }
 
     public function testConflictNameWithInputFilterType()
@@ -1065,9 +1124,7 @@ class FactoryTest extends TestCase
      */
     protected function createDefaultFactory()
     {
-        $factory = new Factory();
-
-        return $factory;
+        return new Factory();
     }
 
     /**
