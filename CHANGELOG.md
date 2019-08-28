@@ -22,6 +22,9 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
+- [#185](https://github.com/zendframework/zend-inputfilter/pull/185) fixes
+  validation response on invalid file upload request.
+
 - [#181](https://github.com/zendframework/zend-inputfilter/pull/181) fixes
   missing abstract service factory registration in `Module` as per the
   [latest documentation](https://docs.zendframework.com/zend-inputfilter/specs/#setup).
