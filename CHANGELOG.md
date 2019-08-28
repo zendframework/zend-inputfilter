@@ -44,7 +44,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#180](https://github.com/zendframework/zend-inputfilter/pull/180) fixes
+  attaching validators on creation of InputFilter - `priority` value is now used.
 
 ## 2.10.0 - 2019-01-30
 
