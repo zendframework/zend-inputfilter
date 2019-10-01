@@ -262,7 +262,7 @@ down when working with collections.</p>
 for dealing with this situation. <code>Zend\InputFilter\BaseInputFilter</code>, which
 forms the parent class for all shipped input filter implementations, implements
 the interface, which consists of the following methods:</p>
-<pre class="codehilite"><code class="language-php">interface UnfilteredDataInterface
+<p> <pre class=codehilite><code class=language-php>interface UnfilteredDataInterface
 {
     /**
      * @return array|object
@@ -281,8 +281,7 @@ the interface, which consists of the following methods:</p>
         $this-&gt;unfilteredData = $data;
         return $this;
     }
-}</code></pre>
-
+}</code></pre></p>
 <p>The <code>setUnfilteredData()</code> method is called by <code>setData()</code> with the full <code>$data</code>
 provided to that method, ensuring that <code>getUnfilteredData()</code> will always provide
 the original data with which the input filter was initialized, with no filtering
@@ -316,7 +315,7 @@ applied.</p>
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-inputfilter/edit/master/docs/unfiltered-data.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-inputfilter/edit/master/docs/book/unfiltered-data.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>

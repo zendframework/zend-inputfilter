@@ -271,21 +271,20 @@ default.  To enable it, you must add the
 <code>Zend\InputFilter\InputFilterAbstractServiceFactory</code> abstract factory to the
 <code>Zend\InputFilter\InputFilterPluginManager</code> configuration, which is under the
 <code>input_filters</code> configuration key.</p>
-<pre class="codehilite"><code class="language-php">return array(
+<p> <pre class=codehilite><code class=language-php>return array(
     'input_filters' =&gt; array(
         'abstract_factories' =&gt; array(
             'Zend\InputFilter\InputFilterAbstractServiceFactory'
         ),
     ),
-);</code></pre>
-
+);</code></pre></p>
 <p>For <a href="https://docs.zendframework.com/zend-expressive/">Expressive</a> when using
 the configuration manager, and for zend-mvc v3 releases, the functionality is
 enabled by default, assuming you are using the
 <a href="https://docs.zendframework.com/zend-component-installer/">component installer</a>.</p>
 <h2 id="example">Example</h2>
 <p>In the following code, we define configuration for an input filter named <code>foobar</code>:</p>
-<pre class="codehilite"><code class="language-php">return [
+<p> <pre class=codehilite><code class=language-php>return [
     'input_filter_specs' =&gt; [
         'foobar' =&gt; [
             [
@@ -304,11 +303,10 @@ enabled by default, assuming you are using the
             ],
         ],
     ],
-];</code></pre>
-
+];</code></pre></p>
 <p>When creating a controller, we might then pull the <code>InputFilterManager</code>, and
 retrieve the <code>foobar</code> input filter we've defined in order to inject it:</p>
-<pre class="codehilite"><code class="language-php">use Zend\ServiceManager\FactoryInterface;
+<p> <pre class=codehilite><code class=language-php>use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 class MyValidatingControllerFactory implements FactoryInterface
@@ -324,16 +322,15 @@ class MyValidatingControllerFactory implements FactoryInterface
         // Instantiate the controller and pass it the foobar input filter
         return new MyValidatingController($filters-&gt;get('foobar'));
     }
-}</code></pre>
-
+}</code></pre></p>
 <p>And you can use it as you already did with other input filters:</p>
-<pre class="codehilite"><code class="language-php">$inputFilter-&gt;setData([
+<p> <pre class=codehilite><code class=language-php>$inputFilter-&gt;setData([
     'name' =&gt; 'test',
 ]);
 
 if (! $inputFilter-&gt;isValid()) {
     echo 'Data invalid';
-}</code></pre>
+}</code></pre></p>
 
 
 
@@ -367,7 +364,7 @@ if (! $inputFilter-&gt;isValid()) {
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-inputfilter/edit/master/docs/specs.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-inputfilter/edit/master/docs/book/specs.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>

@@ -257,7 +257,7 @@ information. The user can provide an optional "title" and a required "email",
 and <em>optionally</em> details about a project they lead, which will include the
 project title and a URL, both of which are required if present.</p>
 <p>First, let's create an <code>OptionalInputFilter</code> instance for the project data:</p>
-<pre class="codehilite"><code class="language-php">$projectFilter = new OptionalInputFilter();
+<p> <pre class=codehilite><code class=language-php>$projectFilter = new OptionalInputFilter();
 $projectFilter-&gt;add([
     'name' =&gt; 'project_name',
     'required' =&gt; true,
@@ -268,10 +268,9 @@ $projectFilter-&gt;add([
     'validators' =&gt; [
         ['type' =&gt; 'uri'],
     ],
-]);</code></pre>
-
+]);</code></pre></p>
 <p>Now, we'll create our primary input filter:</p>
-<pre class="codehilite"><code class="language-php">$profileFilter = new InputFilter();
+<p> <pre class=codehilite><code class=language-php>$profileFilter = new InputFilter();
 $profileFilter-&gt;add([
     'name' =&gt; 'title',
     'required' =&gt; false,
@@ -285,47 +284,47 @@ $profileFilter-&gt;add([
 ]);
 
 // And, finally, compose our project sub-filter:
-$profileFilter-&gt;add($projectFilter, 'project');</code></pre>
-
+$profileFilter-&gt;add($projectFilter, 'project');</code></pre></p>
 <p>With this defined, we can now validate the following sets of data, presented in
 JSON for readability:</p>
 <ul>
 <li>Just profile information:</li>
 </ul>
-<pre class="codehilite"><code class="language-json">{
-  "email": "user@example.com",
-  "title": "Software Developer"
-}</code></pre>
-
+<p><code>json
+  {
+    "email": "user@example.com",
+    "title": "Software Developer"
+  }</code></p>
 <ul>
 <li><code>null</code> project provided:</li>
 </ul>
-<pre class="codehilite"><code class="language-json">{
-  "email": "user@example.com",
-  "title": "Software Developer",
-  "project": null
-}</code></pre>
-
+<p><code>json
+  {
+    "email": "user@example.com",
+    "title": "Software Developer",
+    "project": null
+  }</code></p>
 <ul>
 <li>Empty project provided:</li>
 </ul>
-<pre class="codehilite"><code class="language-json">{
-  "email": "user@example.com",
-  "title": "Software Developer",
-  "project": {}
-}</code></pre>
-
+<p><code>json
+  {
+    "email": "user@example.com",
+    "title": "Software Developer",
+    "project": {}
+  }</code></p>
 <ul>
 <li>Valid project provided:</li>
 </ul>
-<pre class="codehilite"><code class="language-json">{
-  "email": "user@example.com",
-  "title": "Software Developer",
-  "project": {
-    "project_name": "zend-inputfilter",
-    "url": "https://github.com/zend-inputfilter",
-  }
-}</code></pre>
+<p><code>json
+  {
+    "email": "user@example.com",
+    "title": "Software Developer",
+    "project": {
+      "project_name": "zend-inputfilter",
+      "url": "https://github.com/zend-inputfilter",
+    }
+  }</code></p>
 
 
 
@@ -359,7 +358,7 @@ JSON for readability:</p>
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-inputfilter/edit/master/docs/optional-input-filters.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-inputfilter/edit/master/docs/book/optional-input-filters.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>

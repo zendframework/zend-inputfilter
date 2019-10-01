@@ -286,7 +286,7 @@ type="file"&gt;</code> element in your form, you will need to use the <code>File
 <strong>instead of</strong> <code>Input</code> or else you will encounter issues.</p>
 <h2 id="basic-usage">Basic Usage</h2>
 <p>Usage of <code>FileInput</code> is essentially the same as <code>Input</code>:</p>
-<pre class="codehilite"><code class="language-php">use Zend\Http\PhpEnvironment\Request;
+<p> <pre class=codehilite><code class=language-php>use Zend\Http\PhpEnvironment\Request;
 use Zend\Filter;
 use Zend\InputFilter\InputFilter;
 use Zend\InputFilter\Input;
@@ -336,21 +336,20 @@ $inputFilter
     -&gt;setData($postData);
 
 if ($inputFilter-&gt;isValid()) {           // FileInput validators are run, but not the filters...
-    echo "The form is valid\n";
+    echo &quot;The form is valid\n&quot;;
     $data = $inputFilter-&gt;getValues();   // This is when the FileInput filters are run.
 } else {
-    echo "The form is not valid\n";
+    echo &quot;The form is not valid\n&quot;;
     foreach ($inputFilter-&gt;getInvalidInput() as $error) {
         print_r ($error-&gt;getMessages());
     }
-}</code></pre>
-
+}</code></pre></p>
 <h2 id="psr-7-support">PSR-7 Support</h2>
 <blockquote>
 <p>Available since version 2.9.0</p>
 </blockquote>
 <p>You may also pass an array of uploaded files from a <a href="http://www.php-fig.org/psr/psr-7/#serverrequestinterface">PSR-7 ServerRequestInterface</a>.</p>
-<pre class="codehilite"><code class="language-php">use Psr\Http\Message\ServerRequestInterface;
+<p> <pre class=codehilite><code class=language-php>use Psr\Http\Message\ServerRequestInterface;
 use Zend\Filter;
 use Zend\InputFilter\InputFilter;
 use Zend\InputFilter\FileInput;
@@ -383,14 +382,14 @@ $inputFilter
     -&gt;setData($postData);
 
 if ($inputFilter-&gt;isValid()) {           // FileInput validators are run, but not the filters...
-    echo "The form is valid\n";
+    echo &quot;The form is valid\n&quot;;
     $data = $inputFilter-&gt;getValues();   // This is when the FileInput filters are run.
 } else {
-    echo "The form is not valid\n";
+    echo &quot;The form is not valid\n&quot;;
     foreach ($inputFilter-&gt;getInvalidInput() as $error) {
         print_r ($error-&gt;getMessages());
     }
-}</code></pre>
+}</code></pre></p>
 
 
 
@@ -424,7 +423,7 @@ if ($inputFilter-&gt;isValid()) {           // FileInput validators are run, but
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-inputfilter/edit/master/docs/file-input.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-inputfilter/edit/master/docs/book/file-input.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>
