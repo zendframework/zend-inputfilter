@@ -18,13 +18,13 @@ default.  To enable it, you must add the
 `input_filters` configuration key.
 
 ```php
-return array(
-    'input_filters' => array(
-        'abstract_factories' => array(
-            'Zend\InputFilter\InputFilterAbstractServiceFactory'
-        ),
-    ),
-);
+return [
+    'input_filters' => [
+        'abstract_factories' => [
+            'Zend\InputFilter\InputFilterAbstractServiceFactory',
+        ],
+    ],
+];
 ```
 
 For [Expressive](https://docs.zendframework.com/zend-expressive/) when using
