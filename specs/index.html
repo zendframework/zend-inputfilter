@@ -271,13 +271,13 @@ default.  To enable it, you must add the
 <code>Zend\InputFilter\InputFilterAbstractServiceFactory</code> abstract factory to the
 <code>Zend\InputFilter\InputFilterPluginManager</code> configuration, which is under the
 <code>input_filters</code> configuration key.</p>
-<p> <pre class=codehilite><code class=language-php>return array(
-    'input_filters' =&gt; array(
-        'abstract_factories' =&gt; array(
-            'Zend\InputFilter\InputFilterAbstractServiceFactory'
-        ),
-    ),
-);</code></pre></p>
+<p> <pre class=codehilite><code class=language-php>return [
+    'input_filters' =&gt; [
+        'abstract_factories' =&gt; [
+            'Zend\InputFilter\InputFilterAbstractServiceFactory',
+        ],
+    ],
+];</code></pre></p>
 <p>For <a href="https://docs.zendframework.com/zend-expressive/">Expressive</a> when using
 the configuration manager, and for zend-mvc v3 releases, the functionality is
 enabled by default, assuming you are using the
