@@ -133,9 +133,12 @@ class AlbumControllerFactory implements FactoryInterface
 
 > ### Instantiating the InputFilter
 >
-> The `InputFilterPluginManager` calls the `init` method _after_ instantiating
-the input filter and injecting it with a factory composing all the various 
-plugin-manager services.
+> The `InputFilterPluginManager` is used instead of directly instantiating the
+> input filter to ensure we get the filter and validator plugin managers
+> injected. This allows to use custom registered filters and validators.
+>
+> Additionally the `InputFilterPluginManager` calls the `init` method _after_
+> instantiating the input filter.
 
 ### Register Controller
 
