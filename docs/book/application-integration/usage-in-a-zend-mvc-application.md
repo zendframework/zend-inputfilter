@@ -71,7 +71,7 @@ return [
 
 ### Create Controller
 
-Using the input-filter in a controller, e.g.
+Using the input filter in a controller, e.g.
 `module/Album/Controller/AlbumController.php`:
 
 ```php
@@ -104,7 +104,7 @@ class AlbumController extends AbstractActionController
 
 ### Create Factory for Controller
 
-Fetch the `QueryInputFilter` from the input-filter plugin manager in a factory,
+Fetch the `QueryInputFilter` from the input filter plugin manager in a factory,
 e.g. `src/Album/Handler/ListHandlerFactory.php`:
 
 ```php
@@ -131,10 +131,10 @@ class AlbumControllerFactory implements FactoryInterface
 }
 ```
 
-> ### Instantiating the Input-Filter
+> ### Instantiating the InputFilter
 >
 > The `InputFilterPluginManager` calls the `init` method _after_ instantiating
-the input-filter and injecting it with a factory composing all the various 
+the input filter and injecting it with a factory composing all the various 
 plugin-manager services.
 
 ### Register Controller
