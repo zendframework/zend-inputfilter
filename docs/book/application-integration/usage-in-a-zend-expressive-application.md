@@ -7,9 +7,9 @@ plugin manager and a request handler.
 
 Before starting, make sure zend-inputfilter is installed and configured.
 
-## Create Input-Filter
+## Create InputFilter
 
-Create an input-filter as separate class, e.g.
+Create an input filter as separate class, e.g.
 `src/Album/InputFilter/QueryInputFilter.php`:
 
 ```php
@@ -47,9 +47,9 @@ class QueryInputFilter extends InputFilter
 }
 ```
 
-## Register Input-Filter
+## Register InputFilter
 
-Extend the configuration provider of the module to register the input-filter,
+Extend the configuration provider of the module to register the input filter,
 e.g. `src/Album/ConfigProvider.php`:
 
 ```php
@@ -81,11 +81,11 @@ class ConfigProvider
 }
 ```
 
-## Using Input-Filter
+## Using InputFilter
 
 ### Create Handler
 
-Using the input-filter in a request handler, e.g.
+Using the input filter in a request handler, e.g.
 `src/Album/Handler/ListHandler.php`:
 
 ```php
@@ -120,7 +120,7 @@ class ListHandler implements RequestHandlerInterface
 
 ### Create Factory for Handler
 
-Fetch the `QueryInputFilter` from the input-filter plugin manager in a factory,
+Fetch the `QueryInputFilter` from the input filter plugin manager in a factory,
 e.g. `src/Album/Handler/ListHandlerFactory.php`:
 
 ```php
@@ -143,7 +143,7 @@ class ListHandlerFactory
 }
 ```
 
-> ### Instantiating the Input-Filter
+> ### Instantiating the InputFilter
 >
 > The `InputFilterPluginManager` calls the `init` method _after_ instantiating
 the input-filter and injecting it with a factory composing all the various 
@@ -151,7 +151,7 @@ plugin-manager services.
 
 ### Register Handler
 
-Extend the configuration provider of the module to register the input-filter,
+Extend the configuration provider of the module to register the input filter,
 e.g. `src/Album/ConfigProvider.php`:
 
 ```php
