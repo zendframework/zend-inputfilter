@@ -146,11 +146,13 @@ class ListHandlerFactory
 > ### Instantiating the InputFilter
 >
 > The `InputFilterPluginManager` is used instead of directly instantiating the
-> input filter to ensure we get the filter and validator plugin managers
-> injected. This allows to use custom registered filters and validators.
+> input filter to ensure to get the filter and validator plugin managers
+> injected. This allows usage of any filters and validators registered with
+> their respective plugin managers.
 >
 > Additionally the `InputFilterPluginManager` calls the `init` method _after_
-> instantiating the input filter.
+> instantiating the input filter, ensuring all dependencies are fully injected
+> first.
 
 ### Register Handler
 
