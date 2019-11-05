@@ -46,27 +46,6 @@ class QueryInputFilter extends InputFilter
 }
 ```
 
-## Register Input-Filter
-
-Extend the configuration of the module to register the input-filter,
-e.g. `module/Album/config/module.config.php`:
-
-```php
-namespace Album;
-
-use Zend\ServiceManager\Factory\InvokableFactory;
-
-return [
-    // Add the following array
-    'input_filters' => [
-        'factories => [
-            InputFilter\QueryInputFilter::class => InvokableFactory::class,
-        ],
-    ],
-    // …
-];
-```
-
 ## Using Input Filter
 
 ### Create Controller
@@ -142,19 +121,27 @@ class AlbumControllerFactory implements FactoryInterface
 > instantiating the input filter, ensuring all dependencies are fully injected
 > first.
 
-### Register Controller
+## Register Input Filter and Controller
 
-Extend the configuration of the module to register the controller,
-e.g. `module/Album/config/module.config.php`:
+Extend the configuration of the module to register the input filter and
+controller in the application, e.g. `module/Album/config/module.config.php`:
 
 ```php
 namespace Album;
 
+use Zend\ServiceManager\Factory\InvokableFactory;
+
 return [
-    // Add the following array
     'controllers' => [
         'factories' => [
+            // Add this line
             Controller\AlbumController::class => Controller\AlbumControllerFactory::class,
+        ],
+    ],
+    // Add the following array
+    'input_filters' => [
+        'factories => [
+            InputFilter\QueryInputFilter::class => InvokableFactory::class,
         ],
     ],
     // …
