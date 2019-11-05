@@ -7,7 +7,7 @@ plugin manager and a request handler.
 
 Before starting, make sure zend-inputfilter is installed and configured.
 
-## Create InputFilter
+## Create Input Filter
 
 Create an input filter as separate class, e.g.
 `src/Album/InputFilter/QueryInputFilter.php`:
@@ -47,7 +47,7 @@ class QueryInputFilter extends InputFilter
 }
 ```
 
-## Register InputFilter
+## Register Input Filter
 
 Extend the configuration provider of the module to register the input filter,
 e.g. `src/Album/ConfigProvider.php`:
@@ -81,7 +81,7 @@ class ConfigProvider
 }
 ```
 
-## Using InputFilter
+## Using Input Filter
 
 ### Create Handler
 

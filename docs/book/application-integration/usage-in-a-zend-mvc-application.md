@@ -6,9 +6,9 @@ zend-inputfilter plugin manager.
 
 Before starting, make sure zend-inputfilter is installed and configured.
 
-## Create Input-Filter
+## Create Input Filter
 
-Create an input-filter as separate class, e.g.
+Create an input filter as separate class, e.g.
 `module/Album/src/InputFilter/QueryInputFilter.php`:
 
 ```php
@@ -67,7 +67,7 @@ return [
 ];
 ```
 
-## Using Input-Filter
+## Using Input Filter
 
 ### Create Controller
 
@@ -131,7 +131,7 @@ class AlbumControllerFactory implements FactoryInterface
 }
 ```
 
-> ### Instantiating the InputFilter
+> ### Instantiating the Input Filter
 >
 > The `InputFilterPluginManager` is used instead of directly instantiating the
 > input filter to ensure we get the filter and validator plugin managers
