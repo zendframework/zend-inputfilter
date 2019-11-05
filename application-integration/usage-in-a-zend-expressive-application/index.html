@@ -7,11 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Normalize and validate input sets from the web, APIs, the CLI, and more, including files.">  
-    <link rel="shortcut icon" href="/zend-inputfilter/img/favicon.ico">
+    <link rel="canonical" href="https://docs.zendframework.com/zend-inputfilter/application-integration/usage-in-a-zend-expressive-application/">
+    <link rel="shortcut icon" href="../../img/favicon.ico">
 
-    <title>zend-inputfilter - Zend Framework Docs</title>
+    <title>Usage in a zend-expressive application - zend-inputfilter - Zend Framework Docs</title>
 
-    <link rel="stylesheet" href="/zend-inputfilter/css/styles-5cfabd53ee.css">
+    <link rel="stylesheet" href="../../css/styles-5cfabd53ee.css">
 </head>
 <body id="page-top">
 
@@ -31,7 +32,7 @@
             
             <span class="navbar-brand">
                 <a class="logo-link" href="https://framework.zend.com/" data-tooltip data-placement="bottom" title="Go to the ZF homepage">
-                    <img src="/zend-inputfilter/img/zend-framework-logo.svg" height="28" alt="Zend Framework">
+                    <img src="../../img/zend-framework-logo.svg" height="28" alt="Zend Framework">
                 </a>
             </span>
         </div>
@@ -66,7 +67,7 @@
                     
     <div class="subnavigation hidden-print">
         <h4 class="subnavigation__title">
-            <a href="/zend-inputfilter/.">zend-inputfilter</a>
+            <a href="../..">zend-inputfilter</a>
         </h4>
 
         <h5 class="subnavigation__subtitle">Table of Contents</h5>
@@ -81,7 +82,7 @@
                     
                         
                             <li class="subnavigation__list-item ">
-                                <a href="/zend-inputfilter/intro/" class="subnavigation__link">Introduction</a>
+                                <a href="../../intro/" class="subnavigation__link">Introduction</a>
                             </li>
                         
                     
@@ -100,25 +101,25 @@
                                     
                                         
     <li class="subnavigation__list-item ">
-        <a href="/zend-inputfilter/specs/" class="subnavigation__link">Specifications</a>
+        <a href="../../specs/" class="subnavigation__link">Specifications</a>
     </li>
 
                                     
                                         
     <li class="subnavigation__list-item ">
-        <a href="/zend-inputfilter/file-input/" class="subnavigation__link">File Upload Input</a>
+        <a href="../../file-input/" class="subnavigation__link">File Upload Input</a>
     </li>
 
                                     
                                         
     <li class="subnavigation__list-item ">
-        <a href="/zend-inputfilter/optional-input-filters/" class="subnavigation__link">Optional Input Filters</a>
+        <a href="../../optional-input-filters/" class="subnavigation__link">Optional Input Filters</a>
     </li>
 
                                     
                                         
     <li class="subnavigation__list-item ">
-        <a href="/zend-inputfilter/unfiltered-data/" class="subnavigation__link">Unfiltered Data</a>
+        <a href="../../unfiltered-data/" class="subnavigation__link">Unfiltered Data</a>
     </li>
 
                                     
@@ -141,13 +142,13 @@
                                     
                                         
     <li class="subnavigation__list-item ">
-        <a href="/zend-inputfilter/application-integration/usage-in-a-zend-mvc-application/" class="subnavigation__link">Usage in a zend-mvc application</a>
+        <a href="../usage-in-a-zend-mvc-application/" class="subnavigation__link">Usage in a zend-mvc application</a>
     </li>
 
                                     
                                         
-    <li class="subnavigation__list-item ">
-        <a href="/zend-inputfilter/application-integration/usage-in-a-zend-expressive-application/" class="subnavigation__link">Usage in a zend-expressive application</a>
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">Usage in a zend-expressive application</a>
     </li>
 
                                     
@@ -228,18 +229,257 @@
             <div class="col-md-9 col-xs-12 content" role="main">
             <!-- content:begin -->
                 
+                    <ol class="breadcrumb" role="navigation" aria-label="breadcrumbs navigation">
+    <li><a href="https://framework.zend.com/">Home</a></li>
 
-<h1 class="content__title">404</h1>
+    
+        <li><a href="https://docs.zendframework.com/">Documentation</a></li>
+
+        
+            <li><a href="../..">zend-inputfilter</a></li>
+
+            
+                
+                    
+                    
+                        <li>Application Integration</li>
+                    
+                
+            
+
+            <li class="active">Usage in a zend-expressive application</li>
+        
+    
+</ol>
+
+
+
+
+
+
+    
+    
+        <h2 class="chapter__headline">Application Integration</h2>
+    
+
+    <div>
+        
+    
+
+    
+    
+        <div class="toc">
+            <h6 class="toc__headline">In This Article</h6>
+            <ul class="toc__list">
+                
+                    <li class="toc__entry">
+                        <a href="#create-input-filter" class="toc__link">Create Input Filter</a>
+                    </li>
+                
+                    <li class="toc__entry">
+                        <a href="#using-input-filter" class="toc__link">Using Input Filter</a>
+                    </li>
+                
+                    <li class="toc__entry">
+                        <a href="#register-input-filter-and-handler" class="toc__link">Register Input Filter and Handler</a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+
+    </div>
+
+    <h1 id="usage-in-a-zend-expressive-application">Usage in a zend-expressive Application</h1>
+<p>The following example shows <em>one</em> potential use case of zend-inputfilter within
+a zend-expressive based application. The example uses a module, config provider
+configuration, zend-servicemanager as dependency injection container, the
+zend-inputfilter plugin manager and a request handler.</p>
+<p>Before starting, make sure zend-inputfilter is installed and configured.</p>
+<h2 id="create-input-filter">Create Input Filter</h2>
+<p>Create an input filter as separate class, e.g.
+<code>src/Album/InputFilter/QueryInputFilter.php</code>:</p>
+<p> <pre class=codehilite><code class=language-php>namespace Album\InputFilter;
+
+use Zend\Filter\ToInt;
+use Zend\I18n\Validator\IsInt;
+use Zend\InputFilter\InputFilter;
+
+class QueryInputFilter extends InputFilter
+{
+    public function init()
+    {
+        // Page
+        $this-&gt;add(
+            [
+                'name'              =&gt; 'page',
+                'allow_empty'       =&gt; true,
+                'validators'        =&gt; [
+                    [
+                        'name' =&gt; IsInt::class,                        
+                    ],                    
+                ],
+                'filters'           =&gt; [
+                    [
+                        'name' =&gt; ToInt::class,
+                    ],
+                ],
+                'fallback_value'    =&gt; 1,
+            ]
+        );
+
+        // …
+    }
+}</code></pre></p>
+<h2 id="using-input-filter">Using Input Filter</h2>
+<h3>Create Handler</h3>
+<p>Using the input filter in a request handler, e.g.
+<code>src/Album/Handler/ListHandler.php</code>:</p>
+<p> <pre class=codehilite><code class=language-php>namespace Album\Handler;
+
+use Album\InputFilter\QueryInputFilter;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\ResponseInterface;
+use Zend\InputFilter\InputFilterInterface;
+use Zend\Expressive\Template\TemplateRendererInterface;
+
+class ListHandler implements RequestHandlerInterface
+{
+    /** @var InputFilterInterface */
+    private $inputFilter;
+
+    /** @var TemplateRendererInterface */
+    private $renderer;
+
+    public function __construct(
+        InputFilterInterface $inputFilter,
+        TemplateRendererInterface $renderer
+    ) {
+        $this-&gt;inputFilter = $inputFilter;
+        $this-&gt;renderer    = $renderer;
+    }
+
+    public function handle(ServerRequestInterface $request) : ResponseInterface
+    {
+        $this-&gt;inputFilter-&gt;setData($request-&gt;getQueryParams());
+        $this-&gt;inputFilter-&gt;isValid();
+        $filteredParams = $this-&gt;inputFilter-&gt;getValues();
+
+        // …
+
+        return new HtmlResponse($this-&gt;renderer-&gt;render(
+            'album::list',
+            []
+        ));
+    }
+}</code></pre></p>
+<h3>Create Factory for Handler</h3>
+<p>Fetch the <code>QueryInputFilter</code> from the input filter plugin manager in a factory,
+e.g. <code>src/Album/Handler/ListHandlerFactory.php</code>:</p>
+<p> <pre class=codehilite><code class=language-php>namespace Album\Handler;
+
+use Album\InputFilter\QueryInputFilter;
+use Psr\Container\ContainerInterface;
+use Zend\InputFilter\InputFilterPluginManager;
+
+class ListHandlerFactory
+{
+    public function __invoke(ContainerInterface $container)
+    {
+        /** @var InputFilterPluginManager $pluginManager */
+        $pluginManager = $container-&gt;get(InputFilterPluginManager::class);
+        $inputFilter   = $pluginManager-&gt;get(QueryInputFilter::class);
+
+        return new ListHandler(
+            $inputFilter,
+            $container-&gt;get(TemplateRendererInterface::class)
+        );
+    }
+}</code></pre></p>
 <blockquote>
-    <h3>Something went wrong!</h3>
-    <p>
-        We're sorry, but the page you are looking for does not exist.
-    </p>
+<h3>Instantiating the InputFilter</h3>
+<p>The <code>InputFilterPluginManager</code> is used instead of directly instantiating the
+input filter to ensure to get the filter and validator plugin managers
+injected. This allows usage of any filters and validators registered with
+their respective plugin managers.</p>
+<p>Additionally the <code>InputFilterPluginManager</code> calls the <code>init</code> method <em>after</em>
+instantiating the input filter, ensuring all dependencies are fully injected
+first.</p>
 </blockquote>
+<h2 id="register-input-filter-and-handler">Register Input Filter and Handler</h2>
+<p>Extend the configuration provider of the module to register the input filter and
+the request handler, e.g. <code>src/Album/ConfigProvider.php</code>:</p>
+<p> <pre class=codehilite><code class=language-php>namespace Album;
 
-<a href="/zend-inputfilter/." class="btn btn-default" role="button">Go to homepage</a>
+class ConfigProvider
+{
+    public function __invoke() : array
+    {
+        return [
+            'dependencies'  =&gt; $this-&gt;getDependencies(),
+            'input_filters' =&gt; $this-&gt;getInputFilters(), // &lt;-- Add this line
+        ];
+    }
+
+    public function getDependencies() : array
+    {
+        return [
+            'factories' =&gt; [
+                Handler\ListHandler::class =&gt; Handler\ListHandlerFactory::class, // &lt;-- Add this line
+                // …
+            ],
+        ];
+    }
+
+    // Add the following method
+    public function getInputFilters() : array
+    {
+        return [
+            'factories' =&gt; [
+                InputFilter\QueryInputFilter::class =&gt; InvokableFactory::class,
+            ],
+        ];
+    }
+
+    // …
+}</code></pre></p>
 
 
+
+
+    <nav>
+    <ul class="page-nav hidden-print">
+
+        
+        <li class="page-nav__item">
+            
+                <a rel="prev" class="page-nav__link page-nav__link--prev" href="../usage-in-a-zend-mvc-application/">
+                    <i class="fa fa-chevron-left"></i> Previous
+                </a>
+            
+        </li>
+
+        
+        <li class="page-nav__item">
+            
+        </li>
+    </ul>
+</nav>
+
+
+
+
+    <div class="help-wanted">
+        <p>
+            Found a mistake or want to contribute to the documentation?
+            <a href="https://github.com/zendframework/zend-inputfilter/edit/master/docs/book/application-integration/usage-in-a-zend-expressive-application.md" target="_blank" class="help-wanted__link">
+                Edit this page on GitHub!
+            </a>
+        </p>
+    </div>
+
+                
             <!-- content:end -->
             </div>
             <div class="col-md-3 col-xs-12 sidebar">
@@ -255,7 +495,7 @@
                     
     <div class="subnavigation hidden-print">
         <h4 class="subnavigation__title">
-            <a href="/zend-inputfilter/.">zend-inputfilter</a>
+            <a href="../..">zend-inputfilter</a>
         </h4>
 
         <h5 class="subnavigation__subtitle">Table of Contents</h5>
@@ -270,7 +510,7 @@
                     
                         
                             <li class="subnavigation__list-item ">
-                                <a href="/zend-inputfilter/intro/" class="subnavigation__link">Introduction</a>
+                                <a href="../../intro/" class="subnavigation__link">Introduction</a>
                             </li>
                         
                     
@@ -289,25 +529,25 @@
                                     
                                         
     <li class="subnavigation__list-item ">
-        <a href="/zend-inputfilter/specs/" class="subnavigation__link">Specifications</a>
+        <a href="../../specs/" class="subnavigation__link">Specifications</a>
     </li>
 
                                     
                                         
     <li class="subnavigation__list-item ">
-        <a href="/zend-inputfilter/file-input/" class="subnavigation__link">File Upload Input</a>
+        <a href="../../file-input/" class="subnavigation__link">File Upload Input</a>
     </li>
 
                                     
                                         
     <li class="subnavigation__list-item ">
-        <a href="/zend-inputfilter/optional-input-filters/" class="subnavigation__link">Optional Input Filters</a>
+        <a href="../../optional-input-filters/" class="subnavigation__link">Optional Input Filters</a>
     </li>
 
                                     
                                         
     <li class="subnavigation__list-item ">
-        <a href="/zend-inputfilter/unfiltered-data/" class="subnavigation__link">Unfiltered Data</a>
+        <a href="../../unfiltered-data/" class="subnavigation__link">Unfiltered Data</a>
     </li>
 
                                     
@@ -330,13 +570,13 @@
                                     
                                         
     <li class="subnavigation__list-item ">
-        <a href="/zend-inputfilter/application-integration/usage-in-a-zend-mvc-application/" class="subnavigation__link">Usage in a zend-mvc application</a>
+        <a href="../usage-in-a-zend-mvc-application/" class="subnavigation__link">Usage in a zend-mvc application</a>
     </li>
 
                                     
                                         
-    <li class="subnavigation__list-item ">
-        <a href="/zend-inputfilter/application-integration/usage-in-a-zend-expressive-application/" class="subnavigation__link">Usage in a zend-expressive application</a>
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">Usage in a zend-expressive application</a>
     </li>
 
                                     
@@ -417,11 +657,11 @@
 </footer>
 
     <script>
-        var base_url = '/zend-inputfilter',
+        var base_url = '../..',
             siteName = 'zend-inputfilter';
     </script>
-    <script src="/zend-inputfilter/js/scripts-8d7ae56abf.js"></script>
-        <script src="/zend-inputfilter/search/main.js"></script>
+    <script src="../../js/scripts-8d7ae56abf.js"></script>
+        <script src="../../search/main.js"></script>
 
     
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
