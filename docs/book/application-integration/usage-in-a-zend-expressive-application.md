@@ -47,40 +47,6 @@ class QueryInputFilter extends InputFilter
 }
 ```
 
-## Register Input Filter
-
-Extend the configuration provider of the module to register the input filter,
-e.g. `src/Album/ConfigProvider.php`:
-
-```php
-namespace Album;
-
-use Zend\ServiceManager\Factory\InvokableFactory;
-
-class ConfigProvider
-{
-    public function __invoke() : array
-    {
-        return [
-            'dependencies'  => $this->getDependencies(),
-            'input_filters' => $this->getInputFilters(), // <-- Add this line
-        ];
-    }
-    
-    // Add the following method
-    public function getInputFilters() : array
-    {
-        return [
-            'factories' => [
-                InputFilter\QueryInputFilter::class => InvokableFactory::class,
-            ],
-        ];
-    }
-    
-    // …
-}
-```
-
 ## Using Input Filter
 
 ### Create Handler
@@ -154,10 +120,10 @@ class ListHandlerFactory
 > instantiating the input filter, ensuring all dependencies are fully injected
 > first.
 
-### Register Handler
+### Register Input Filter and Handler
 
-Extend the configuration provider of the module to register the input filter,
-e.g. `src/Album/ConfigProvider.php`:
+Extend the configuration provider of the module to register the input filter and
+the request handler, e.g. `src/Album/ConfigProvider.php`:
 
 ```php
 namespace Album;
@@ -168,7 +134,7 @@ class ConfigProvider
     {
         return [
             'dependencies'  => $this->getDependencies(),
-            'input_filters' => $this->getInputFilters(),
+            'input_filters' => $this->getInputFilters(), // <-- Add this line
         ];
     }
     
@@ -177,6 +143,17 @@ class ConfigProvider
         return [
             'factories' => [
                 Handler\ListHandler::class => Handler\ListHandlerFactory::class, // <-- Add this line
+                // …
+            ],
+        ];
+    }
+
+    // Add the following method
+    public function getInputFilters() : array
+    {
+        return [
+            'factories' => [
+                InputFilter\QueryInputFilter::class => InvokableFactory::class,
             ],
         ];
     }
