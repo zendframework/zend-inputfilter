@@ -1,7 +1,7 @@
 # Usage in a zend-mvc Application
 
-The following example shows _one_ usage of zend-inputfilter in a zend-mvc
-based application. The example uses a module, a controller and the
+The following example shows _one_ potential use case of zend-inputfilter within
+a zend-mvc based application. The example uses a module, a controller and the
 zend-inputfilter plugin manager.
 
 Before starting, make sure zend-inputfilter is installed and configured.
