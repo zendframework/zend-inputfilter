@@ -1,9 +1,9 @@
 # Usage in a zend-expressive Application
 
-The following example shows _one_ usage of zend-inputfilter in a zend-expressive
-based application. The example uses a module, config provider configuration,
-zend-servicemanager as dependency injection container, the zend-inputfilter
-plugin manager and a request handler.
+The following example shows _one_ potential use case of zend-inputfilter within
+a zend-expressive based application. The example uses a module, config provider
+configuration, zend-servicemanager as dependency injection container, the
+zend-inputfilter plugin manager and a request handler.
 
 Before starting, make sure zend-inputfilter is installed and configured.
 
