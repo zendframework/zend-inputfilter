@@ -135,7 +135,7 @@ class ListHandlerFactory
 > instantiating the input filter, ensuring all dependencies are fully injected
 > first.
 
-### Register Input Filter and Handler
+## Register Input Filter and Handler
 
 Extend the configuration provider of the module to register the input filter and
 the request handler, e.g. `src/Album/ConfigProvider.php`:
