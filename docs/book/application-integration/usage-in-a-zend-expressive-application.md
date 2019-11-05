@@ -62,15 +62,22 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Zend\InputFilter\InputFilterInterface;
+use Zend\Expressive\Template\TemplateRendererInterface;
 
 class ListHandler implements RequestHandlerInterface
 {
     /** @var InputFilterInterface */
     private $inputFilter;
+
+    /** @var TemplateRendererInterface */
+    private $renderer;
     
-    public function __construct(InputFilterInterface $inputFilter)
-    {
-        $this->inputFilter = $inputFilter;        
+    public function __construct(
+        InputFilterInterface $inputFilter,
+        TemplateRendererInterface $renderer
+    ) {
+        $this->inputFilter = $inputFilter;
+        $this->renderer    = $renderer;
     }
     
     public function handle(ServerRequestInterface $request) : ResponseInterface
@@ -80,6 +87,11 @@ class ListHandler implements RequestHandlerInterface
         $filteredParams = $this->inputFilter->getValues();
         
         // …
+
+        return new HtmlResponse($this->renderer->render(
+            'album::list',
+            []
+        ));
     }
 }
 ```
@@ -104,7 +116,10 @@ class ListHandlerFactory
         $pluginManager = $container->get(InputFilterPluginManager::class);
         $inputFilter   = $pluginManager->get(QueryInputFilter::class);
 
-        return new ListHandler($inputFilter);
+        return new ListHandler(
+            $inputFilter,
+            $container->get(TemplateRendererInterface::class)
+        );
     }
 }
 ```
