@@ -1,5 +1,9 @@
 # zend-inputfilter
 
+> ## Repository abandoned 2019-12-31
+>
+> This repository has moved to laminas/laminas-inputfilter.
+
 [![Build Status](https://secure.travis-ci.org/zendframework/zend-inputfilter.svg?branch=master)](https://secure.travis-ci.org/zendframework/zend-inputfilter)
 [![Coverage Status](https://coveralls.io/repos/github/zendframework/zend-inputfilter/badge.svg?branch=master)](https://coveralls.io/github/zendframework/zend-inputfilter?branch=master)
 
