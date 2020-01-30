@@ -7,12 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Normalize and validate input sets from the web, APIs, the CLI, and more, including files.">  
-    <link rel="canonical" href="https://docs.zendframework.com/zend-inputfilter/intro/">
+    <link rel="canonical" href="https://docs.zendframework.com/intro/">
     <link rel="shortcut icon" href="../img/favicon.ico">
 
     <title>Introduction - zend-inputfilter - Zend Framework Docs</title>
 
-    <link rel="stylesheet" href="../css/styles-5cfabd53ee.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body id="page-top">
 
@@ -216,9 +216,9 @@
     <div class="laminas-announcement">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
-                Zend Framework transitions to the Linux Foundation. <a href="https://getlaminas.org">Learn More.</a>
-            </div>
+            <div class="col-xs-12"><strong>
+                This package has moved. Visit its replacement, <a href="https://docs.laminas.dev/laminas-inputfilter/">laminas/laminas-inputfilter.</a>
+            </strong></div>
         </div>
     </div>
 </div>
@@ -269,7 +269,7 @@ arguments, etc.</p>
 <p>To pass input data to the <code>InputFilter</code>, use the <code>setData()</code> method; the data
 must be specified using an associative array. Below is an example on how to
 validate the data coming from a form using the POST method.</p>
-<p> <pre class=codehilite><code class=language-php>use Zend\InputFilter\InputFilter;
+<pre><code class="language-php">use Zend\InputFilter\InputFilter;
 use Zend\InputFilter\Input;
 use Zend\Validator;
 
@@ -293,7 +293,9 @@ if ($inputFilter-&gt;isValid()) {
     foreach ($inputFilter-&gt;getInvalidInput() as $error) {
         print_r($error-&gt;getMessages());
     }
-}</code></pre></p>
+}
+</code></pre>
+
 <p>In this example, we validated the email and password values. The email must be a
 valid address and the password must be composed of at least 8 characters. If the
 input data are not valid, we report the list of invalid input using the
@@ -303,16 +305,18 @@ validator chain. It is also possible to specify a "validation group", a subset
 of the data to be validated; this may be done using the <code>setValidationGroup()</code>
 method. You can specify the list of the input names as an array or as individual
 parameters.</p>
-<p> <pre class=codehilite><code class=language-php>// As individual parameters
+<pre><code class="language-php">// As individual parameters
 $inputFilter-&gt;setValidationGroup('email', 'password');
 
 // or as an array of names
-$inputFilter-&gt;setValidationGroup(['email', 'password']);</code></pre></p>
+$inputFilter-&gt;setValidationGroup(['email', 'password']);
+</code></pre>
+
 <p>You can validate and/or filter the data using the <code>InputFilter</code>. To filter data,
 use the <code>getFilterChain()</code> method of individual <code>Input</code> instances, and attach
 filters to the returned filter chain. Below is an example that uses filtering
 without validation.</p>
-<p> <pre class=codehilite><code class=language-php>use Zend\InputFilter\Input;
+<pre><code class="language-php">use Zend\InputFilter\Input;
 use Zend\InputFilter\InputFilter;
 
 $input = new Input('foo');
@@ -329,14 +333,16 @@ $inputFilter-&gt;setData([
 echo &quot;Before:\n&quot;;
 echo $inputFilter-&gt;getRawValue('foo') . &quot;\n&quot;; // the output is ' Bar3 '
 echo &quot;After:\n&quot;;
-echo $inputFilter-&gt;getValue('foo') . &quot;\n&quot;;    // the output is 'Bar'</code></pre></p>
+echo $inputFilter-&gt;getValue('foo') . &quot;\n&quot;;    // the output is 'Bar'
+</code></pre>
+
 <p>The <code>getValue()</code> method returns the filtered value of the 'foo' input, while
 <code>getRawValue()</code> returns the original value of the input.</p>
 <p>We also provide <code>Zend\InputFilter\Factory</code> to allow initialization of the
 <code>InputFilter</code> based on a configuration array or <code>Traversable</code> object. Below is
 an example where we create a password input value with the same constraints
 proposed before (a string with at least 8 characters):</p>
-<p> <pre class=codehilite><code class=language-php>use Zend\InputFilter\Factory;
+<pre><code class="language-php">use Zend\InputFilter\Factory;
 
 $factory = new Factory();
 $inputFilter = $factory-&gt;createInputFilter([
@@ -358,7 +364,9 @@ $inputFilter = $factory-&gt;createInputFilter([
 ]);
 
 $inputFilter-&gt;setData($_POST);
-echo $inputFilter-&gt;isValid() ? 'Valid form' : 'Invalid form';</code></pre></p>
+echo $inputFilter-&gt;isValid() ? 'Valid form' : 'Invalid form';
+</code></pre>
+
 <p>The factory may be used to create not only <code>Input</code> instances, but also nested
 <code>InputFilter</code>s, allowing you to create validation and filtering rules for
 hierarchical data sets.</p>
@@ -366,7 +374,7 @@ hierarchical data sets.</p>
 means that when calling <code>add()</code>, you can provide a specification that the
 <code>Factory</code> understands, and it will create the appropriate object. You may
 create either <code>Input</code> or <code>InputFilter</code> objects in this fashion.</p>
-<p> <pre class=codehilite><code class=language-php>use Zend\InputFilter\InputFilter;
+<pre><code class="language-php">use Zend\InputFilter\InputFilter;
 
 $filter = new InputFilter();
 
@@ -405,7 +413,9 @@ $filter-&gt;add([
             ],
         ],
     ],
-]);</code></pre></p>
+]);
+</code></pre>
+
 <p>The <code>merge()</code> method may be used on an <code>InputFilterInterface</code> instance in order
 to add two or more filters to each other, effectively allowing you to create
 chains of filters. This is especially useful in object hierarchies that define a
@@ -416,7 +426,7 @@ properties, allowing them to be re-used elsewhere. When the <code>isValid()</cod
 is called on the object, all of the merged filters are run against the calling
 object in order to validate the internal properties based on our compound set of
 filters.</p>
-<p> <pre class=codehilite><code class=language-php>use Zend\InputFilter\InputFilter;
+<pre><code class="language-php">use Zend\InputFilter\InputFilter;
 
 /**
  * Filter to ensure a name property is set and &gt; 8 characters
@@ -474,7 +484,9 @@ class SimplePerson
 
         return $this;
     }
-}</code></pre></p>
+}
+</code></pre>
+
 <p>Also see</p>
 <ul>
 <li><a href="https://docs.zendframework.com/zend-filter/">zend-filter</a></li>
@@ -662,7 +674,7 @@ class SimplePerson
             
             <div class="col-md-9">
                 <h4 class="footer__headline">Copyright</h4>
-                <p>&copy; 2006-2019 by <a href="https://www.zend.com/">Zend</a>, a <a href="https://www.roguewave.com/">Rogue Wave Company</a>.</p>
+                <p>&copy; 2006-2020 by <a href="https://www.zend.com/">Zend</a> by <a href="https://www.perforce.com/">Perforce</a>.</p>
             </div>
 
             
@@ -670,10 +682,10 @@ class SimplePerson
                 <h4 class="footer__headline">Support</h4>
                 <ul class="support__list">
                     <li class="support__list-item">
-                        <a href="https://discourse.zendframework.com" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
+                        <a href="https://discourse.laminas.dev" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
                     </li>
                     <li class="support__list-item">
-                        <a href="https://zendframework-slack.herokuapp.com" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
+                        <a href="https://laminas.dev/chat/" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
                     </li>
                     <li class="support__list-item">
                         <a href="https://github.com/zendframework" class="support__link" title="Github"><i class="fa fa-github"></i></a>
@@ -681,27 +693,28 @@ class SimplePerson
                     <li class="support__list-item">
                         <a href="https://twitter.com/zfdevteam" class="support__link" title="Twitter"><i class="fa fa-twitter"></i></a>
                     </li>
-                    <li class="support__list-item">
-                        <a href="https://tinyletter.com/mwopzend" class="support__link" title="Newsletter"><i class="fa fa-envelope"></i></a>
-                    </li>
-                    <li class="support__list-item">
-                        <a href="https://framework.zend.com/blog/feed-rss.xml" class="support__link" title="Blog feed"><i class="fa fa-rss"></i></a>
-                    </li>
-                    <li class="support__list-item">
-                        <a href="https://framework.zend.com/security/feed" class="support__link" title="Security feed"><i class="fa fa-rss-square"></i></a>
-                    </li>
                 </ul>
             </div>
         </div>
     </div>
 </footer>
 
+<nav class="cookie-bar navbar navbar-fixed-bottom navbar-default hidden">
+    <div class="container">
+        <p class="navbar-text">
+            We use cookies to allow you to dismiss dialogs such as the Laminas
+            Project notification.
+        </p>
+        <button type="button" class="cookie-button btn btn-default navbar-btn">Allow Cookies</button>
+    </div>
+</nav>
+
     <script>
         var base_url = '..',
             siteName = 'zend-inputfilter';
     </script>
-    <script src="../js/scripts-8d7ae56abf.js"></script>
-        <script src="../search/main.js"></script>
+    <script src="/js/scripts.js"></script>
+    <script src="../search/main.js"></script>
 
     
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">

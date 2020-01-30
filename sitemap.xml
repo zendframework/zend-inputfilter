@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-     <loc>https://docs.zendframework.com/zend-inputfilter/</loc>
-     <lastmod>2019-11-05</lastmod>
+     <loc>https://docs.zendframework.com/</loc>
+     <lastmod>2020-01-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://docs.zendframework.com/zend-inputfilter/intro/</loc>
-     <lastmod>2019-11-05</lastmod>
+     <loc>https://docs.zendframework.com/intro/</loc>
+     <lastmod>2020-01-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://docs.zendframework.com/zend-inputfilter/specs/</loc>
-     <lastmod>2019-11-05</lastmod>
+     <loc>https://docs.zendframework.com/specs/</loc>
+     <lastmod>2020-01-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://docs.zendframework.com/zend-inputfilter/file-input/</loc>
-     <lastmod>2019-11-05</lastmod>
+     <loc>https://docs.zendframework.com/file-input/</loc>
+     <lastmod>2020-01-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://docs.zendframework.com/zend-inputfilter/optional-input-filters/</loc>
-     <lastmod>2019-11-05</lastmod>
+     <loc>https://docs.zendframework.com/optional-input-filters/</loc>
+     <lastmod>2020-01-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://docs.zendframework.com/zend-inputfilter/unfiltered-data/</loc>
-     <lastmod>2019-11-05</lastmod>
+     <loc>https://docs.zendframework.com/unfiltered-data/</loc>
+     <lastmod>2020-01-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://docs.zendframework.com/zend-inputfilter/application-integration/usage-in-a-zend-mvc-application/</loc>
-     <lastmod>2019-11-05</lastmod>
+     <loc>https://docs.zendframework.com/application-integration/usage-in-a-zend-mvc-application/</loc>
+     <lastmod>2020-01-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://docs.zendframework.com/zend-inputfilter/application-integration/usage-in-a-zend-expressive-application/</loc>
-     <lastmod>2019-11-05</lastmod>
+     <loc>https://docs.zendframework.com/application-integration/usage-in-a-zend-expressive-application/</loc>
+     <lastmod>2020-01-30</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>

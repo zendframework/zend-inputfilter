@@ -7,12 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Normalize and validate input sets from the web, APIs, the CLI, and more, including files.">  
-    <link rel="canonical" href="https://docs.zendframework.com/zend-inputfilter/application-integration/usage-in-a-zend-mvc-application/">
+    <link rel="canonical" href="https://docs.zendframework.com/application-integration/usage-in-a-zend-mvc-application/">
     <link rel="shortcut icon" href="../../img/favicon.ico">
 
     <title>Usage in a zend-mvc application - zend-inputfilter - Zend Framework Docs</title>
 
-    <link rel="stylesheet" href="../../css/styles-5cfabd53ee.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body id="page-top">
 
@@ -216,9 +216,9 @@
     <div class="laminas-announcement">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
-                Zend Framework transitions to the Linux Foundation. <a href="https://getlaminas.org">Learn More.</a>
-            </div>
+            <div class="col-xs-12"><strong>
+                This package has moved. Visit its replacement, <a href="https://docs.laminas.dev/laminas-inputfilter/">laminas/laminas-inputfilter.</a>
+            </strong></div>
         </div>
     </div>
 </div>
@@ -298,7 +298,7 @@ zend-inputfilter plugin manager.</p>
 <h2 id="create-input-filter">Create Input Filter</h2>
 <p>Create an input filter as separate class, e.g.
 <code>module/Album/src/InputFilter/QueryInputFilter.php</code>:</p>
-<p> <pre class=codehilite><code class=language-php>namespace Album\InputFilter;
+<pre><code class="language-php">namespace Album\InputFilter;
 
 use Zend\Filter\ToInt;
 use Zend\I18n\Validator\IsInt;
@@ -329,12 +329,14 @@ class QueryInputFilter extends InputFilter
 
         // …
     }
-}</code></pre></p>
+}
+</code></pre>
+
 <h2 id="using-input-filter">Using Input Filter</h2>
 <h3>Create Controller</h3>
 <p>Using the input filter in a controller, e.g.
 <code>module/Album/Controller/AlbumController.php</code>:</p>
-<p> <pre class=codehilite><code class=language-php>namespace Album\Controller;
+<pre><code class="language-php">namespace Album\Controller;
 
 use Album\InputFilter\QueryInputFilter;
 use Zend\InputFilter\InputFilterInterface;
@@ -358,11 +360,13 @@ class AlbumController extends AbstractActionController
 
         // …
     }
-}</code></pre></p>
+}
+</code></pre>
+
 <h3>Create Factory for Controller</h3>
 <p>Fetch the <code>QueryInputFilter</code> from the input filter plugin manager in a factory,
 e.g. <code>src/Album/Handler/ListHandlerFactory.php</code>:</p>
-<p> <pre class=codehilite><code class=language-php>namespace Album\Controller;
+<pre><code class="language-php">namespace Album\Controller;
 
 use Album\InputFilter\QueryInputFilter;
 use Interop\Container\ContainerInterface;
@@ -382,7 +386,9 @@ class AlbumControllerFactory implements FactoryInterface
 
         return new AlbumController($inputFilter);
     }
-}</code></pre></p>
+}
+</code></pre>
+
 <blockquote>
 <h3>Instantiating the Input Filter</h3>
 <p>The <code>InputFilterPluginManager</code> is used instead of directly instantiating the
@@ -396,7 +402,7 @@ first.</p>
 <h2 id="register-input-filter-and-controller">Register Input Filter and Controller</h2>
 <p>Extend the configuration of the module to register the input filter and
 controller in the application, e.g. <code>module/Album/config/module.config.php</code>:</p>
-<p> <pre class=codehilite><code class=language-php>namespace Album;
+<pre><code class="language-php">namespace Album;
 
 use Zend\ServiceManager\Factory\InvokableFactory;
 
@@ -414,7 +420,8 @@ return [
         ],
     ],
     // …
-];</code></pre></p>
+];
+</code></pre>
 
 
 
@@ -597,7 +604,7 @@ return [
             
             <div class="col-md-9">
                 <h4 class="footer__headline">Copyright</h4>
-                <p>&copy; 2006-2019 by <a href="https://www.zend.com/">Zend</a>, a <a href="https://www.roguewave.com/">Rogue Wave Company</a>.</p>
+                <p>&copy; 2006-2020 by <a href="https://www.zend.com/">Zend</a> by <a href="https://www.perforce.com/">Perforce</a>.</p>
             </div>
 
             
@@ -605,10 +612,10 @@ return [
                 <h4 class="footer__headline">Support</h4>
                 <ul class="support__list">
                     <li class="support__list-item">
-                        <a href="https://discourse.zendframework.com" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
+                        <a href="https://discourse.laminas.dev" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
                     </li>
                     <li class="support__list-item">
-                        <a href="https://zendframework-slack.herokuapp.com" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
+                        <a href="https://laminas.dev/chat/" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
                     </li>
                     <li class="support__list-item">
                         <a href="https://github.com/zendframework" class="support__link" title="Github"><i class="fa fa-github"></i></a>
@@ -616,27 +623,28 @@ return [
                     <li class="support__list-item">
                         <a href="https://twitter.com/zfdevteam" class="support__link" title="Twitter"><i class="fa fa-twitter"></i></a>
                     </li>
-                    <li class="support__list-item">
-                        <a href="https://tinyletter.com/mwopzend" class="support__link" title="Newsletter"><i class="fa fa-envelope"></i></a>
-                    </li>
-                    <li class="support__list-item">
-                        <a href="https://framework.zend.com/blog/feed-rss.xml" class="support__link" title="Blog feed"><i class="fa fa-rss"></i></a>
-                    </li>
-                    <li class="support__list-item">
-                        <a href="https://framework.zend.com/security/feed" class="support__link" title="Security feed"><i class="fa fa-rss-square"></i></a>
-                    </li>
                 </ul>
             </div>
         </div>
     </div>
 </footer>
 
+<nav class="cookie-bar navbar navbar-fixed-bottom navbar-default hidden">
+    <div class="container">
+        <p class="navbar-text">
+            We use cookies to allow you to dismiss dialogs such as the Laminas
+            Project notification.
+        </p>
+        <button type="button" class="cookie-button btn btn-default navbar-btn">Allow Cookies</button>
+    </div>
+</nav>
+
     <script>
         var base_url = '../..',
             siteName = 'zend-inputfilter';
     </script>
-    <script src="../../js/scripts-8d7ae56abf.js"></script>
-        <script src="../../search/main.js"></script>
+    <script src="/js/scripts.js"></script>
+    <script src="../../search/main.js"></script>
 
     
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
